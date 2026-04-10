@@ -17,11 +17,12 @@
             --user-bubble: #0084ff; --bot-bubble: #e4e6eb; --accent: #007bff; --input-bg: #f8f9fa;
             --ai-glow: #007bff;
         }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; height: 100vh; }
         
         .app { max-width: 900px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; }
         
+        /* Header ปรับปรุงให้ยืดหยุ่น */
         .header { 
             padding: 10px 15px; 
             display: flex; 
@@ -31,19 +32,19 @@
             box-shadow: 0 2px 15px rgba(0,0,0,0.15); 
             z-index: 100; 
             flex-shrink: 0;
-            gap: 8px;
+            gap: 5px;
         }
         .header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .header-left span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .header-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
 
-        /* --- ปรับแต่งส่วน AI Switch ใหม่ให้แสดงตัวหนังสือชัดเจน --- */
+        /* AI Switch */
         .ai-switch { position: relative; width: 60px; height: 30px; cursor: pointer; flex-shrink: 0; }
         .ai-switch input { opacity: 0; width: 0; height: 0; }
         .ai-slider { 
             position: absolute; inset: 0; background: #333; transition: .4s; border-radius: 30px; 
             border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center;
         }
-        /* ข้อความสถานะด้านหลังปุ่มกลม */
         .ai-slider:after {
             content: "OFF"; position: absolute; right: 8px; font-size: 9px; font-weight: bold; color: #888; transition: .4s;
         }
@@ -52,10 +53,10 @@
             background: white; transition: .4s; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.3); z-index: 2;
         }
         input:checked + .ai-slider { background: var(--ai-glow); box-shadow: 0 0 10px var(--ai-glow); }
-        input:checked + .ai-slider:after { content: "AI"; left: 8px; color: white; text-align: left; }
+        input:checked + .ai-slider:after { content: "AI"; left: 8px; color: white; }
         input:checked + .ai-slider:before { transform: translateX(30px); }
 
-        .btn-icon { background: var(--input-bg); border: none; border-radius: 10px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+        .btn-icon { background: var(--input-bg); border: none; border-radius: 10px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
 
         /* Chat */
         .chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
@@ -66,11 +67,54 @@
         .bot .bubble { background: var(--bot-bubble); border-bottom-left-radius: 4px; border: 1px solid rgba(128,128,128,0.1); }
         @keyframes appear { to { opacity: 1; transform: translateY(0); } }
 
-        /* Input area */
-        .input-area { padding: 10px 15px 20px; flex-shrink: 0; }
-        .input-box { display: flex; background: var(--panel); padding: 5px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); align-items: center; border: 1px solid rgba(128,128,128,0.1); }
-        input#input { flex: 1; border: none; outline: none; padding: 10px 12px; background: transparent; color: var(--text); font-size: 1rem; min-width: 0; }
-        .btn-send { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: 0.3s; flex-shrink: 0; }
+        /* --- ปรับปรุงส่วน Input Area ให้บาลานซ์บนมือถือ --- */
+        .input-area { 
+            padding: 10px 15px 25px; 
+            flex-shrink: 0; 
+            background: var(--bg);
+        }
+        .input-box { 
+            display: flex; 
+            background: var(--panel); 
+            padding: 6px 10px; 
+            border-radius: 35px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            align-items: center; 
+            border: 1px solid rgba(128,128,128,0.1);
+            width: 100%;
+        }
+        .faq-trigger {
+            background: none; 
+            border: none; 
+            font-size: 1.3rem; 
+            cursor: pointer; 
+            padding: 0 8px; 
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+        }
+        input#input { 
+            flex: 1; 
+            min-width: 0; /* ป้องกัน Input ดัน flex container */
+            border: none; 
+            outline: none; 
+            padding: 10px 5px; 
+            background: transparent; 
+            color: var(--text); 
+            font-size: 16px; /* ป้องกัน iOS ซูม */
+        }
+        .btn-send { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 8px 18px; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: 0.3s; 
+            flex-shrink: 0; 
+            margin-left: 5px;
+        }
 
         /* Modal */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: flex-end; z-index: 1000; backdrop-filter: blur(8px); }
@@ -94,8 +138,8 @@
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: span 1; }
-            .header-left span { font-size: 0.9rem; }
             .bubble { max-width: 92%; }
+            .header-left span { font-size: 0.95rem; }
         }
 
         .typing-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; display: inline-block; animation: blink 1.4s infinite; margin: 0 2px; }
@@ -126,9 +170,9 @@
 
     <div class="input-area">
         <div class="input-box">
-            <button onclick="openFAQ()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding: 0 10px;">❓</button>
+            <button class="faq-trigger" onclick="openFAQ()" type="button">❓</button>
             <input id="input" placeholder="พิมพ์ถามได้เลย..." autocomplete="off">
-            <button class="btn-send" onclick="send()">ส่ง</button>
+            <button class="btn-send" onclick="send()" type="button">ส่ง</button>
         </div>
     </div>
 </div>
@@ -216,17 +260,21 @@
     let currentFAQFilter = 'All';
     let currentToolTab = 1;
 
+    // Chat Logic
     async function send() {
         const inputEl = document.getElementById("input");
         const q = inputEl.value.trim();
         if (!q || document.getElementById("typing-ui").style.display === "block") return;
+        
         addMessage(q, "user");
         inputEl.value = "";
         document.getElementById("typing-ui").style.display = "block";
+
         try {
             const res = await fetch(API);
             const data = await res.json();
             const match = findBest(q, data);
+            
             if (match) {
                 hideTyping();
                 renderResponse(match);
@@ -236,7 +284,10 @@
                 hideTyping();
                 typeWriter(addMessage("", "bot"), "ไม่พบข้อมูลครับ ลองเปิดโหมด AI หรือดู FAQ นะครับ");
             }
-        } catch { hideTyping(); addMessage("การเชื่อมต่อฐานข้อมูลผิดพลาด", "bot"); }
+        } catch { 
+            hideTyping(); 
+            addMessage("การเชื่อมต่อฐานข้อมูลผิดพลาด", "bot"); 
+        }
     }
 
     async function askGroq(q) {
@@ -308,6 +359,7 @@
         return maxScore > 0 ? best : null;
     }
 
+    // Modal & FAQ Logic
     function openFAQ() {
         document.getElementById("faqModal").classList.add("active");
         fetch(API).then(r => r.json()).then(data => { cachedData = data; renderFAQ(); });
@@ -323,7 +375,11 @@
             const d = document.createElement("div");
             d.className = "faq-item";
             d.innerText = "❓ " + item.Keyword.split(",")[0];
-            d.onclick = () => { document.getElementById("input").value = item.Keyword.split(",")[0]; closeModal('faqModal'); send(); };
+            d.onclick = () => { 
+                document.getElementById("input").value = item.Keyword.split(",")[0]; 
+                closeModal('faqModal'); 
+                send(); 
+            };
             list.appendChild(d);
         });
     }
@@ -340,6 +396,7 @@
         });
     }
 
+    // Tools Logic
     function openTool() { document.getElementById("toolModal").classList.add("active"); }
     function switchToolTab(n) {
         currentToolTab = n;
@@ -360,52 +417,61 @@
             const sy = document.getElementById("cSymptom").value || "...";
             txt = `เรียนทีม Service SIS\n\nแจ้งเคลมสินค้า ${document.getElementById("cType").value}\nModel: ${m}\nS/N: ${s}\nTicket ID: ${document.getElementById("cTicker").value || "-"}\n\nอาการ:\n${sy}\n\nขอบคุณครับ`;
         }
-        document.getElementById("resultBox").innerText = txt;
-        document.getElementById("resultBox").style.display = "block";
+        const resBox = document.getElementById("resultBox");
+        resBox.innerText = txt;
+        resBox.style.display = "block";
         document.getElementById("copyBtn").style.display = "block";
     }
     function copyResult() {
         navigator.clipboard.writeText(document.getElementById("resultBox").innerText);
-        alert("คัดลอกแล้ว");
+        alert("คัดลอกลง Clipboard แล้ว");
     }
 
+    // Admin Settings
     function openLogin() { document.getElementById("loginModal").classList.add("active"); }
     function checkPassword() {
         if(document.getElementById("password").value === PASS) {
-            closeModal('loginModal'); document.getElementById("dataModal").classList.add("active");
+            closeModal('loginModal'); 
+            document.getElementById("dataModal").classList.add("active");
             document.getElementById("settingGroqKey").value = GROQ_KEY;
             document.getElementById("password").value = "";
-        } else alert("รหัสผ่านผิด!");
+        } else alert("รหัสผ่านไม่ถูกต้อง");
     }
     function saveSettings() {
         GROQ_KEY = document.getElementById("settingGroqKey").value;
         localStorage.setItem("stored_groq_key", GROQ_KEY);
-        alert("บันทึกแล้ว");
+        alert("บันทึก API Key สำเร็จ");
     }
     async function addData() {
         const btn = document.getElementById("addBtn");
         const kw = document.getElementById("dataKeyword").value;
         const ans = document.getElementById("dataAnswer").value;
-        if(!kw || !ans) return alert("กรอกข้อมูลให้ครบ");
+        if(!kw || !ans) return alert("กรุณากรอกข้อมูล Keyword และคำตอบ");
+        
         btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
         try {
             await fetch(API, {
                 method: "POST", headers: {"Content-Type":"application/json"},
                 body: JSON.stringify([{
                     Type: document.getElementById("dataType").value,
-                    Keyword: kw, Answer: ans, ManualURL: document.getElementById("dataManual").value,
+                    Keyword: kw, 
+                    Answer: ans, 
+                    ManualURL: document.getElementById("dataManual").value,
                     isFAQ: document.getElementById("dataIsFaq").checked ? "TRUE" : "FALSE"
                 }])
             });
-            alert("สำเร็จ!"); closeModal('dataModal');
-        } catch { alert("ล้มเหลว"); }
+            alert("บันทึกข้อมูลสำเร็จ!"); 
+            closeModal('dataModal');
+        } catch { alert("เกิดข้อผิดพลาดในการบันทึก"); }
         finally { btn.innerText = "💾 บันทึกข้อมูล"; btn.disabled = false; }
     }
 
+    // UI Helpers
     function closeModal(id) { document.getElementById(id).classList.remove("active"); }
     function toggleTheme() { document.body.classList.toggle("light"); }
     function hideTyping() { document.getElementById("typing-ui").style.display = "none"; }
 
+    // Keyboard Shortcuts
     document.addEventListener("keydown", e => {
         if (e.key === "Escape") document.querySelectorAll(".modal").forEach(m => m.classList.remove("active"));
         if (e.key === "Enter") {
@@ -418,7 +484,7 @@
     });
 
     window.onload = () => {
-        typeWriter(addMessage("", "bot"), "สวัสดีครับ ยินดีต้อนรับสู่ Synology Support\nเลือกดูคำถาม ❓ หรือพิมพ์ถามได้เลยครับ");
+        typeWriter(addMessage("", "bot"), "สวัสดีครับ ยินดีต้อนรับสู่ Synology Support\nเลือกดูคำถาม ❓ หรือพิมพ์สิ่งที่ต้องการทราบได้เลยครับ");
     };
 </script>
 </body>
