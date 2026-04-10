@@ -144,6 +144,16 @@
 <div class="modal" id="dataModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closeModal('dataModal')">✕</button>
+        
+        <h3 style="margin:0 0 10px 0; color: var(--accent);">⚙️ ตั้งค่าระบบ AI (Groq)</h3>
+        <div class="form-grid" style="border: 1px solid rgba(128,128,128,0.2); padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+            <p style="grid-column: span 2; margin: 0; font-size: 0.85rem; color: #888;">ใส่ API Key เพื่อเปิดใช้งาน AI (Key จะถูกจำเฉพาะในเครื่องนี้)</p>
+            <input type="password" id="settingGroqKey" placeholder="gsk_..." class="tool-input full-width">
+            <button onclick="saveSettings()" class="action-btn btn-main full-width" style="background: var(--user-bubble); font-size: 0.9rem;">💾 บันทึก Key ลงเครื่องนี้</button>
+        </div>
+
+        <hr style="width: 100%; border: 0; border-top: 1px solid rgba(128,128,128,0.1); margin-bottom: 10px;">
+
         <h3 style="margin:0 0 10px 0;">เพิ่มข้อมูลใหม่ลงระบบ</h3>
         <div class="form-grid">
             <select id="type" class="tool-select full-width">
@@ -157,32 +167,26 @@
                 <span>แสดงในคำถามที่พบบ่อย (FAQ)</span>
             </label>
         </div>
-        <button id="addBtn" onclick="addData()" class="action-btn btn-main" style="background:var(--success)">💾 บันทึกข้อมูล (Enter)</button>
+        <button id="addBtn" onclick="addData()" class="action-btn btn-main" style="background:var(--success)">💾 บันทึกข้อมูลเข้า Google Sheets</button>
     </div>
 </div>
 
-<script src="config.js"></script>
 <script>
-    // ดึงค่าจากไฟล์ config.js
-    const API = CONFIG.SHEET_API || "https://api.sheetbest.com/sheets/4ba98472-2b00-48a2-9f2d-fd4104ad8589";
-    const GROQ_KEY = CONFIG.GROQ_KEY || "";
-    const PASS = CONFIG.ADMIN_PASS || "synology123";
+    // --- Configuration ---
+    const API = "https://api.sheetbest.com/sheets/4ba98472-2b00-48a2-9f2d-fd4104ad8589";
+    const PASS = "synology123";
+    
+    // ดึง Key จากความจำเครื่อง (LocalStorage)
+    let GROQ_KEY = localStorage.getItem("stored_groq_key") || "";
 
     const chat = document.getElementById("chat");
     const input = document.getElementById("input");
     let isSending = false;
     let cachedData = [];
     let currentFAQFilter = 'All';
+    let currentTab = 1;
 
-    // 1. ESC to Close Modal
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") {
-            const activeModal = document.querySelector('.modal.active');
-            if (activeModal) closeModal(activeModal.id);
-        }
-    });
-
-    // 2. Chat Logic
+    // --- Core Functions ---
     async function send() {
         if (isSending) return;
         const q = input.value.trim();
@@ -205,7 +209,8 @@
                 await askGroq(q);
             } else {
                 document.getElementById("typing-ui").style.display = "none";
-                typeWriter(addMessage("", "bot"), "ไม่พบข้อมูลครับ ลองใช้คีย์เวิร์ดอื่น หรือลองกด ❓ เพื่อดู FAQ นะครับ");
+                const msg = !aiEnabled ? "ไม่พบข้อมูลครับ ลองเปิดโหมด AI หรือดู FAQ นะครับ" : "ไม่พบข้อมูลและไม่ได้ตั้งค่า AI Key ครับ";
+                typeWriter(addMessage("", "bot"), msg);
             }
         } catch {
             document.getElementById("typing-ui").style.display = "none";
@@ -229,13 +234,29 @@
             });
             const result = await response.json();
             document.getElementById("typing-ui").style.display = "none";
-            typeWriter(addMessage("", "bot"), "✨ [AI]: " + result.choices[0].message.content);
+            if(result.choices) {
+                typeWriter(addMessage("", "bot"), "✨ [AI]: " + result.choices[0].message.content);
+            } else {
+                addMessage("AI Key อาจจะไม่ถูกต้อง กรุณาเช็คในหน้า Admin ครับ", "bot");
+            }
         } catch {
             document.getElementById("typing-ui").style.display = "none";
             addMessage("ขออภัย ระบบ AI ขัดข้องชั่วคราว", "bot");
         }
     }
 
+    function saveSettings() {
+        const keyVal = document.getElementById("settingGroqKey").value.trim();
+        if(keyVal) {
+            localStorage.setItem("stored_groq_key", keyVal);
+            GROQ_KEY = keyVal;
+            alert("บันทึก API Key ลงเครื่องนี้แล้ว!");
+        } else {
+            alert("กรุณากรอก Key");
+        }
+    }
+
+    // --- Logic Helpers ---
     function findBest(query, data) {
         let best = null; let maxScore = 0;
         const cleanQuery = query.toLowerCase().trim();
@@ -290,14 +311,13 @@
         type();
     }
 
-    // Modal Control
-    async function openFAQ() {
+    // --- UI Controls ---
+    function openFAQ() {
         document.getElementById("faqModal").classList.add("active");
-        try {
-            const res = await fetch(API);
-            cachedData = await res.json();
+        fetch(API).then(res => res.json()).then(data => {
+            cachedData = data;
             renderFAQ(currentFAQFilter);
-        } catch { document.getElementById("faqList").innerHTML = "โหลดข้อมูลไม่สำเร็จ"; }
+        }).catch(() => document.getElementById("faqList").innerHTML = "โหลดข้อมูลไม่สำเร็จ");
     }
 
     function renderFAQ(filter) {
@@ -382,6 +402,7 @@
         if(document.getElementById("password").value === PASS) {
             closeModal('loginModal');
             document.getElementById("dataModal").classList.add("active");
+            document.getElementById("settingGroqKey").value = GROQ_KEY;
             document.getElementById("password").value = "";
         } else alert("รหัสผ่านผิด!");
     }
@@ -405,17 +426,16 @@
             });
             alert("บันทึกสำเร็จ!"); closeModal('dataModal');
         } catch { alert("เกิดข้อผิดพลาด"); }
-        finally { btn.disabled = false; btn.innerText = "💾 บันทึกข้อมูล"; }
+        finally { btn.disabled = false; btn.innerText = "💾 บันทึกข้อมูลเข้า Google Sheets"; }
     }
 
-    // Event Listeners
+    // Events
     input.addEventListener("keydown", e => { if(e.key === "Enter") send(); });
     document.getElementById("password").addEventListener("keydown", e => { if(e.key === "Enter") checkPassword(); });
-    document.querySelectorAll(".enter-tool").forEach(el => { el.addEventListener("keydown", e => { if(e.key === "Enter") generateText(); }); });
-    
     window.onload = () => { 
         typeWriter(addMessage("", "bot"), "สวัสดีครับ ยินดีต้อนรับสู่ Synology Support\nเลือกดูคำถามที่ปุ่ม ❓ หรือพิมพ์ถามได้เลยครับ"); 
     };
+    document.addEventListener('keydown', e => { if (e.key === "Escape") document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); });
 </script>
 </body>
 </html>
