@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support Pro - Thai Smart Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a2e; --panel: #16213e; --text: #e9ecef;
+            --user-bubble: #0f3460; --bot-bubble: #22252a;
+            --accent: #e94560; --success: #10b981; --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body.light {
+            --bg: #f0f2f5; --panel: #ffffff; --text: #1c1e21;
+            --user-bubble: #0084ff; --bot-bubble: #e4e6eb; --accent: #007bff; --input-bg: #f8f9fa;
+        }
+
+        body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; }
+        .app { max-width: 850px; margin: auto; height: 100vh; display: flex; flex-direction: column; }
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--panel); box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .row { display: flex; width: 100%; opacity: 0; transform: translateY(10px); animation: appear 0.4s forwards; }
+        .row.user { justify-content: flex-end; }
+        .bubble { max-width: 75%; padding: 12px 18px; border-radius: 20px; font-size: 1rem; line-height: 1.5; word-wrap: break-word; white-space: pre-line; }
+        .user .bubble { background: var(--user-bubble); color: #fff; border-bottom-right-radius: 4px; }
+        .bot .bubble { background: var(--bot-bubble); border-bottom-left-radius: 4px; }
+        @keyframes appear { to { opacity: 1; transform: translateY(0); } }
+
+        .btn-ai { 
+            background: var(--input-bg); border: 2.5px solid transparent; 
+            border-radius: 12px; padding: 8px 12px; cursor: pointer; 
+            transition: 0.3s; font-size: 0.85rem; color: var(--text);
+            display: flex; align-items: center; gap: 5px; font-weight: 500;
+        }
+        .btn-ai.active { 
+            border-color: #00fff2; background: rgba(0, 255, 242, 0.1); 
+            color: #00fff2; box-shadow: 0 0 12px rgba(0, 255, 242, 0.2);
+        }
+
+        .input-area { padding: 20px; flex-shrink: 0; }
+        .input-box { display: flex; background: var(--panel); padding: 8px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); align-items: center; gap: 5px; }
+        input, select, textarea { flex: 1; border: none; outline: none; padding: 12px 15px; background: transparent; color: var(--text); font-family: inherit; }
+        .btn-send { background: var(--accent); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: 500; }
+        .btn-faq-trigger { background: var(--input-bg); border: none; border-radius: 50%; width: 42px; height: 42px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: var(--text); }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { 
+            background: var(--panel); padding: 30px; border-radius: 28px; width: 100%; max-width: 520px; 
+            display: flex; flex-direction: column; gap: 15px; position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;
+        }
+
+        .close-modal { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; border-radius: 50%; background: var(--input-bg); border: none; color: var(--text); cursor: pointer; z-index: 10; }
+        .tab-container { display: flex; background: var(--input-bg); padding: 5px; border-radius: 15px; margin-bottom: 5px; gap: 5px; overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 11px; cursor: pointer; background: transparent; color: var(--text); font-size: 0.9rem; transition: 0.3s; white-space: nowrap; }
+        .tab-btn.active { background: var(--accent); color: white; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full-width { grid-column: span 2; }
+        .tool-input, .tool-select, .tool-textarea { background: var(--input-bg) !important; border-radius: 12px !important; border: 1px solid rgba(128,128,128,0.2) !important; color: var(--text) !important; padding: 12px 15px !important; margin: 0 !important; }
+        
+        .faq-list { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .faq-item { background: var(--input-bg); padding: 12px 15px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; font-size: 0.95rem; }
+        .faq-item:hover { border-color: var(--accent); background: rgba(233, 69, 96, 0.1); }
+
+        .result-box { background: rgba(0,0,0,0.1); padding: 15px; border-radius: 16px; font-size: 0.95rem; white-space: pre-line; border: 1.5px dashed var(--accent); display: none; margin-top: 5px; max-height: 200px; overflow-y: auto; }
+        .action-btn { padding: 14px; border: none; border-radius: 14px; cursor: pointer; font-weight: 500; font-size: 1rem; transition: 0.2s; text-align: center; text-decoration: none; flex-shrink: 0; }
+        .btn-main { background: var(--accent); color: white; }
+        .btn-copy { background: var(--success); color: white; margin-top: 5px; }
+        .btn-sis-link { background: #007bff; color: white; }
+        
+        .typing-dot { width: 6px; height: 6px; background: #888; border-radius: 50%; display: inline-block; animation: blink 1.4s infinite both; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+        .faq-list::-webkit-scrollbar { width: 5px; }
+        .faq-list::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+
+<body class="light">
+
+<div class="app">
+    <div class="header">
+        <div style="font-weight: 500; font-size: 1.1rem;">🤖 Synology Support </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <button id="aiToggle" class="btn-ai" onclick="toggleAI()" title="เปิดโหมด AI เพื่อให้บอทช่วยคิด">✨ AI Off</button>
+            <button onclick="openTool()" title="เครื่องมือช่วยพิมพ์" style="background:var(--input-bg); border:none; border-radius:10px; padding:8px 12px; cursor:pointer;">📋</button>
+            <button onclick="toggleTheme()" style="background:var(--input-bg); border:none; border-radius:10px; padding:8px 12px; cursor:pointer;">🌓</button>
+            <button onclick="openLogin()" style="background:var(--input-bg); border:none; border-radius:10px; padding:8px 12px; cursor:pointer;">⚙️</button>
+        </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+    <div id="typing-ui" style="display:none; padding: 0 25px 10px;">
+        <div class="typing-dot"></div> <div class="typing-dot"></div> <div class="typing-dot"></div>
+    </div>
+
+    <div class="input-area">
+        <div class="input-box">
+            <button class="btn-faq-trigger" onclick="openFAQ()" title="คำถามที่พบบ่อย">❓</button>
+            <input id="input" placeholder="พิมพ์คีย์เวิร์ดถามได้เลย..." autocomplete="off">
+            <button class="btn-send" onclick="send()">ส่ง</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="faqModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('faqModal')">✕</button>
+        <h3 style="margin:0 0 5px 0;">💡 คำถามที่พบบ่อย</h3>
+        <input type="text" id="faqSearchInput" placeholder="🔍 ค้นหาในรายการคำถาม..." class="tool-input full-width" style="margin-bottom: 10px;" onkeyup="filterFAQByText()">
+        <div class="tab-container" id="faqTabContainer">
+            <button class="tab-btn active" onclick="filterFAQ('All', this)">ทั้งหมด</button>
+            <button class="tab-btn" onclick="filterFAQ('General', this)">General</button>
+            <button class="tab-btn" onclick="filterFAQ('Hardware', this)">Hardware</button>
+            <button class="tab-btn" onclick="filterFAQ('Software', this)">Software</button>
+        </div>
+        <div class="faq-list" id="faqList">
+            <div style="text-align:center; padding:20px; color:#888;">กำลังโหลดข้อมูล...</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="toolModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('toolModal')">✕</button>
+        <div class="tab-container">
+            <button class="tab-btn active" id="tab1" onclick="switchTab(1)">🔍 เมล์เช็คประกัน</button>
+            <button class="tab-btn" id="tab2" onclick="switchTab(2)">🛠️ เมล์แจ้งเคลม</button>
+        </div>
+        <div id="formWarranty" class="form-grid">
+            <h4 class="full-width" style="margin:5px 0">🔍 เมล์เช็คประกัน (SiS)</h4>
+            <input id="wModel" placeholder="ระบุรุ่น (Model No.)" class="tool-input enter-tool">
+            <input id="wSN" placeholder="ระบุ Serial Number" class="tool-input enter-tool">
+            <a href="https://legacy.sisthai.com/sl.php?l=serial" target="_blank" class="action-btn full-width btn-sis-link" style="margin-top: 5px;">🌐 เปิดเว็บเช็ค S/N SiS </a>
+        </div>
+        <div id="formClaim" class="form-grid" style="display:none;">
+            <h4 class="full-width" style="margin:5px 0">🛠️ แจ้งเคลมสินค้า</h4>
+            <select id="cType" class="tool-select full-width">
+                <option value="Synology NAS">Synology NAS</option>
+                <option value="HDD">HDD</option>
+                <option value="SSD">SSD</option>
+            </select>
+            <input id="cModel" placeholder="รุ่น (Model No.)" class="tool-input enter-tool">
+            <input id="cSN" placeholder="Serial Number" class="tool-input enter-tool">
+            <input id="cTicker" placeholder="เลข Ticker (ตัวเลข)" class="tool-input full-width enter-tool">
+            <textarea id="cSymptom" placeholder="รายละเอียดอาการเสีย..." class="tool-textarea full-width"></textarea>
+        </div>
+        <button onclick="generateText()" class="action-btn btn-main">✨ สร้างข้อความ (Enter)</button>
+        <div id="resultBox" class="result-box"></div>
+        <button id="copyBtn" onclick="copyResult()" class="action-btn btn-copy" style="display:none;">📋 คัดลอกข้อความ</button>
+    </div>
+</div>
+
+<div class="modal" id="loginModal">
+    <div class="modal-content" style="max-width:350px;">
+        <button class="close-modal" onclick="closeModal('loginModal')">✕</button>
+        <h3 style="margin:0 0 10px 0; text-align:center;">Admin Login</h3>
+        <input type="password" id="password" placeholder="ใส่รหัสผ่าน" class="tool-input" style="text-align:center;">
+        <button onclick="checkPassword()" class="action-btn btn-main">ยืนยันรหัสผ่าน (Enter)</button>
+    </div>
+</div>
+
+<div class="modal" id="dataModal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('dataModal')">✕</button>
+        <h3 style="margin:0 0 10px 0;">เพิ่มข้อมูลใหม่ลงระบบ</h3>
+        <div class="form-grid">
+            <select id="type" class="tool-select full-width">
+                <option>General</option><option>Hardware</option><option>Software</option>
+            </select>
+            <input id="keyword" placeholder="Keyword (คั่นด้วยคอมม่า)" class="tool-input full-width enter-data">
+            <textarea id="answer" placeholder="คำตอบของบอท..." class="tool-textarea full-width enter-data"></textarea>
+            <input id="manual" placeholder="ลิงก์คู่มือหรือรูปภาพ (ถ้ามี)" class="tool-input full-width enter-data">
+            <label class="full-width" style="display:flex; align-items:center; gap:10px; background:var(--input-bg); padding:12px; border-radius:12px; cursor:pointer;">
+                <input type="checkbox" id="isFaq" style="width:18px; height:18px;">
+                <span>แสดงในคำถามที่พบบ่อย (FAQ)</span>
+            </label>
+        </div>
+        <button id="addBtn" onclick="addData()" class="action-btn btn-main" style="background:var(--success)">💾 บันทึกข้อมูล (Enter)</button>
+    </div>
+</div>
+
+<script>
+    const API = "https://api.sheetbest.com/sheets/4ba98472-2b00-48a2-9f2d-fd4104ad8589";
+    const GEMINI_API_KEY = "AIzaSyDkwD2PMlrbM6ADkLvCiOu4PWNUQ5Y-kqM"; 
+    const PASS = "synology123";
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("input");
+    let isSending = false;
+    let aiMode = false;
+    let cachedData = [];
+    let currentFAQFilter = 'All';
+
+    function toggleAI() {
+        aiMode = !aiMode;
+        const btn = document.getElementById("aiToggle");
+        btn.classList.toggle("active");
+        btn.innerText = aiMode ? "✨ AI On" : "✨ AI Off";
+    }
+
+    async function fetchAIResponse(question) {
+        // แก้ไข URL เป็น /v1/ เพื่อความเสถียร
+        const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        const prompt = `คุณคือ Synology Support Expert ชื่อว่า AI-Pro ให้ตอบคำถามเกี่ยวกับ Synology NAS และ IT อย่างสุภาพและสั้นกระชับ หากถามเรื่องอื่นให้แจ้งว่าเน้นตอบแค่เรื่อง Synology เท่านั้น คำถามคือ: "${question}"`;
+
+        try {
+            const response = await fetch(URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await response.json();
+            
+            // เช็คโครงสร้างข้อมูลก่อนส่งกลับ
+            if (data.candidates && data.candidates[0].content) {
+                return data.candidates[0].content.parts[0].text;
+            } else if (data.error) {
+                console.error("API Error:", data.error.message);
+                return "เกิดข้อผิดพลาดจากระบบ AI: " + data.error.message;
+            }
+            return "AI ไม่สามารถสร้างคำตอบได้ในขณะนี้";
+        } catch (err) {
+            console.error("Fetch Error:", err);
+            return "ขออภัยครับ ระบบ AI ไม่สามารถประมวลผลได้ในขณะนี้";
+        }
+    }
+
+    async function send() {
+        if (isSending) return;
+        const q = input.value.trim();
+        if (!q) return;
+        
+        isSending = true;
+        addMessage(q, "user");
+        input.value = "";
+        document.getElementById("typing-ui").style.display = "block";
+
+        try {
+            const res = await fetch(API);
+            const data = await res.json();
+            const match = findBest(q, data);
+
+            document.getElementById("typing-ui").style.display = "none";
+
+            if (match) {
+                renderResponse(match);
+            } else if (aiMode) {
+                const aiMsg = await fetchAIResponse(q);
+                typeWriter(addMessage("", "bot"), "✨ (AI): " + aiMsg);
+            } else {
+                typeWriter(addMessage("", "bot"), "ไม่พบข้อมูลครับ ลองเปิดโหมด ✨ AI ด้านบน หรือลองกด ❓ เพื่อดู FAQ นะครับ");
+            }
+        } catch {
+            document.getElementById("typing-ui").style.display = "none";
+            addMessage("ระบบขัดข้อง", "bot");
+        } finally { isSending = false; }
+    }
+
+    // --- ฟังก์ชันเสริมอื่นๆ ---
+    function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+    document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeAllModals(); });
+
+    async function openFAQ() {
+        document.getElementById("faqModal").classList.add("active");
+        document.getElementById("faqSearchInput").value = "";
+        try {
+            const res = await fetch(API);
+            cachedData = await res.json();
+            renderFAQ(currentFAQFilter);
+        } catch { document.getElementById("faqList").innerHTML = "โหลดข้อมูลไม่สำเร็จ"; }
+    }
+
+    function renderFAQ(filter) {
+        const list = document.getElementById("faqList");
+        list.innerHTML = "";
+        const filtered = cachedData.filter(item => {
+            const val = String(item.isFAQ).toUpperCase();
+            const isMarked = (val === "TRUE" || val === "ON" || val === "1" || item.isFAQ === true);
+            return isMarked && (filter === 'All' || item.Type === filter);
+        });
+        if (filtered.length === 0) {
+            list.innerHTML = `<div style="text-align:center; padding:20px; color:#888;">ไม่พบข้อมูล</div>`;
+            return;
+        }
+        filtered.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "faq-item";
+            const title = item.Keyword.split(',')[0].trim();
+            div.innerText = `❓ ${title}`;
+            div.onclick = () => { input.value = title; closeModal('faqModal'); send(); };
+            list.appendChild(div);
+        });
+    }
+
+    function filterFAQ(type, btn) {
+        currentFAQFilter = type;
+        document.querySelectorAll("#faqTabContainer .tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("faqSearchInput").value = "";
+        renderFAQ(type);
+    }
+
+    function filterFAQByText() {
+        const searchText = document.getElementById("faqSearchInput").value.toLowerCase();
+        const items = document.querySelectorAll(".faq-item");
+        items.forEach(item => {
+            const text = item.innerText.toLowerCase();
+            item.style.display = text.includes(searchText) ? "block" : "none";
+        });
+    }
+
+    function openTool() { document.getElementById("toolModal").classList.add("active"); resetTool(); }
+    function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+    function openLogin() { document.getElementById("loginModal").classList.add("active"); }
+
+    function switchTab(n) {
+        currentTab = n;
+        document.getElementById("tab1").className = n === 1 ? "tab-btn active" : "tab-btn";
+        document.getElementById("tab2").className = n === 2 ? "tab-btn active" : "tab-btn";
+        document.getElementById("formWarranty").style.display = n === 1 ? "grid" : "none";
+        document.getElementById("formClaim").style.display = n === 2 ? "grid" : "none";
+    }
+
+    function generateText() {
+        let pattern = "";
+        if (typeof currentTab === 'undefined') currentTab = 1;
+        if (currentTab === 1) {
+            const model = document.getElementById("wModel").value.trim() || ".........";
+            const sn = document.getElementById("wSN").value.trim() || ".........";
+            pattern = `เรียนทีม Service SIS\n\nรบกวนเช็คประกัน\n\nSynology NAS (Model No.) ${model}\n(Serial No.) ${sn}\n\nขอบคุณครับ`;
+        } else {
+            const type = document.getElementById("cType").value;
+            const model = document.getElementById("cModel").value.trim() || ".........";
+            const sn = document.getElementById("cSN").value.trim() || ".........";
+            const ticker = document.getElementById("cTicker").value.trim() || ".........";
+            const symptom = document.getElementById("cSymptom").value.trim() || ".........";
+            pattern = `เรียนทีม Service SIS\n\nรบกวนแจ้งเคลมสินค้า\n\n${type} (Model No.) ${model}\n(Serial No.) ${sn}\n\nเลข Ticker #${ticker}\n\nอาการ\n${symptom}\n\nขอบคุณครับ`;
+        }
+        const resBox = document.getElementById("resultBox");
+        resBox.innerText = pattern;
+        resBox.style.display = "block";
+        document.getElementById("copyBtn").style.display = "block";
+    }
+
+    function copyResult() {
+        navigator.clipboard.writeText(document.getElementById("resultBox").innerText).then(() => {
+            const btn = document.getElementById("copyBtn");
+            btn.innerText = "✅ คัดลอกแล้ว!";
+            setTimeout(() => btn.innerText = "📋 คัดลอกข้อความ", 2000);
+        });
+    }
+
+    function resetTool() {
+        document.querySelectorAll("#toolModal input, #toolModal textarea").forEach(i => i.value = "");
+        document.getElementById("resultBox").style.display = "none";
+        document.getElementById("copyBtn").style.display = "none";
+    }
+
+    function findBest(query, data) {
+        let best = null; let maxScore = 0;
+        const cleanQuery = query.toLowerCase().trim();
+        data.forEach(item => {
+            if (!item.Keyword) return;
+            const keywords = item.Keyword.toLowerCase().split(",");
+            let itemScore = 0;
+            keywords.forEach(kw => {
+                const cleanKw = kw.trim();
+                if (!cleanKw) return;
+                if (cleanQuery === cleanKw) itemScore += 100;
+                else if (cleanQuery.includes(cleanKw)) itemScore += (cleanKw.length * 5);
+                else if (cleanKw.includes(cleanQuery)) itemScore += (cleanQuery.length * 2);
+            });
+            if (itemScore > maxScore) { maxScore = itemScore; best = item; }
+        });
+        return maxScore > 0 ? best : null;
+    }
+
+    function addMessage(text, side) {
+        const row = document.createElement("div");
+        row.className = `row ${side}`;
+        row.innerHTML = `<div class="bubble">${text}</div>`;
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+        return row.querySelector(".bubble");
+    }
+
+    function renderResponse(item) {
+        const b = addMessage("", "bot");
+        typeWriter(b, item.Answer);
+        if (item.ManualURL) {
+            setTimeout(() => {
+                const isImg = /\.(jpg|jpeg|png|webp|gif)$/.test(item.ManualURL.toLowerCase());
+                b.innerHTML += isImg ? `<br><img src="${item.ManualURL}" style="width:100%; border-radius:12px; margin-top:10px;">` : `<br><a class="link-btn" href="${item.ManualURL}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:500;">📘 ดูเพิ่มเติม...</a>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, item.Answer.length * 15 + 200);
+        }
+    }
+
+    function typeWriter(element, text, speed = 15) {
+        let i = 0; element.innerHTML = "";
+        const formattedText = text.replace(/\n/g, "<br>");
+        function type() {
+            if (i < formattedText.length) {
+                if (formattedText.substr(i, 4) === "<br>") { element.innerHTML += "<br>"; i += 4; }
+                else { element.innerHTML += formattedText.charAt(i); i++; }
+                chat.scrollTop = chat.scrollHeight;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+
+    function checkPassword() {
+        if(document.getElementById("password").value === PASS) {
+            closeModal('loginModal');
+            document.getElementById("dataModal").classList.add("active");
+            document.getElementById("password").value = "";
+        } else alert("รหัสผ่านผิด!");
+    }
+
+    async function addData() {
+        const btn = document.getElementById("addBtn");
+        const kw = document.getElementById("keyword").value;
+        const ans = document.getElementById("answer").value;
+        if (!kw || !ans) return alert("กรอกข้อมูลให้ครบ");
+        btn.disabled = true; btn.innerText = "⏳ กำลังบันทึก...";
+        try {
+            await fetch(API, {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify([{ 
+                    Type: document.getElementById("type").value, 
+                    Keyword: kw, Answer: ans, 
+                    ManualURL: document.getElementById("manual").value,
+                    isFAQ: document.getElementById("isFaq").checked ? "TRUE" : "FALSE"
+                }])
+            });
+            alert("บันทึกสำเร็จ!"); closeModal('dataModal');
+        } catch { alert("เกิดข้อผิดพลาด"); }
+        finally { btn.disabled = false; btn.innerText = "💾 บันทึกข้อมูล"; }
+    }
+
+    input.addEventListener("keydown", e => { if(e.key === "Enter") send(); });
+    document.getElementById("password").addEventListener("keydown", e => { if(e.key === "Enter") checkPassword(); });
+    document.querySelectorAll(".enter-tool").forEach(el => { el.addEventListener("keydown", e => { if(e.key === "Enter") generateText(); }); });
+    document.querySelectorAll(".enter-data").forEach(el => { 
+        el.addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addData(); } }); 
+    });
+
+    function toggleTheme() { document.body.classList.toggle("light"); }
+    window.onload = () => { typeWriter(addMessage("", "bot"), "สวัสดีครับ ยินดีต้อนรับสู่ AI Support\nเลือกดูคำถามยอดฮิตที่ปุ่ม ❓ หรือพิมพ์ถามได้เลยครับ"); };
+</script>
+</body>
+</html>
