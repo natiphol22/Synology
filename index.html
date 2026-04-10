@@ -206,7 +206,7 @@
 
     async function fetchAIResponse(question) {
         // แก้ไข URL เป็น /v1/ เพื่อความเสถียร
-        const URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+       const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
         const prompt = `คุณคือ Synology Support Expert ชื่อว่า AI-Pro ให้ตอบคำถามเกี่ยวกับ Synology NAS และ IT อย่างสุภาพและสั้นกระชับ หากถามเรื่องอื่นให้แจ้งว่าเน้นตอบแค่เรื่อง Synology เท่านั้น คำถามคือ: "${question}"`;
 
         try {
