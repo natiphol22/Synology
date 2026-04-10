@@ -197,8 +197,8 @@
         <button onclick="closeModal('toolModal')" class="close-btn">✕</button>
         <h3 style="margin:0; text-align:center; font-size:1.1rem;">📋 เครื่องมือช่วยพิมพ์</h3>
         <div class="tab-container">
-            <button class="tab-btn active" id="toolTab1" onclick="switchToolTab(1)">🔍 เช็คประกัน</button>
-            <button class="tab-btn" id="toolTab2" onclick="switchToolTab(2)">🛠️ แจ้งเคลม</button>
+            <button class="tab-btn active" id="toolTab1" onclick="switchToolTab(1)">🔍 เมล์เช็คประกัน</button>
+            <button class="tab-btn" id="toolTab2" onclick="switchToolTab(2)">🛠️ เมล์แจ้งเคลม</button>
         </div>
         <div id="formWarranty" class="form-grid">
             <input id="wModel" placeholder="รุ่น (Model)" class="tool-input tool-enter">
@@ -208,7 +208,8 @@
         <div id="formClaim" class="form-grid" style="display:none;">
             <select id="cType" class="tool-select full-width">
                 <option value="Synology NAS">Synology NAS</option>
-                <option value="HDD/SSD">HDD / SSD</option>
+                <option value="HDD">HDD</option>
+                <option value="SSD">SSD</option>
             </select>
             <input id="cModel" placeholder="รุ่นสินค้า" class="tool-input tool-enter">
             <input id="cSN" placeholder="Serial Number" class="tool-input tool-enter">
