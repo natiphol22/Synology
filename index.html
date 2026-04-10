@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Synology Support - AI Smart Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -17,91 +17,116 @@
             --user-bubble: #0084ff; --bot-bubble: #e4e6eb; --accent: #007bff; --input-bg: #f8f9fa;
             --ai-glow: #007bff;
         }
-        body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Kanit', sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; height: 100vh; }
         
         .app { max-width: 900px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; }
         
-        /* Header & AI Toggle */
-        .header { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--panel); box-shadow: 0 2px 15px rgba(0,0,0,0.15); z-index: 10; flex-shrink: 0; }
-        .ai-switch { position: relative; width: 60px; height: 30px; cursor: pointer; }
+        .header { 
+            padding: 10px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--panel); 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.15); 
+            z-index: 100; 
+            flex-shrink: 0;
+            gap: 8px;
+        }
+        .header-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .header-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+        /* --- ปรับแต่งส่วน AI Switch ใหม่ให้แสดงตัวหนังสือชัดเจน --- */
+        .ai-switch { position: relative; width: 60px; height: 30px; cursor: pointer; flex-shrink: 0; }
         .ai-switch input { opacity: 0; width: 0; height: 0; }
-        .ai-slider { position: absolute; inset: 0; background: #333; transition: .4s; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); }
-        .ai-slider:before { position: absolute; content: "OFF"; font-size: 8px; font-weight: bold; text-align: center; line-height: 22px; height: 22px; width: 22px; left: 4px; bottom: 3px; background: white; color: #333; transition: .4s; border-radius: 50%; }
-        input:checked + .ai-slider { background: var(--ai-glow); box-shadow: 0 0 15px var(--ai-glow); }
-        input:checked + .ai-slider:before { content: "AI"; transform: translateX(30px); background: #fff; color: var(--ai-glow); box-shadow: 0 0 10px #fff; }
+        .ai-slider { 
+            position: absolute; inset: 0; background: #333; transition: .4s; border-radius: 30px; 
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center;
+        }
+        /* ข้อความสถานะด้านหลังปุ่มกลม */
+        .ai-slider:after {
+            content: "OFF"; position: absolute; right: 8px; font-size: 9px; font-weight: bold; color: #888; transition: .4s;
+        }
+        .ai-slider:before { 
+            position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 3px; 
+            background: white; transition: .4s; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.3); z-index: 2;
+        }
+        input:checked + .ai-slider { background: var(--ai-glow); box-shadow: 0 0 10px var(--ai-glow); }
+        input:checked + .ai-slider:after { content: "AI"; left: 8px; color: white; text-align: left; }
+        input:checked + .ai-slider:before { transform: translateX(30px); }
+
+        .btn-icon { background: var(--input-bg); border: none; border-radius: 10px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
 
         /* Chat */
-        .chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         .row { display: flex; width: 100%; opacity: 0; transform: translateY(10px); animation: appear 0.4s forwards; }
         .row.user { justify-content: flex-end; }
-        .bubble { max-width: 80%; padding: 12px 20px; border-radius: 22px; font-size: 0.95rem; line-height: 1.6; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .bubble { max-width: 85%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.6; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,0.05); word-wrap: break-word; }
         .user .bubble { background: var(--user-bubble); color: #fff; border-bottom-right-radius: 4px; }
         .bot .bubble { background: var(--bot-bubble); border-bottom-left-radius: 4px; border: 1px solid rgba(128,128,128,0.1); }
         @keyframes appear { to { opacity: 1; transform: translateY(0); } }
 
-        /* Input */
-        .input-area { padding: 15px 20px 25px; }
-        .input-box { display: flex; background: var(--panel); padding: 6px 10px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); align-items: center; gap: 8px; border: 1px solid rgba(128,128,128,0.1); }
-        input#input { flex: 1; border: none; outline: none; padding: 12px; background: transparent; color: var(--text); font-size: 1rem; }
-        .btn-send { background: var(--accent); color: white; border: none; padding: 10px 24px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: 0.3s; }
+        /* Input area */
+        .input-area { padding: 10px 15px 20px; flex-shrink: 0; }
+        .input-box { display: flex; background: var(--panel); padding: 5px; border-radius: 35px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); align-items: center; border: 1px solid rgba(128,128,128,0.1); }
+        input#input { flex: 1; border: none; outline: none; padding: 10px 12px; background: transparent; color: var(--text); font-size: 1rem; min-width: 0; }
+        .btn-send { background: var(--accent); color: white; border: none; padding: 8px 20px; border-radius: 25px; cursor: pointer; font-weight: 500; transition: 0.3s; flex-shrink: 0; }
 
-        /* Modal Base */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: flex-end; z-index: 1000; backdrop-filter: blur(10px); }
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: flex-end; z-index: 1000; backdrop-filter: blur(8px); }
         .modal.active { display: flex; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-content { background: var(--panel); padding: 25px; border-radius: 30px 30px 0 0; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; position: relative; max-height: 92vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 15px; right: 20px; background: var(--input-bg); border: none; color: var(--text); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--panel); padding: 20px; border-radius: 25px 25px 0 0; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 12px; right: 15px; background: var(--input-bg); border: none; color: var(--text); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; }
 
-        /* Tabs */
-        .tab-container { display: flex; background: var(--input-bg); padding: 5px; border-radius: 18px; gap: 5px; overflow-x: auto; flex-shrink: 0; }
-        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 14px; cursor: pointer; background: transparent; color: var(--text); transition: 0.3s; font-size: 0.85rem; white-space: nowrap; }
-        .tab-btn.active { background: var(--panel); box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid rgba(128,128,128,0.1); }
+        .tab-container { display: flex; background: var(--input-bg); padding: 4px; border-radius: 15px; gap: 4px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+        .tab-btn { flex: 1; padding: 10px 15px; border: none; border-radius: 12px; cursor: pointer; background: transparent; color: var(--text); transition: 0.3s; font-size: 0.85rem; white-space: nowrap; }
+        .tab-btn.active { background: var(--panel); box-shadow: 0 3px 8px rgba(0,0,0,0.15); border: 1px solid rgba(128,128,128,0.1); }
 
-        /* Form */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .tool-input, .tool-select, .tool-textarea { background: var(--input-bg); border-radius: 15px; border: 1px solid rgba(128,128,128,0.1); color: var(--text); padding: 14px; font-family: inherit; font-size: 0.95rem; outline: none; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .tool-input, .tool-select, .tool-textarea { background: var(--input-bg); border-radius: 12px; border: 1px solid rgba(128,128,128,0.1); color: var(--text); padding: 12px; font-family: inherit; font-size: 0.95rem; outline: none; width: 100%; }
         .full-width { grid-column: span 2; }
         
-        .faq-list { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; }
-        .faq-item { background: var(--input-bg); padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-        .faq-item:hover { border-color: var(--accent); background: rgba(233, 69, 96, 0.1); }
+        .faq-list { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        .faq-item { background: var(--input-bg); padding: 12px 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 0.9rem; }
+        .faq-item:hover { border-color: var(--accent); }
 
-        /* Mobile Adjustments */
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .full-width { grid-column: span 1; }
-            .bubble { max-width: 90%; }
+            .header-left span { font-size: 0.9rem; }
+            .bubble { max-width: 92%; }
         }
 
-        .typing-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; animation: blink 1.4s infinite both; margin: 0 2px; }
-        @keyframes blink { 0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+        .typing-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; display: inline-block; animation: blink 1.4s infinite; margin: 0 2px; }
+        @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
     </style>
 </head>
 <body class="light">
 
 <div class="app">
     <div class="header">
-        <div style="font-weight: 500; display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.4rem;">🤖</span>
-            <span>Synology Support</span>
+        <div class="header-left">
+            <span style="font-size: 1.2rem;">🤖</span>
+            <span style="font-weight: 500;">Synology Support</span>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div class="header-right">
             <label class="ai-switch">
                 <input type="checkbox" id="aiMode">
                 <span class="ai-slider"></span>
             </label>
-            <button onclick="openTool()" style="background:var(--input-bg); border:none; border-radius:12px; width:38px; height:38px; cursor:pointer;">📋</button>
-            <button onclick="toggleTheme()" style="background:var(--input-bg); border:none; border-radius:12px; width:38px; height:38px; cursor:pointer;">🌓</button>
-            <button onclick="openLogin()" style="background:var(--input-bg); border:none; border-radius:12px; width:38px; height:38px; cursor:pointer;">⚙️</button>
+            <button class="btn-icon" onclick="openTool()">📋</button>
+            <button class="btn-icon" onclick="toggleTheme()">🌓</button>
+            <button class="btn-icon" onclick="openLogin()">⚙️</button>
         </div>
     </div>
 
     <div class="chat" id="chat"></div>
-    <div id="typing-ui" style="display:none; padding: 0 35px 15px;"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    <div id="typing-ui" style="display:none; padding: 0 25px 10px;"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
 
     <div class="input-area">
         <div class="input-box">
-            <button onclick="openFAQ()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding: 0 10px;">❓</button>
+            <button onclick="openFAQ()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding: 0 10px;">❓</button>
             <input id="input" placeholder="พิมพ์ถามได้เลย..." autocomplete="off">
             <button class="btn-send" onclick="send()">ส่ง</button>
         </div>
@@ -111,16 +136,14 @@
 <div class="modal" id="faqModal">
     <div class="modal-content">
         <button onclick="closeModal('faqModal')" class="close-btn">✕</button>
-        <h3 style="margin:0;">💡 คำถามที่พบบ่อย</h3>
+        <h3 style="margin:0; font-size:1.1rem;">💡 คำถามที่พบบ่อย</h3>
         <input type="text" id="faqSearchInput" placeholder="🔍 ค้นหาคำถาม..." class="tool-input" onkeyup="filterFAQByText()">
-        
         <div class="tab-container" id="faqTabContainer">
             <button class="tab-btn active" onclick="filterFAQ('All', this)">ทั้งหมด</button>
             <button class="tab-btn" onclick="filterFAQ('General', this)">General</button>
             <button class="tab-btn" onclick="filterFAQ('Hardware', this)">Hardware</button>
             <button class="tab-btn" onclick="filterFAQ('Software', this)">Software</button>
         </div>
-
         <div class="faq-list" id="faqList"></div>
     </div>
 </div>
@@ -128,19 +151,16 @@
 <div class="modal" id="toolModal">
     <div class="modal-content">
         <button onclick="closeModal('toolModal')" class="close-btn">✕</button>
-        <h3 style="margin:0; text-align:center;">📋 เครื่องมือช่วยพิมพ์</h3>
-        
+        <h3 style="margin:0; text-align:center; font-size:1.1rem;">📋 เครื่องมือช่วยพิมพ์</h3>
         <div class="tab-container">
             <button class="tab-btn active" id="toolTab1" onclick="switchToolTab(1)">🔍 เช็คประกัน</button>
             <button class="tab-btn" id="toolTab2" onclick="switchToolTab(2)">🛠️ แจ้งเคลม</button>
         </div>
-
         <div id="formWarranty" class="form-grid">
             <input id="wModel" placeholder="รุ่น (Model)" class="tool-input tool-enter">
             <input id="wSN" placeholder="Serial Number" class="tool-input tool-enter">
-            <a href="https://legacy.sisthai.com/sl.php?l=serial" target="_blank" class="tool-input full-width" style="text-align:center; text-decoration:none; background: #007bff; color:white; border:none;">🌐 เปิดเว็บเช็ค S/N SiS</a>
+            <a href="https://legacy.sisthai.com/sl.php?l=serial" target="_blank" class="tool-input full-width" style="text-align:center; text-decoration:none; background: #007bff; color:white; border:none; font-size:0.85rem;">🌐 เปิดเว็บเช็ค S/N SiS</a>
         </div>
-
         <div id="formClaim" class="form-grid" style="display:none;">
             <select id="cType" class="tool-select full-width">
                 <option value="Synology NAS">Synology NAS</option>
@@ -151,30 +171,28 @@
             <input id="cTicker" placeholder="เลข Ticket ID" class="tool-input full-width tool-enter">
             <textarea id="cSymptom" placeholder="อาการเสีย..." class="tool-textarea full-width" rows="2"></textarea>
         </div>
-
-        <button onclick="generateText()" class="btn-send" style="padding:15px; border-radius:15px;">สร้างข้อความ</button>
-        <div id="resultBox" style="display:none; background:var(--input-bg); padding:15px; border-radius:15px; border:1px dashed var(--accent); white-space:pre-line; font-size:0.9rem;"></div>
-        <button id="copyBtn" onclick="copyResult()" class="btn-send" style="display:none; background:var(--success);">📋 คัดลอก</button>
+        <button onclick="generateText()" class="btn-send" style="padding:12px; border-radius:15px; margin-top:10px;">สร้างข้อความ</button>
+        <div id="resultBox" style="display:none; background:var(--input-bg); padding:12px; border-radius:12px; border:1px dashed var(--accent); white-space:pre-line; font-size:0.85rem; margin-top:10px;"></div>
+        <button id="copyBtn" onclick="copyResult()" class="btn-send" style="display:none; background:var(--success); margin-top:10px; width:100%;">📋 คัดลอก</button>
     </div>
 </div>
 
 <div class="modal" id="loginModal">
-    <div class="modal-content" style="max-width:350px; margin: auto;">
+    <div class="modal-content" style="max-width:350px; margin: auto; border-radius:20px;">
         <h3 style="text-align:center; margin-top:0;">Admin Login</h3>
         <input type="password" id="password" placeholder="รหัสผ่าน" class="tool-input" style="text-align:center;">
-        <button onclick="checkPassword()" class="btn-send">ตกลง</button>
+        <button onclick="checkPassword()" class="btn-send" style="margin-top:5px; width:100%;">ตกลง</button>
+        <button onclick="closeModal('loginModal')" style="background:none; border:none; color:var(--text); cursor:pointer; margin-top:5px; font-size:0.8rem;">ยกเลิก</button>
     </div>
 </div>
 
 <div class="modal" id="dataModal">
     <div class="modal-content">
         <button onclick="closeModal('dataModal')" class="close-btn">✕</button>
-        <h3 style="margin:0; color:var(--accent);">⚙️ ตั้งค่าระบบ</h3>
+        <h3 style="margin:0; color:var(--accent); font-size:1.1rem;">⚙️ ตั้งค่าระบบ</h3>
         <input type="password" id="settingGroqKey" placeholder="Groq API Key (gsk_...)" class="tool-input full-width">
         <button onclick="saveSettings()" class="btn-send" style="background:var(--user-bubble);">💾 บันทึก Key</button>
-
-        <hr style="width:100%; border:0; border-top:1px solid rgba(128,128,128,0.2);">
-
+        <hr style="width:100%; border:0; border-top:1px solid rgba(128,128,128,0.2); margin:5px 0;">
         <div class="form-grid">
             <select id="dataType" class="tool-select full-width">
                 <option>General</option><option>Hardware</option><option>Software</option>
@@ -182,7 +200,7 @@
             <input id="dataKeyword" placeholder="Keywords (คั่นด้วย ,)" class="tool-input full-width data-enter">
             <textarea id="dataAnswer" placeholder="คำตอบ..." class="tool-textarea full-width data-enter" rows="2"></textarea>
             <input id="dataManual" placeholder="Link คู่มือ / รูป" class="tool-input full-width data-enter">
-            <label style="display:flex; align-items:center; gap:8px; font-size:0.9rem;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem;">
                 <input type="checkbox" id="dataIsFaq"> แสดงในหน้า FAQ
             </label>
         </div>
@@ -198,21 +216,17 @@
     let currentFAQFilter = 'All';
     let currentToolTab = 1;
 
-    // --- Core Logic ---
     async function send() {
         const inputEl = document.getElementById("input");
         const q = inputEl.value.trim();
         if (!q || document.getElementById("typing-ui").style.display === "block") return;
-        
         addMessage(q, "user");
         inputEl.value = "";
         document.getElementById("typing-ui").style.display = "block";
-
         try {
             const res = await fetch(API);
             const data = await res.json();
             const match = findBest(q, data);
-
             if (match) {
                 hideTyping();
                 renderResponse(match);
@@ -241,7 +255,6 @@
         } catch { hideTyping(); addMessage("AI ขัดข้องชั่วคราว", "bot"); }
     }
 
-    // --- UI Logic ---
     function addMessage(text, side) {
         const row = document.createElement("div");
         row.className = `row ${side}`;
@@ -253,13 +266,13 @@
     }
 
     function typeWriter(el, text) {
-        let i = 0; const speed = 20;
+        let i = 0; const speed = 15;
         const formatted = text.replace(/\n/g, "<br>");
         function type() {
             if (i < formatted.length) {
                 if (formatted.substr(i, 4) === "<br>") { el.innerHTML += "<br>"; i += 4; }
                 else { el.innerHTML += formatted.charAt(i); i++; }
-                document.getElementById("chat").scrollTop = chat.scrollHeight;
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
                 setTimeout(type, speed);
             }
         }
@@ -273,8 +286,8 @@
             setTimeout(() => {
                 const isImg = /\.(jpg|jpeg|png|webp|gif)$/.test(item.ManualURL.toLowerCase());
                 b.innerHTML += isImg ? `<br><img src="${item.ManualURL}" style="width:100%; border-radius:15px; margin-top:10px;">` : `<br><a href="${item.ManualURL}" target="_blank" style="color:var(--accent); font-weight:500;">📘 ดูเพิ่มเติม...</a>`;
-                document.getElementById("chat").scrollTop = chat.scrollHeight;
-            }, item.Answer.length * 20 + 300);
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+            }, item.Answer.length * 15 + 300);
         }
     }
 
@@ -285,7 +298,7 @@
             if (!item.Keyword) return;
             item.Keyword.toLowerCase().split(",").forEach(kw => {
                 const cleanKw = kw.trim();
-                if (cleanQ === cleanKw) maxScore = 1000, best = item;
+                if (cleanQ === cleanKw) { maxScore = 1000; best = item; }
                 else if (cleanQ.includes(cleanKw) && cleanKw.length > 2) {
                     let s = cleanKw.length * 5;
                     if (s > maxScore) { maxScore = s; best = item; }
@@ -295,12 +308,10 @@
         return maxScore > 0 ? best : null;
     }
 
-    // --- FAQ System ---
     function openFAQ() {
         document.getElementById("faqModal").classList.add("active");
         fetch(API).then(r => r.json()).then(data => { cachedData = data; renderFAQ(); });
     }
-
     function renderFAQ() {
         const list = document.getElementById("faqList");
         list.innerHTML = "";
@@ -316,14 +327,12 @@
             list.appendChild(d);
         });
     }
-
     function filterFAQ(type, btn) {
         currentFAQFilter = type;
         document.querySelectorAll("#faqTabContainer .tab-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         renderFAQ();
     }
-
     function filterFAQByText() {
         const val = document.getElementById("faqSearchInput").value.toLowerCase();
         document.querySelectorAll(".faq-item").forEach(el => {
@@ -331,7 +340,6 @@
         });
     }
 
-    // --- Tools System ---
     function openTool() { document.getElementById("toolModal").classList.add("active"); }
     function switchToolTab(n) {
         currentToolTab = n;
@@ -340,7 +348,6 @@
         document.getElementById("formWarranty").style.display = n === 1 ? "grid" : "none";
         document.getElementById("formClaim").style.display = n === 2 ? "grid" : "none";
     }
-
     function generateText() {
         let txt = "";
         if (currentToolTab === 1) {
@@ -357,13 +364,11 @@
         document.getElementById("resultBox").style.display = "block";
         document.getElementById("copyBtn").style.display = "block";
     }
-
     function copyResult() {
         navigator.clipboard.writeText(document.getElementById("resultBox").innerText);
         alert("คัดลอกแล้ว");
     }
 
-    // --- Admin System ---
     function openLogin() { document.getElementById("loginModal").classList.add("active"); }
     function checkPassword() {
         if(document.getElementById("password").value === PASS) {
@@ -397,17 +402,12 @@
         finally { btn.innerText = "💾 บันทึกข้อมูล"; btn.disabled = false; }
     }
 
-    // --- Helpers ---
     function closeModal(id) { document.getElementById(id).classList.remove("active"); }
     function toggleTheme() { document.body.classList.toggle("light"); }
     function hideTyping() { document.getElementById("typing-ui").style.display = "none"; }
 
-    // --- Keyboard Event Listeners ---
     document.addEventListener("keydown", e => {
-        // Global ESC
         if (e.key === "Escape") document.querySelectorAll(".modal").forEach(m => m.classList.remove("active"));
-        
-        // Enter in specific inputs
         if (e.key === "Enter") {
             const activeId = document.activeElement.id;
             if (activeId === "input") send();
