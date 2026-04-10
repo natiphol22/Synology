@@ -205,8 +205,8 @@
     }
 
     async function fetchAIResponse(question) {
-        // แก้ไข URL เป็น /v1/ เพื่อความเสถียร
-       const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        // แก้ไข URL เป็น v1beta และใช้ชื่อรุ่น gemini-1.5-flash-latest เพื่อความแม่นยำ
+        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
         const prompt = `คุณคือ Synology Support Expert ชื่อว่า AI-Pro ให้ตอบคำถามเกี่ยวกับ Synology NAS และ IT อย่างสุภาพและสั้นกระชับ หากถามเรื่องอื่นให้แจ้งว่าเน้นตอบแค่เรื่อง Synology เท่านั้น คำถามคือ: "${question}"`;
 
         try {
@@ -217,7 +217,6 @@
             });
             const data = await response.json();
             
-            // เช็คโครงสร้างข้อมูลก่อนส่งกลับ
             if (data.candidates && data.candidates[0].content) {
                 return data.candidates[0].content.parts[0].text;
             } else if (data.error) {
@@ -262,7 +261,6 @@
         } finally { isSending = false; }
     }
 
-    // --- ฟังก์ชันเสริมอื่นๆ ---
     function closeAllModals() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
     document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeAllModals(); });
 
