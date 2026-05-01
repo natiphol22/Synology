@@ -569,7 +569,7 @@
             
             if(arsMatch) {
                 hideTyping();
-                const text = `🛡️ **พบข้อมูลประกันพิเศษ (ARS)**\n━━━━━━━━━━━━━━\n📦 **Model:** ${arsMatch.Model || '-'}\n🎫 **S/N:** ${arsMatch.SN}\n✨ **Service:** ${arsMatch.ServiceType || 'Advanced Replacement'}\n📅 **เริ่ม:** ${arsMatch.StartDate || '-'}\n⌛ **หมดอายุ:** ${arsMatch.EndDate || '-'}\n━━━━━━━━━━━━━━`;
+                const text = `🛡️ พบข้อมูลประกันพิเศษ (ARS)\n━━━━━━━━━━━━━━\n📦 Model: ${arsMatch.Model || '-'}\n🎫 S/N: ${arsMatch.SN}\n✨ Service: ${arsMatch.ServiceType || 'Advanced Replacement'}\n📅 เริ่ม:${arsMatch.StartDate || '-'}\n⌛ หมดอายุ: ${arsMatch.EndDate || '-'}\n━━━━━━━━━━━━━━`;
                 typeWriter(addMsg("", "bot"), text);
                 return;
             }
