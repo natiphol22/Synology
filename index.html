@@ -41,7 +41,7 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 10px; }
 
@@ -175,7 +175,16 @@
         .close-btn { background: var(--input-bg); border: 1px solid var(--border); color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.2s; }
         .close-btn:active { background: var(--border); }
         
-        .modal-body { overflow-y: auto; padding-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .modal-body { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding-bottom: 40px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            -webkit-overflow-scrolling: touch; 
+            overscroll-behavior: contain; 
+        }
 
         /* --- Form Elements --- */
         .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
@@ -196,16 +205,39 @@
             -webkit-appearance: none;
         }
         .tool-input:focus, .tool-select:focus, .tool-textarea:focus { border-color: var(--ai-glow); background: var(--panel); }
-        /* Fix 2: เพิ่ม .tool-textarea.has-paste */
         .tool-input.has-paste, .tool-textarea.has-paste { padding-right: 48px; }
         
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .full-width { grid-column: span 1; }
 
         /* --- Tabs --- */
-        .tab-container { display: flex; background: var(--input-bg); padding: 6px; border-radius: 16px; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .tab-btn { flex: 1; min-width: max-content; padding: 12px 16px; border: none; border-radius: 12px; cursor: pointer; background: transparent; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
-        .tab-btn.active { background: var(--panel); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .tab-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            background: var(--input-bg); 
+            padding: 6px; 
+            border-radius: 16px; 
+            gap: 6px; 
+        }
+        .tab-btn { 
+            flex: 1 1 auto; 
+            white-space: nowrap; 
+            padding: 10px 8px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            background: transparent; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            transition: 0.3s; 
+            text-align: center;
+        }
+        .tab-btn.active { 
+            background: var(--panel); 
+            color: var(--text); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
 
         /* --- Custom UI Elements --- */
         .quick-action-card { display: flex; align-items: center; gap: 16px; background: var(--input-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border); transition: 0.2s; }
@@ -361,6 +393,7 @@
             <button class="tab-btn" id="toolTab2" onclick="switchToolTab(2)">🛠️ แจ้งเคลม</button>
             <button class="tab-btn" id="toolTab3" onclick="switchToolTab(3)">✂️ แยกข้อมูล</button>
             <button class="tab-btn" id="toolTab4" onclick="switchToolTab(4)">🛡️ เช็ค ARS</button>
+            <button class="tab-btn" id="toolTab5" onclick="switchToolTab(5)">✈️ ส่งเคส HQ</button>
         </div>
         
         <div class="modal-body" style="padding-top: 5px;">
@@ -426,6 +459,14 @@
                     <button onclick="checkARSManual()" class="btn-send" style="position:absolute; right:6px; height:calc(100% - 12px); padding: 0 15px; font-size:0.9rem;">ค้นหา</button>
                 </div>
                 <div id="arsResult" class="full-width" style="display:none; background:var(--input-bg); padding:16px; border-radius:16px; border:1px solid var(--ai-glow);"></div>
+            </div>
+
+            <div id="formHQ" class="form-grid" style="display:none;">
+                <div class="input-wrapper full-width">
+                    <input id="hqTicket" placeholder="เลข Ticket ID (เช่น #3989971)" class="tool-input has-paste">
+                    <button class="btn-paste-mini" onclick="pasteFromClipboard('hqTicket')">📋</button>
+                </div>
+                <button onclick="generateText()" class="btn-send full-width" style="margin-top: 8px; padding: 14px;">สร้างข้อความ</button>
             </div>
 
             <textarea id="resultBox" class="tool-textarea full-width" rows="10" style="display:none; border:1px dashed var(--ai-glow); margin-top: 10px; resize: vertical; line-height: 1.5; min-height: 150px; flex-shrink: 0;"></textarea>
@@ -506,7 +547,7 @@
                     <input id="arsModel" placeholder="Model (เช่น DS920+)" class="tool-input full-width">
                     <input id="arsSN" placeholder="Serial Number" class="tool-input full-width">
                     <select id="arsServiceType" class="tool-select full-width">
-                        <option value=">Premier Advanced Replacement Service"> Premier Advanced Replacement Service</option>
+                        <option value="Premier Advanced Replacement Service"> Premier Advanced Replacement Service</option>
                         <option value="Advanced Replacement Service">Advanced Replacement Service</option>
                     </select>
                     <input id="arsStartDate" placeholder="วันที่เริ่ม (เช่น 01/01/2024)" class="tool-input full-width">
@@ -563,9 +604,17 @@
             // 1. Check Sheet 2 (ARS) First
             const resARS = await fetch(API_SHEET2);
             const dataARS = await resARS.json();
-            const arsMatch = dataARS
-              .sort((a, b) => (b.SN || "").length - (a.SN || "").length)
-              .find(item => item.SN && q.toUpperCase().includes(item.SN.toUpperCase()));
+            
+            const arsMatch = dataARS.find(item => {
+                if (!item.SN) return false;
+                const dbSN = item.SN.toUpperCase().trim();
+                const query = q.toUpperCase().trim();
+                
+                // เช็ค 2 กรณี: 
+                // 1. พิมพ์ S/N มาเพียวๆ แล้วตรงกันเป๊ะ (===)
+                // 2. พิมพ์ประโยคยาวๆ แต่มี S/N อยู่ในนั้นโดยไม่ติดกับตัวอักษรอื่น (\b คือขอบเขตคำ)
+                return query === dbSN || new RegExp(`\\b${dbSN}\\b`).test(query);
+            });
             
             if(arsMatch) {
                 hideTyping();
@@ -602,7 +651,6 @@
         return best;
     }
 
-    /* Fix 4: แก้ฟังก์ชัน toggleAddressField เปลี่ยนเป็น flex */
     function toggleAddressField() {
         const wrapper = document.getElementById("addressWrapper");
         wrapper.style.display = document.getElementById("cIncludeAddress").checked ? "flex" : "none";
@@ -685,19 +733,22 @@
     function hideTyping() { document.getElementById("typing-ui").style.display = "none"; }
     function openTool() { openModal('toolModal'); }
 
-    /* Fix 3: แก้ฟังก์ชัน switchToolTab เปลี่ยน block เป็น grid */
+    /* แก้ฟังก์ชัน switchToolTab เพิ่มแท็บ 5 เข้าไป */
     function switchToolTab(n) {
         currentToolTab = n;
-        [1,2,3,4].forEach(t => document.getElementById(`toolTab${t}`).className = n===t ? "tab-btn active" : "tab-btn");
+        [1,2,3,4,5].forEach(t => {
+            const btn = document.getElementById(`toolTab${t}`);
+            if (btn) btn.className = n===t ? "tab-btn active" : "tab-btn";
+        });
         document.getElementById("formWarranty").style.display = n===1 ? "grid" : "none";
         document.getElementById("formClaim").style.display = n===2 ? "grid" : "none";
         document.getElementById("formExtract").style.display = n===3 ? "grid" : "none";
         document.getElementById("formARS").style.display = n===4 ? "grid" : "none";
+        document.getElementById("formHQ").style.display = n===5 ? "grid" : "none"; // เพิ่ม formHQ
         document.getElementById("resultBox").style.display = "none";
         document.getElementById("copyBtn").style.display = "none";
     }
 
-    // FIX 1: Use .value instead of .innerText for resultBox since it's a textarea now
     function generateText() {
         let txt = "";
         if (currentToolTab === 1) {
@@ -710,9 +761,15 @@
             }
             txt = `เรียนทีม Service SIS\n\nแจ้งเคลมสินค้า ${document.getElementById("cType").value}\nModel: ${document.getElementById("cModel").value || "-"}\nS/N: ${document.getElementById("cSN").value || "-"}\nTicket ID: ${document.getElementById("cTicker").value || "-"}\n\nอาการเสีย: ${document.getElementById("cSymptom").value || "-"}${addressText}\n\nขอบคุณครับ`;
         }
+        else if (currentToolTab === 5) {
+            // โลจิกแท็บที่ 5 สร้างข้อความแจ้งลูกค้า
+            const tk = document.getElementById("hqTicket").value.trim();
+            const tkText = tk ? ` (Ticket ID: ${tk})` : "";
+            txt = `ทางเราได้ดำเนินการเปิดเคสและส่งเรื่องประสานงานไปยังทีมวิศวกร Synology ${tkText} ให้เรียบร้อยแล้วนะครับ หากมีความคืบหน้าหรือได้รับคำแนะนำเพิ่มเติมจากทีมงาน จะรีบมาอัปเดตให้ทราบทันทีครับ\n\nขอบคุณครับ`;
+        }
         
         const rb = document.getElementById("resultBox");
-        rb.value = txt; // <-- Changed to .value
+        rb.value = txt; 
         rb.style.display = "block";
         document.getElementById("copyBtn").style.display = "block";
         
@@ -722,7 +779,6 @@
     }
 
     function copyResult() {
-        // FIX 1: Read from .value
         navigator.clipboard.writeText(document.getElementById("resultBox").value);
         const btn = document.getElementById("copyBtn");
         const originalText = btn.innerText;
@@ -927,7 +983,6 @@
         alert("บันทึก API Key สำเร็จ");
     }
 
-    // FIX 2: Dynamic Form Toggle
     function toggleAdminForm() {
         const target = document.getElementById("dataSheetTarget").value;
         if (target === "Sheet1") {
@@ -944,7 +999,6 @@
         const target = document.getElementById("dataSheetTarget").value;
         let payload = [];
 
-        // FIX 2: Collect data based on the selected sheet
         if (target === "Sheet1") {
             const kw = document.getElementById("dataKeyword").value.trim();
             const ans = document.getElementById("dataAnswer").value.trim();
