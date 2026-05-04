@@ -206,6 +206,8 @@
         }
         .tool-input:focus, .tool-select:focus, .tool-textarea:focus { border-color: var(--ai-glow); background: var(--panel); }
         .tool-input.has-paste, .tool-textarea.has-paste { padding-right: 48px; }
+        /* ให้ textarea มีขั้นต่ำแต่ยืดได้ */
+        .tool-textarea { min-height: 80px; resize: none; overflow: hidden; } 
         
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .full-width { grid-column: span 1; }
@@ -263,6 +265,13 @@
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         @keyframes blink { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
 
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 9999; pointer-events: none; width: 90%; max-width: 400px; align-items: center; }
+        .toast { background: var(--bot-bubble); color: var(--text); padding: 12px 20px; border-radius: 30px; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--border); opacity: 0; transform: translateY(20px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-align: center;}
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+
         /* --- Media Queries for larger screens --- */
         @media (min-width: 600px) {
             .form-grid { grid-template-columns: 1fr 1fr; }
@@ -308,7 +317,8 @@
 
     <div class="input-area">
         <div class="input-box">
-            <button class="faq-trigger" onclick="openFAQ()">❓</button>
+            <button class="faq-trigger" onclick="openFAQ()" title="คำถามที่พบบ่อย">❓</button>
+            <button class="faq-trigger" onclick="clearChat()" title="ล้างแชท" style="font-size: 1.1rem; padding-right: 12px; margin-right: 8px; border-right: 1px solid var(--border);">🧹</button>
             <input id="input" placeholder="พิมพ์ถามหรือกรอก S/N..." autocomplete="off">
             <button class="btn-send" onclick="send()">ส่ง</button>
         </div>
@@ -427,14 +437,14 @@
                     <input id="cTicker" placeholder="เลข Ticket ID (ถ้ามี)" class="tool-input has-paste">
                     <button class="btn-paste-mini" onclick="pasteFromClipboard('cTicker')">📋</button>
                 </div>
-                <textarea id="cSymptom" placeholder="อาการเสีย..." class="tool-textarea full-width" rows="3"></textarea>
+                <textarea id="cSymptom" placeholder="อาการเสีย..." class="tool-textarea full-width"></textarea>
                 
                 <div class="full-width" style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
                     <input type="checkbox" id="cIncludeAddress" onchange="toggleAddressField()" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--ai-glow);">
                     <label for="cIncludeAddress" style="font-size: 0.95rem; cursor: pointer;">เพิ่มข้อมูลลูกค้า / ที่อยู่จัดส่งกลับ</label>
                 </div>
                 <div id="addressWrapper" class="input-wrapper full-width" style="display: none;">
-                    <textarea id="cAddress" placeholder="ชื่อ-นามสกุล, เบอร์โทร, ที่อยู่จัดส่ง..." class="tool-textarea full-width has-paste" rows="3"></textarea>
+                    <textarea id="cAddress" placeholder="ชื่อ-นามสกุล, เบอร์โทร, ที่อยู่จัดส่ง..." class="tool-textarea full-width has-paste"></textarea>
                     <button class="btn-paste-mini" style="top: 10px; right: 10px;" onclick="pasteFromClipboard('cAddress')">📋</button>
                 </div>
                 
@@ -443,7 +453,7 @@
 
             <div id="formExtract" class="form-grid" style="display:none;">
                 <div style="position: relative;" class="full-width">
-                    <textarea id="rawText" placeholder="วางข้อความข้อมูลลูกค้าที่นี่..." class="tool-textarea has-paste" rows="4"></textarea>
+                    <textarea id="rawText" placeholder="วางข้อความข้อมูลลูกค้าที่นี่..." class="tool-textarea has-paste"></textarea>
                     <button class="btn-paste-mini" style="top: 10px; right: 10px;" onclick="pasteFromClipboard('rawText', true)">📋</button>
                 </div>
                 <div class="extract-actions full-width">
@@ -469,7 +479,7 @@
                 <button onclick="generateText()" class="btn-send full-width" style="margin-top: 8px; padding: 14px;">สร้างข้อความ</button>
             </div>
 
-            <textarea id="resultBox" class="tool-textarea full-width" rows="10" style="display:none; border:1px dashed var(--ai-glow); margin-top: 10px; resize: vertical; line-height: 1.5; min-height: 150px; flex-shrink: 0;"></textarea>
+            <textarea id="resultBox" class="tool-textarea full-width" style="display:none; border:1px dashed var(--ai-glow); margin-top: 10px; line-height: 1.5; min-height: 150px; flex-shrink: 0;"></textarea>
             
             <button id="copyBtn" onclick="copyResult()" class="btn-send full-width" style="display:none; background:var(--success); padding: 14px; margin-top: 10px;">📋 คัดลอกข้อความทั้งหมด</button>
         </div>
@@ -513,7 +523,10 @@
 <div class="modal" id="dataModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 style="color:var(--ai-glow);">⚙️ จัดการฐานข้อมูล</h3>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h3 style="color:var(--ai-glow); margin: 0;">⚙️ จัดการฐานข้อมูล</h3>
+                <button class="btn-icon" style="width: 30px; height: 30px; font-size: 0.9rem;" onclick="refreshData()" title="รีเฟรชฐานข้อมูล">🔄</button>
+            </div>
             <button onclick="closeModal('dataModal')" class="close-btn">✕</button>
         </div>
         <div class="modal-body">
@@ -535,7 +548,7 @@
                         <option>General</option><option>Hardware</option><option>Software</option>
                     </select>
                     <input id="dataKeyword" placeholder="Keyword (คำค้นหา)" class="tool-input full-width">
-                    <textarea id="dataAnswer" placeholder="คำตอบ" class="tool-textarea full-width" rows="3"></textarea>
+                    <textarea id="dataAnswer" placeholder="คำตอบ" class="tool-textarea full-width"></textarea>
                     <input id="dataManual" placeholder="URL คู่มือ หรือ รูปภาพ (ถ้ามี)" class="tool-input full-width">
                     <div class="full-width" style="display: flex; align-items: center; gap: 10px;">
                         <input type="checkbox" id="dataIsFaq" style="width: 20px; height: 20px; accent-color: var(--ai-glow);">
@@ -560,15 +573,55 @@
     </div>
 </div>
 
+<div id="toast-container"></div>
+
 <script>
     const API_BASE = "https://api.sheetbest.com/sheets/4ba98472-2b00-48a2-9f2d-fd4104ad8589";
     const API_SHEET1 = `${API_BASE}/tabs/Sheet1`;
     const API_SHEET2 = `${API_BASE}/tabs/Sheet2`;
     const PASS = "synology123";
     let GROQ_KEY = localStorage.getItem("stored_groq_key") || "";
-    let cachedData = [];
+    let cachedSheet1 = [];
+    let cachedSheet2 = [];
+    let isDataLoaded = false;
     let currentFAQFilter = 'General';
     let currentToolTab = 1;
+
+    // --- Toast Notifications ---
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        
+        // Trigger reflow to start animation
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // --- Data Caching ---
+    async function loadInitialData() {
+        showToast("กำลังซิงค์ข้อมูล...", "info");
+        try {
+            const [res1, res2] = await Promise.all([fetch(API_SHEET1), fetch(API_SHEET2)]);
+            cachedSheet1 = await res1.json();
+            cachedSheet2 = await res2.json();
+            isDataLoaded = true;
+            showToast("อัปเดตข้อมูลสำเร็จ ✅", "success");
+        } catch (e) {
+            showToast("เชื่อมต่อฐานข้อมูลล้มเหลว ❌", "error");
+        }
+    }
+
+    function refreshData() {
+        loadInitialData();
+    }
 
     // --- Clipboard Paste ---
     async function pasteFromClipboard(targetId, autoExtract = false) {
@@ -578,18 +631,25 @@
             const text = await navigator.clipboard.readText();
             target.value = text;
             target.style.borderColor = "var(--success)";
+            target.dispatchEvent(new Event('input')); // Trigger auto-resize
             setTimeout(() => target.style.borderColor = "var(--border)", 600);
             if(autoExtract) extractCustomerData();
         } catch (err) {
-            alert("กรุณาอนุญาตการเข้าถึง Clipboard หรือใช้วิธีกดค้างแล้ววาง (Paste)");
+            showToast("กรุณาอนุญาตการเข้าถึง Clipboard หรือใช้วิธีกดค้างแล้ววาง", "error");
         }
     }
 
     function copyText(txt) {
         navigator.clipboard.writeText(txt);
+        showToast("คัดลอกสำเร็จ", "success");
     }
 
     // --- Core Chat Logic ---
+    function clearChat() {
+        document.getElementById("chat").innerHTML = "";
+        addMsg("สวัสดีครับ 👋 แชทถูกล้างแล้ว มีอะไรให้ช่วยบอกได้เลยครับ", "bot");
+    }
+
     async function send() {
         const inputEl = document.getElementById("input");
         const q = inputEl.value.trim();
@@ -601,18 +661,13 @@
         document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 
         try {
+            if (!isDataLoaded) await loadInitialData(); // Load on demand if failed earlier
+
             // 1. Check Sheet 2 (ARS) First
-            const resARS = await fetch(API_SHEET2);
-            const dataARS = await resARS.json();
-            
-            const arsMatch = dataARS.find(item => {
+            const arsMatch = cachedSheet2.find(item => {
                 if (!item.SN) return false;
                 const dbSN = item.SN.toUpperCase().trim();
                 const query = q.toUpperCase().trim();
-                
-                // เช็ค 2 กรณี: 
-                // 1. พิมพ์ S/N มาเพียวๆ แล้วตรงกันเป๊ะ (===)
-                // 2. พิมพ์ประโยคยาวๆ แต่มี S/N อยู่ในนั้นโดยไม่ติดกับตัวอักษรอื่น (\b คือขอบเขตคำ)
                 return query === dbSN || new RegExp(`\\b${dbSN}\\b`).test(query);
             });
             
@@ -624,9 +679,7 @@
             }
 
             // 2. Check Sheet 1 (Normal FAQ)
-            const res1 = await fetch(API_SHEET1);
-            const data1 = await res1.json();
-            const match = findBestMatch(q, data1);
+            const match = findBestMatch(q, cachedSheet1);
             
             hideTyping();
             if(match) renderResponse(match);
@@ -713,6 +766,7 @@
         btn.innerText = "✅"; 
         btn.style.color = "var(--success)";
         setTimeout(() => { btn.innerText = "📋"; btn.style.color = ""; }, 1500);
+        showToast("คัดลอกข้อความแล้ว", "success");
     }
 
     // --- Modal & Tools Control ---
@@ -733,7 +787,6 @@
     function hideTyping() { document.getElementById("typing-ui").style.display = "none"; }
     function openTool() { openModal('toolModal'); }
 
-    /* แก้ฟังก์ชัน switchToolTab เพิ่มแท็บ 5 เข้าไป */
     function switchToolTab(n) {
         currentToolTab = n;
         [1,2,3,4,5].forEach(t => {
@@ -744,7 +797,7 @@
         document.getElementById("formClaim").style.display = n===2 ? "grid" : "none";
         document.getElementById("formExtract").style.display = n===3 ? "grid" : "none";
         document.getElementById("formARS").style.display = n===4 ? "grid" : "none";
-        document.getElementById("formHQ").style.display = n===5 ? "grid" : "none"; // เพิ่ม formHQ
+        document.getElementById("formHQ").style.display = n===5 ? "grid" : "none";
         document.getElementById("resultBox").style.display = "none";
         document.getElementById("copyBtn").style.display = "none";
     }
@@ -762,7 +815,6 @@
             txt = `เรียนทีม Service SIS\n\nแจ้งเคลมสินค้า ${document.getElementById("cType").value}\nModel: ${document.getElementById("cModel").value || "-"}\nS/N: ${document.getElementById("cSN").value || "-"}\nTicket ID: ${document.getElementById("cTicker").value || "-"}\n\nอาการเสีย: ${document.getElementById("cSymptom").value || "-"}${addressText}\n\nขอบคุณครับ`;
         }
         else if (currentToolTab === 5) {
-            // โลจิกแท็บที่ 5 สร้างข้อความแจ้งลูกค้า
             const tk = document.getElementById("hqTicket").value.trim();
             const tkText = tk ? ` (Ticket ID: ${tk})` : "";
             txt = `ทางเราได้ดำเนินการเปิดเคสและส่งเรื่องประสานงานไปยังทีมวิศวกร Synology ${tkText} ให้เรียบร้อยแล้วนะครับ หากมีความคืบหน้าหรือได้รับคำแนะนำเพิ่มเติมจากทีมงาน จะรีบมาอัปเดตให้ทราบทันทีครับ\n\nขอบคุณครับ`;
@@ -771,9 +823,9 @@
         const rb = document.getElementById("resultBox");
         rb.value = txt; 
         rb.style.display = "block";
+        rb.dispatchEvent(new Event('input')); // trigger auto resize
         document.getElementById("copyBtn").style.display = "block";
         
-        // Scroll to bottom of modal
         const modalBody = document.querySelector('#toolModal .modal-body');
         modalBody.scrollTo({ top: modalBody.scrollHeight, behavior: 'smooth' });
     }
@@ -790,6 +842,7 @@
             btn.style.background = "var(--success)";
             btn.style.color = "white";
         }, 2000);
+        showToast("คัดลอกข้อความแล้ว", "success");
     }
 
     function extractCustomerData() {
@@ -885,19 +938,19 @@
     function clearExtract() {
         document.getElementById("rawText").value = "";
         document.getElementById("extractResult").innerHTML = "";
+        document.getElementById("rawText").style.height = "auto";
     }
 
     async function checkARSManual() {
         const sn = document.getElementById("arsSearchSN").value.trim().toUpperCase();
-        if(!sn) return alert("กรุณากรอก S/N");
+        if(!sn) return showToast("กรุณากรอก S/N", "error");
         
         const btn = event.target;
         btn.innerText = "⏳"; btn.disabled = true;
 
         try {
-            const res = await fetch(API_SHEET2);
-            const data = await res.json();
-            const found = data.find(i => i.SN && i.SN.toUpperCase() === sn);
+            if (!isDataLoaded) await loadInitialData();
+            const found = cachedSheet2.find(i => i.SN && i.SN.toUpperCase() === sn);
             
             const rb = document.getElementById("arsResult");
             rb.style.display = "block";
@@ -915,7 +968,7 @@
                 rb.innerHTML = `<div style="color:var(--danger); font-weight:500; display:flex; align-items:center; gap:8px;"><span>❌</span> ไม่พบข้อมูล S/N นี้ในระบบ ARS</div>`;
             }
         } catch(e) {
-            alert("ไม่สามารถตรวจสอบได้ในขณะนี้");
+            showToast("ไม่สามารถตรวจสอบได้ในขณะนี้", "error");
         } finally {
             btn.innerText = "ค้นหา"; btn.disabled = false;
         }
@@ -925,14 +978,13 @@
     function openFAQ() {
         openModal('faqModal');
         const list = document.getElementById("faqList");
-        if(list.innerHTML === "") list.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>กำลังโหลดข้อมูล...</p>";
-        fetch(API_SHEET1).then(r => r.json()).then(data => { cachedData = data; renderFAQ(); }).catch(() => list.innerHTML = "โหลดข้อมูลล้มเหลว");
+        if(list.innerHTML === "") renderFAQ();
     }
 
     function renderFAQ() {
         const list = document.getElementById("faqList");
         list.innerHTML = "";
-        const filtered = cachedData.filter(i => (i.isFAQ === "TRUE" || i.isFAQ === true) && i.Type === currentFAQFilter);
+        const filtered = cachedSheet1.filter(i => (i.isFAQ === "TRUE" || i.isFAQ === true) && i.Type === currentFAQFilter);
         if(filtered.length === 0) {
             list.innerHTML = "<p style='text-align:center; color:var(--text-muted); padding:20px;'>ไม่มีข้อมูลในหมวดหมู่นี้</p>";
             return;
@@ -967,7 +1019,7 @@
                 openModal('dataModal');
                 document.getElementById("settingGroqKey").value = GROQ_KEY;
                 document.getElementById("password").value = "";
-                toggleAdminForm(); // Force UI update
+                toggleAdminForm();
             }, 300);
         } else {
             const p = document.getElementById("password");
@@ -980,7 +1032,7 @@
     function saveSettings() {
         GROQ_KEY = document.getElementById("settingGroqKey").value;
         localStorage.setItem("stored_groq_key", GROQ_KEY);
-        alert("บันทึก API Key สำเร็จ");
+        showToast("บันทึก API Key สำเร็จ ✅", "success");
     }
 
     function toggleAdminForm() {
@@ -1002,7 +1054,7 @@
         if (target === "Sheet1") {
             const kw = document.getElementById("dataKeyword").value.trim();
             const ans = document.getElementById("dataAnswer").value.trim();
-            if(!kw || !ans) return alert("กรุณากรอก Keyword และ คำตอบ ให้ครบถ้วน");
+            if(!kw || !ans) return showToast("กรุณากรอก Keyword และ คำตอบ ให้ครบถ้วน", "error");
             payload = [{ 
                 Type: document.getElementById("dataType").value, 
                 Keyword: kw, 
@@ -1013,7 +1065,7 @@
         } else { // Sheet 2 (ARS)
             const sn = document.getElementById("arsSN").value.trim().toUpperCase();
             const end = document.getElementById("arsEndDate").value.trim();
-            if(!sn || !end) return alert("กรุณากรอก Serial Number และ วันหมดอายุ เป็นอย่างน้อย");
+            if(!sn || !end) return showToast("กรุณากรอก Serial Number และ วันหมดอายุ เป็นอย่างน้อย", "error");
             payload = [{ 
                 Model: document.getElementById("arsModel").value.trim(),
                 SN: sn, 
@@ -1028,7 +1080,7 @@
 
         try {
             await fetch(url, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-            alert("บันทึกข้อมูลลง " + target + " สำเร็จ!"); 
+            showToast("บันทึกข้อมูลสำเร็จ! ✅", "success"); 
             closeModal('dataModal');
             
             // Clear fields
@@ -1042,8 +1094,30 @@
                 document.getElementById("arsStartDate").value = "";
                 document.getElementById("arsEndDate").value = "";
             }
-        } catch { alert("เกิดข้อผิดพลาดในการบันทึก"); }
+            refreshData(); // โหลดข้อมูลใหม่ทันทีหลังเพิ่ม
+        } catch { showToast("เกิดข้อผิดพลาดในการบันทึก ❌", "error"); }
         finally { btn.innerText = "➕ บันทึกข้อมูลใหม่"; btn.disabled = false; }
+    }
+
+    // --- Utils & Event Listeners ---
+    function setupAutoResize() {
+        const textareas = document.querySelectorAll('.tool-textarea');
+        textareas.forEach(el => {
+            el.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+    }
+
+    function setupEnterKeys() {
+        const exe = (e, action) => { if(e.key === 'Enter') { e.preventDefault(); action(); } };
+        document.getElementById('wModel').addEventListener('keydown', e => exe(e, generateText));
+        document.getElementById('wSN').addEventListener('keydown', e => exe(e, generateText));
+        document.getElementById('cModel').addEventListener('keydown', e => exe(e, generateText));
+        document.getElementById('cSN').addEventListener('keydown', e => exe(e, generateText));
+        document.getElementById('arsSearchSN').addEventListener('keydown', e => exe(e, checkARSManual));
+        document.getElementById('hqTicket').addEventListener('keydown', e => exe(e, generateText));
     }
 
     const style = document.createElement('style');
@@ -1052,14 +1126,14 @@
 
     document.addEventListener("keydown", e => {
         if(e.key === "Escape") document.querySelectorAll(".modal").forEach(m => closeModal(m.id));
-        if(e.key === "Enter") {
-            const id = document.activeElement.id;
-            if(id === "input") send();
-            if(id === "password") checkPassword();
-        }
+        if(e.key === "Enter" && document.activeElement.id === "input") send();
+        if(e.key === "Enter" && document.activeElement.id === "password") checkPassword();
     });
 
     window.onload = () => {
+        loadInitialData(); // Load data seamlessly in background
+        setupAutoResize();
+        setupEnterKeys();
         setTimeout(() => {
             addMsg("สวัสดีครับ 👋 มีคำถามเกี่ยวกับ Synology แจ้งอาการเสีย หรือกรอก Serial Number เพื่อเช็คประกันพิเศษ (ARS) ได้เลยครับ", "bot");
         }, 500);
