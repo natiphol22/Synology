@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Business Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 10% 0%, hsla(228, 100%, 74%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(240, 100%, 70%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.1) 0px, transparent 50%);
+            min-height: 100vh;
+            color: #334155;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
+        }
+
+        .input-glass {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        .input-glass:focus-within {
+            background: #fff;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .fade-in-up { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* ปรับแต่ง SweetAlert2 ให้มินิมอลและเข้ากับ Glassmorphism */
+        .swal2-popup {
+            font-family: 'Kanit', sans-serif !important;
+            border-radius: 1.5rem !important;
+            width: 22rem !important;
+            padding: 1.25rem !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15) !important;
+        }
+
+        .swal2-title {
+            font-size: 1.15rem !important;
+            color: #1e293b !important;
+            padding-top: 0 !important;
+        }
+
+        .swal2-html-container {
+            font-size: 0.85rem !important;
+            color: #64748b !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .swal2-confirm {
+            border-radius: 0.75rem !important;
+            font-size: 0.85rem !important;
+            padding: 0.5rem 1.5rem !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2) !important;
+        }
+
+        .swal2-icon {
+            transform: scale(0.7) !important;
+            margin: 1rem auto 0.5rem auto !important;
+        }
+
+        /* ---------------------------------------------------
+           แก้บัคตาซ้อน: ซ่อนไอคอนดวงตา default ของเบราว์เซอร์ Edge/IE 
+           --------------------------------------------------- */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+    </style>
+</head>
+<body class="selection:bg-primary-200 selection:text-primary-900">
+
+    <div class="glass-card w-full max-w-[420px] rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden fade-in-up">
+        <div class="absolute -top-20 -right-20 w-48 h-48 bg-primary-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-cyan-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        
+        <div class="relative z-10">
+            <div class="text-center mb-8">
+                <img src="LOGO.png" alt="CubicPlus Logo" class="h-20 mx-auto drop-shadow-md mb-4 object-contain">
+                <h2 class="text-2xl font-bold text-slate-800 tracking-tight">เข้าสู่ระบบ</h2>
+                <p class="text-slate-500 text-sm mt-1">Cubic<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-sky-500 font-semibold">Plus</span> Business Portal</p>
+            </div>
+
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">ชื่อผู้ใช้งาน</label>
+                    <div class="input-glass flex items-center px-4 py-3.5 rounded-2xl relative group">
+                        <i data-lucide="user" class="w-5 h-5 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                        <input type="text" id="user" placeholder="Username" class="w-full bg-transparent border-none outline-none ml-3 text-sm font-medium text-slate-700 placeholder:text-slate-400 placeholder:font-normal">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">รหัสผ่าน</label>
+                    <div class="input-glass flex items-center px-4 py-3.5 rounded-2xl relative group pr-12">
+                        <i data-lucide="lock" class="w-5 h-5 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                        <input type="password" id="pass" placeholder="••••••••" class="w-full bg-transparent border-none outline-none ml-3 text-sm font-medium text-slate-700 placeholder:text-slate-400 placeholder:font-normal">
+                        
+                        <button type="button" onclick="togglePassword()" class="absolute right-4 text-slate-400 hover:text-primary-500 focus:outline-none transition-colors">
+                            <i data-lucide="eye" id="eye-icon" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="loginBtn" onclick="handleLogin()" class="w-full mt-2 py-4 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white rounded-2xl font-bold text-sm shadow-[0_10px_20px_rgba(99,102,241,0.25)] hover:shadow-[0_15px_30px_rgba(99,102,241,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                    <span id="btnText" class="flex items-center gap-2">เข้าสู่ระบบ <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </button>
+            </div>
+            
+            <div class="mt-8 text-center border-t border-slate-200/60 pt-6">
+                <p class="text-xs text-slate-400">พบปัญหาการใช้งาน? <a href="#" class="text-primary-500 font-semibold hover:underline">ติดต่อผู้ดูแลระบบ</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // สร้างไอคอนของ Lucide
+        lucide.createIcons();
+
+        // ฟังก์ชันสำหรับเปิด-ปิดตา ดูรหัสผ่าน
+        function togglePassword() {
+            const passInput = document.getElementById('pass');
+            const eyeIcon = document.getElementById('eye-icon');
+            
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons(); // รีเฟรชไอคอนใหม่
+        }
+
+        // UX: เพิ่มการกด Enter เพื่อล็อคอิน
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                handleLogin();
+            }
+        });
+
+        // ส่วนเชื่อมต่อ Google Apps Script ที่ระบบเดิมของคุณมีอยู่แล้ว
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvias15RD3nXzPD0zQLTlNf_Y0hR7NSxkaQhKbkEWUujVJJs883XZWy57snRTZtk7o/exec"; 
+
+        async function handleLogin() {
+            const userInp = document.getElementById('user').value.trim();
+            const passInp = document.getElementById('pass').value.trim();
+
+            // เช็คว่ากรอกข้อมูลครบไหมก่อนส่งไปโหลด
+            if(!userInp || !passInp) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณากรอกชื่อผู้ใช้งานและรหัสผ่านให้ครบถ้วน',
+                    confirmButtonColor: '#6366f1'
+                });
+                return;
+            }
+
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+
+            // เริ่มสถานะ Loading
+            loginBtn.disabled = true;
+            btnText.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> กำลังเข้าสู่ระบบ...';
+            lucide.createIcons();
+
+            const payload = {
+                action: "login",
+                username: userInp,
+                password: passInp
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    // เก็บข้อมูลชั่วคราวไว้ใน Browser
+                    sessionStorage.setItem("isLoggedIn", "true");
+                    sessionStorage.setItem("userName", result.name);
+                    sessionStorage.setItem("userRole", result.role);
+                    
+                    // บันทึก Username เพิ่มเติม
+                    sessionStorage.setItem("userLoginName", userInp);
+                    
+                    // แจ้งเตือนสำเร็จแล้วค่อยย้ายหน้า
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ยินดีต้อนรับ!',
+                        text: 'เข้าสู่ระบบสำเร็จ กำลังพาท่านไป...',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        backdrop: `rgba(0,0,0,0.4)`
+                    }).then(() => {
+                        window.location.href = "dashboard.html";
+                    });
+                } else {
+                    // แจ้งเตือนเมื่อรหัสผิด
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เข้าสู่ระบบไม่สำเร็จ',
+                        text: 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonColor: '#6366f1',
+                        backdrop: `rgba(0,0,0,0.4)`
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ในขณะนี้',
+                    confirmButtonColor: '#6366f1',
+                    backdrop: `rgba(0,0,0,0.4)`
+                });
+            } finally {
+                // คืนค่าสถานะปุ่มกลับมาเหมือนเดิม
+                loginBtn.disabled = false;
+                btnText.innerHTML = 'เข้าสู่ระบบ <i data-lucide="arrow-right" class="w-4 h-4"></i>';
+                lucide.createIcons();
+            }
+        }
+    </script>
+</body>
+</html>
