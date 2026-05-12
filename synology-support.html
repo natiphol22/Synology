@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synology Support | CubicPlus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Kanit', sans-serif; }</style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col overflow-hidden">
+    <header class="h-14 bg-white border-b flex items-center px-4 justify-between shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600"></i>
+            </a>
+            <span class="font-bold text-slate-700">Synology Support Center</span>
+        </div>
+        <div class="text-[10px] text-slate-400 font-medium">CUBICPLUS PORTAL EXTERNAL VIEW</div>
+    </header>
+
+    <div class="flex-1 w-full h-full">
+        <iframe src="https://account.synology.com/en-global/support" class="w-full h-full border-none"></iframe>
+    </div>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>
