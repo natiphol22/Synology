@@ -239,6 +239,12 @@
                                 </div>
                                 <div><h4 class="font-bold text-slate-800 text-sm">AI Assistant</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">ผู้ช่วยอัจฉริยะ</p></div>
                             </a>
+                            <a href="calendar.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                                    <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">ปฏิทินงาน</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">ตารางงานและวันหยุด</p></div>
+                            </a>
                             <a href="leave.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
                                 <div class="w-12 h-12 rounded-[1rem] bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
                                     <i data-lucide="palmtree" class="w-6 h-6"></i>
@@ -335,9 +341,6 @@
             document.getElementById("welcomeName").innerText = displayUser;
             document.getElementById("sidebarName").innerText = displayUser;
             
-            // แก้ไข: ไม่เปลี่ยน Initial เป็นตัวอักษรเดียวแล้ว แต่ใช้ไอคอน/โลโก้แทนเพื่อความสวยงาม
-            // document.getElementById("sidebarInitial").innerText = displayUser.charAt(0).toUpperCase();
-            
             if(role) document.getElementById("sidebarRole").innerText = role;
 
             if (role && role.toLowerCase().trim() === "admin") {
@@ -432,7 +435,6 @@
 
                     let dotColor = isOnline ? (loc==='OFFICE' ? 'bg-indigo-500' : (loc==='WFH' ? 'bg-emerald-500' : 'bg-amber-500')) : 'bg-slate-300';
                     
-                    // แก้ไข: แสดงชื่อเต็ม (k) แทนที่จะเป็น k.split(' ')[0] และ k.charAt(0)
                     htmlContent += `
                     <div class="flex items-center justify-between p-2.5 bg-white border border-slate-100 rounded-xl shadow-sm transition-all hover:border-primary-100">
                         <div class="flex items-center gap-2 truncate">
@@ -513,7 +515,28 @@
         }
 
         function safeDateFormat(d) { if(!d) return ""; try { return new Date(d).toISOString().split('T')[0]; } catch(e) { return d.toString().split('T')[0]; } }
-        function logout() { sessionStorage.clear(); window.location.href = "index.html"; }
+        
+        // ฟังก์ชัน Logout แบบมีหน้าต่างยืนยัน
+        function logout() {
+            Swal.fire({
+                title: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+                text: "เซสชันปัจจุบันของคุณจะสิ้นสุดลง",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#f1f5f9',
+                confirmButtonText: 'ใช่, ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก',
+                customClass: {
+                    cancelButton: 'text-slate-600'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sessionStorage.clear();
+                    window.location.href = "index.html";
+                }
+            });
+        }
     </script>
 </body>
 </html>
