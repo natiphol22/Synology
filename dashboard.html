@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CubicPlusBusinessPortal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard | CubicPlus Portal</title>
 
     <link rel="icon" type="image/png" href="LOGO.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,12 +13,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Kanit', 'sans-serif'] },
-                    colors: {
+                    colors: { 
                         primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
                     }
                 }
@@ -29,171 +30,300 @@
         body { 
             font-family: 'Kanit', sans-serif; 
             background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+
+        .bento-card {
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+            border-radius: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.08);
+            border-color: rgba(199, 210, 254, 0.8);
+        }
+
+        .tool-card { border-radius: 1.5rem; }
+        .sidebar-item { transition: all 0.2s ease; }
+        .sidebar-item.active { background: #eef2ff; color: #4f46e5; font-weight: 600; }
+        .sidebar-item:hover:not(.active) { background: #f8fafc; color: #4f46e5; transform: translateX(4px); }
+
+        @media (min-width: 1024px) {
+            .sidebar-closed {
+                width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-width: 0 !important;
+                opacity: 0;
+                overflow: hidden;
+            }
+        }
+
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .delay-100 { animation-delay: 0.1s; } 
+
+        .hero-mesh {
+            background-color: #ffffff;
             background-image: 
-                radial-gradient(at 10% 0%, hsla(228, 100%, 74%, 0.15) 0px, transparent 50%),
-                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 80% 100%, hsla(240, 100%, 70%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.1) 0px, transparent 50%);
-            min-height: 100vh;
-            color: #334155;
-            overflow-x: hidden;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+                radial-gradient(at 8% 10%, hsla(232, 85%, 93%, 1) 0px, transparent 50%),
+                radial-gradient(at 90% 12%, hsla(196, 92%, 91%, 1) 0px, transparent 50%),
+                radial-gradient(at 45% 85%, hsla(271, 91%, 95%, 1) 0px, transparent 50%),
+                radial-gradient(at 15% 85%, hsla(202, 94%, 90%, 1) 0px, transparent 50%);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,1);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .menu-card:hover {
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 30px 60px -15px rgba(99, 102, 241, 0.15);
-            border-color: rgba(99, 102, 241, 0.3);
-        }
+        #radarTeamListArea { transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+        .list-hidden { max-height: 0 !important; opacity: 0; padding: 0 !important; overflow: hidden; pointer-events: none; }
+        .list-visible { max-height: 500px !important; opacity: 1; padding: 1.25rem !important; }
 
-        .admin-card {
-            background: linear-gradient(135deg, rgba(255,245,245,0.7) 0%, rgba(255,255,255,0.8) 100%);
-            border: 1px dashed rgba(244,63,94,0.4) !important;
-        }
-
-        /* Balance Animation */
-        .fade-in-up { 
-            opacity: 0; 
-            transform: translateY(30px); 
-            animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
-        }
-
-        @keyframes fadeInUp { 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        /* Staggered Delay */
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
-        .delay-600 { animation-delay: 0.6s; }
-        .delay-700 { animation-delay: 0.7s; }
-        .delay-800 { animation-delay: 0.8s; }
-        .delay-900 { animation-delay: 0.9s; } /* เพิ่ม delay-900 สำหรับการ์ด Admin ที่โดนดันไปหลังสุด */
-
-        .swal2-popup {
-            font-family: 'Kanit', sans-serif !important;
-            border-radius: 1.5rem !important;
-            width: 90% !important; /* รองรับจอเล็ก */
-            max-width: 24rem !important;
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(16px) !important;
-        }
+        .swal2-popup { font-family: 'Kanit', sans-serif !important; border-radius: 2rem !important; backdrop-filter: blur(16px); }
+        .input-clean { background: #f8fafc; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        .input-clean:focus { background: #fff; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); outline: none; }
     </style>
 </head>
-<body class="p-4 md:p-8 lg:p-12 selection:bg-primary-200 selection:text-primary-900">
+<body class="flex h-screen overflow-hidden selection:bg-primary-200 selection:text-primary-900">
 
-    <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 fade-in-up">
-        <div class="relative w-full md:w-auto">
-            <h1 class="text-2xl md:text-4xl font-bold text-slate-800 tracking-tight">สวัสดีคุณ <span id="welcomeName" class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-sky-500">...</span> 👋</h1>
-            <p class="text-slate-500 font-medium text-xs md:text-sm mt-1">ยินดีต้อนรับสู่ระบบ เลือกเมนูที่ต้องการใช้งาน</p>
-        </div>
+    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 flex flex-col h-full transition-all duration-300 shadow-2xl lg:shadow-none">
         
-        <div class="glass-card w-full md:w-auto pl-6 pr-3 py-3 rounded-[2rem] flex items-center justify-between md:justify-start gap-5 border border-white">
-            <div class="text-right">
-                <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Logged in as</p>
-                <p id="displayName" class="text-slate-700 font-bold text-xs md:text-sm">กำลังโหลด...</p>
+        <div class="h-20 flex items-center px-8 border-b border-slate-100 shrink-0">
+            <div class="w-10 h-10 rounded-xl overflow-hidden shadow-md mr-3">
+                <img src="LOGO.png" alt="Logo" class="w-full h-full object-cover">
             </div>
-            <button onclick="logout()" class="w-10 h-10 md:w-12 md:h-12 bg-white border border-slate-100 text-rose-500 rounded-full flex items-center justify-center hover:bg-rose-50 hover:border-rose-200 transition-all shadow-sm group">
-                <i data-lucide="power" class="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform"></i>
-            </button>
+            <div class="whitespace-nowrap">
+                <span class="font-black text-xl tracking-tight text-slate-800 block leading-none">Cubic<span class="text-primary-600">Plus</span></span>
+            </div>
+            <button onclick="toggleSidebar()" class="ml-auto lg:hidden text-slate-400 p-1 bg-slate-50 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
-    </div>
 
-    <div class="max-w-[1440px] mx-auto">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            
-            <a href="checkin.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-100 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-emerald-100">
-                    <i data-lucide="map-pin" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">Check-in</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">ลงเวลาเข้า-ออกงาน และบันทึกสถานที่ทำงาน</p>
+        <div class="flex-1 overflow-y-auto custom-scrollbar px-4 py-6 space-y-1">
+            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 whitespace-nowrap">Overview</p>
+            <a href="dashboard.html" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-2xl whitespace-nowrap">
+                <i data-lucide="layout-grid" class="w-5 h-5 shrink-0"></i><span class="text-sm">แดชบอร์ด</span>
             </a>
-            
-            <a href="toolkit.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-800 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-sky-50 text-sky-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-sky-100">
-                    <i data-lucide="wrench" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">Service Toolkit</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">เครื่องมือจัดการข้อมูลและซัพพอร์ตลูกค้า</p>
+            <a href="checkin.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="map-pin" class="w-5 h-5 shrink-0"></i><span class="text-sm">ระบบ Check-in</span>
+            </a>
+            <a href="calendar.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="calendar-days" class="w-5 h-5 shrink-0"></i><span class="text-sm">ปฏิทินบริษัท</span>
             </a>
             
-            <a href="Ai.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-200 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-fuchsia-50 text-fuchsia-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-fuchsia-100">
-                    <i data-lucide="sparkles" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">AI Assistant</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">ผู้ช่วย AI อัจฉริยะ ตอบคำถามและซัพพอร์ตงาน</p>
+            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-8 mb-3 whitespace-nowrap">Work Tools</p>
+            <a href="toolkit.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="blocks" class="w-5 h-5 shrink-0"></i><span class="text-sm">Service Toolkit</span>
+            </a>
+            <a href="Ai.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="bot" class="w-5 h-5 shrink-0"></i><span class="text-sm">AI Assistant</span>
+            </a>
+            <a href="leave.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="palmtree" class="w-5 h-5 shrink-0"></i><span class="text-sm">ระบบลางาน</span>
+            </a>
+            <a href="Form.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="receipt" class="w-5 h-5 shrink-0"></i><span class="text-sm">เบิกเบี้ยเลี้ยง</span>
+            </a>
+            <a href="oil.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="fuel" class="w-5 h-5 shrink-0"></i><span class="text-sm">คำนวณค่าน้ำมัน</span>
+            </a>
+            <a href="PDFtoJPG.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="file-image" class="w-5 h-5 shrink-0"></i><span class="text-sm">PDF to JPG</span>
             </a>
 
-            <a href="leave.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-300 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-teal-50 text-teal-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-teal-100">
-                    <i data-lucide="calendar-clock" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">ระบบลางาน</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">ยื่นคำร้องลากิจ ลาป่วย และติดตามสถานะ</p>
-            </a>
-
-            <a href="calendar.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-400 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-blue-100">
-                    <i data-lucide="calendar-days" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">ปฏิทินงานและวันหยุด</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">เช็ควันหยุดบริษัท และตารางงานต่างๆ</p>
-            </a>
-
-            <a href="Form.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-500 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-indigo-100">
-                    <i data-lucide="wallet" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">เบี้ยเลี้ยง</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">กรอกฟอร์มขอเบิกเบี้ยเลี้ยงเดินทาง</p>
-            </a>
-
-            <a href="oil.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-600 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-cyan-50 text-cyan-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-cyan-100">
-                    <i data-lucide="car" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">ค่าน้ำมัน</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">คำนวณระยะทางและค่าน้ำมันอัตโนมัติ</p>
-            </a>
-
-            <a href="PDFtoJPG.html" class="glass-card menu-card p-6 md:p-8 rounded-[2.5rem] group fade-in-up delay-700 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-amber-100">
-                    <i data-lucide="file-type-2" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">PDF to JPG</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">แปลงไฟล์ PDF เป็นรูปภาพออนไลน์ รวดเร็ว</p>
-            </a>
-
-
-            <a href="admin.html" id="adminMenu" class="glass-card menu-card admin-card p-6 md:p-8 rounded-[2.5rem] group hidden fade-in-up delay-900 relative overflow-hidden">
-                <div class="w-12 h-12 md:w-16 md:h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-4 md:mb-8 border border-rose-100">
-                    <i data-lucide="settings-2" class="w-6 h-6 md:w-7 md:h-7"></i>
-                </div>
-                <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-2">Admin</h3>
-                <p class="text-slate-500 text-xs md:text-sm leading-relaxed">จัดการข้อมูลสมาชิกและรายงานภาพรวม</p>
-            </a>
-            
+            <div id="adminMenuSidebar" class="hidden">
+                <div class="h-px bg-slate-100 my-6 mx-4"></div>
+                <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-rose-400 mb-3 whitespace-nowrap">Management</p>
+                <a href="admin.html" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-rose-600 hover:bg-rose-50 whitespace-nowrap">
+                    <i data-lucide="shield-check" class="w-5 h-5 shrink-0"></i><span class="text-sm">ระบบ Admin</span>
+                </a>
+            </div>
         </div>
-    </div>
+
+        <div class="p-4 shrink-0 border-t border-slate-100">
+            <div class="bg-slate-50 rounded-[1.5rem] p-3 flex items-center gap-3">
+                <div id="sidebarInitial" class="w-10 h-10 rounded-full bg-white overflow-hidden flex items-center justify-center border border-slate-200 shrink-0">
+                    <img src="LOGO.png" class="w-6 h-6 object-contain opacity-50">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p id="sidebarName" class="text-sm font-bold text-slate-800 truncate">...</p>
+                    <p id="sidebarRole" class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">User</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
+        
+        <header class="h-20 flex items-center justify-between px-6 lg:px-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <h1 class="text-xl font-bold text-slate-800 hidden sm:block tracking-tight">ภาพรวมระบบ</h1>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="bg-white border border-slate-200 shadow-sm px-4 py-2.5 rounded-2xl flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4 text-primary-500"></i>
+                    <span id="currentDateDisplay" class="text-sm font-semibold text-slate-600">...</span>
+                </div>
+                <button onclick="logout()" class="p-2.5 bg-white border border-rose-100 text-rose-500 hover:bg-rose-50 rounded-2xl shadow-sm transition-colors" title="ออกจากระบบ">
+                    <i data-lucide="power" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto custom-scrollbar px-4 lg:px-10 pb-10">
+            <div class="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+                <div class="xl:col-span-8 flex flex-col gap-6 fade-in">
+                    
+                    <div class="hero-mesh rounded-[2rem] p-6 relative overflow-hidden shadow-sm flex items-center">
+                        <h2 class="text-2xl font-bold text-slate-800 tracking-tight">สวัสดีคุณ <span id="welcomeName" class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-sky-500">...</span> 👋</h2>
+                    </div>
+
+                    <div class="bento-card rounded-[2rem] overflow-hidden">
+                        <div onclick="toggleTeamList()" class="flex items-center justify-between p-4 px-6 cursor-pointer hover:bg-slate-50 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100 text-xs font-bold">
+                                    <i data-lucide="building-2" class="w-3.5 h-3.5"></i> OFFICE: <span id="radarCountOffice">0</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100 text-xs font-bold">
+                                    <i data-lucide="home" class="w-3.5 h-3.5"></i> WFH: <span id="radarCountWfh">0</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full border border-amber-100 text-xs font-bold">
+                                    <i data-lucide="car" class="w-3.5 h-3.5"></i> SITE: <span id="radarCountOnsite">0</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="text-[10px] font-bold uppercase tracking-widest hidden sm:block">ดูรายชื่อ</span>
+                                <i id="chevronIcon" data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300"></i>
+                            </div>
+                        </div>
+                        
+                        <div id="radarTeamListArea" class="list-hidden bg-slate-50/50 border-t border-slate-100">
+                            <div id="teamGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between mb-4 px-1">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="grid-2x2" class="w-5 h-5 text-primary-500"></i> แอปพลิเคชัน (Work Tools)</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <a href="checkin.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">Check-in</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">ลงเวลาเข้า-ออกงาน</p></div>
+                            </a>
+                            <a href="toolkit.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+                                    <i data-lucide="blocks" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">Toolkit</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">เครื่องมือซัพพอร์ต</p></div>
+                            </a>
+                            <a href="Ai.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center border border-fuchsia-100">
+                                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">AI Assistant</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">ผู้ช่วยอัจฉริยะ</p></div>
+                            </a>
+                            <a href="leave.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
+                                    <i data-lucide="palmtree" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">ลางาน</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">ระบบยื่นคำร้องลา</p></div>
+                            </a>
+                            <a href="Form.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                                    <i data-lucide="receipt" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">เบี้ยเลี้ยง</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">เบิกจ่ายเดินทาง</p></div>
+                            </a>
+                            <a href="oil.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
+                                    <i data-lucide="fuel" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">ค่าน้ำมัน</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">คำนวณอัตโนมัติ</p></div>
+                            </a>
+                            <a href="PDFtoJPG.html" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                                    <i data-lucide="file-image" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">PDF Converter</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">แปลงไฟล์รูปภาพ</p></div>
+                            </a>
+                            <a href="admin.html" id="adminMenuCard" class="hidden bento-card tool-card p-5 flex-col items-start gap-4 bg-rose-50/30 border-rose-100">
+                                <div class="w-12 h-12 rounded-[1rem] bg-rose-100 text-rose-600 flex items-center justify-center border border-rose-200">
+                                    <i data-lucide="settings-2" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-rose-800 text-sm">Admin Zone</h4><p class="text-[10px] text-rose-500 mt-1 font-medium leading-tight">จัดการระบบทั้งหมด</p></div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-4 flex flex-col gap-6 fade-in delay-100">
+                    <div class="bento-card rounded-[2.5rem] p-6 relative overflow-hidden group flex flex-col">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none"><i data-lucide="megaphone" class="w-20 h-20 text-amber-500"></i></div>
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2 mb-3 relative z-10"><i data-lucide="megaphone" class="w-4 h-4 text-amber-500"></i> ประกาศจากระบบ</h3>
+                        <div class="flex-1 relative z-10 flex flex-col">
+                            <div id="announceContent" class="flex-1 bg-amber-50/50 rounded-xl p-4 text-sm text-slate-700 font-medium whitespace-pre-wrap border border-amber-100/50 max-h-[120px] overflow-y-auto custom-scrollbar">กำลังโหลดประกาศ...</div>
+                            <div id="adminAnnounceControls" class="hidden mt-4 pt-3 border-t border-slate-100">
+                                <textarea id="announceInput" rows="1" class="w-full input-clean rounded-lg p-2.5 text-xs text-slate-700 resize-none custom-scrollbar" placeholder="พิมพ์ข้อความประกาศใหม่ที่นี่..."></textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button onclick="saveAnnounce()" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-colors">อัปเดต</button>
+                                    <button onclick="clearAnnounce()" class="py-1.5 px-3 bg-white border border-rose-200 text-rose-500 hover:bg-rose-50 rounded-lg text-xs font-bold transition-colors">ล้าง</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col flex-1">
+                        <div class="flex items-center justify-between mb-4 px-1">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2"><i data-lucide="calendar-check" class="w-5 h-5 text-primary-500"></i> งาน/วันหยุด ที่จะถึง</h3>
+                            <a href="calendar.html" class="text-xs font-bold text-primary-600 hover:text-primary-800">ดูทั้งหมด</a>
+                        </div>
+                        <div class="bento-card rounded-[2.5rem] p-6 flex flex-col h-[350px]">
+                            <div id="eventsLoader" class="flex-1 flex flex-col items-center justify-center py-6">
+                                <i data-lucide="loader-2" class="w-6 h-6 animate-spin text-primary-500 mb-2"></i>
+                            </div>
+                            <div id="upcomingEventsList" class="flex-1 space-y-3 hidden overflow-y-auto custom-scrollbar pr-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
 
     <script>
+        const CALENDAR_API_URL = "https://script.google.com/macros/s/AKfycbwfeyj5Y310dFKvSYLff_rbYFkK2TcBzVhzRC2toS6-v8bbOnkDW-bgi2AVC6o6To_b/exec";
+        const CHECKIN_API_URL = "https://script.google.com/macros/s/AKfycbwfeyj5Y310dFKvSYLff_rbYFkK2TcBzVhzRC2toS6-v8bbOnkDW-bgi2AVC6o6To_b/exec";
+        const ANNOUNCE_API_URL = "https://script.google.com/macros/s/AKfycbwfeyj5Y310dFKvSYLff_rbYFkK2TcBzVhzRC2toS6-v8bbOnkDW-bgi2AVC6o6To_b/exec"; 
+
+        let globalUpcomingEvents = [];
+
         window.onload = function() {
             lucide.createIcons();
+            checkAuth();
+            setDateHeader();
+            fetchTeamLocation(); 
+            fetchUpcomingEvents(); 
+            fetchAnnouncement(); 
+        };
+
+        function checkAuth() {
             const isLoggedIn = sessionStorage.getItem("isLoggedIn");
             const role = sessionStorage.getItem("userRole") || sessionStorage.getItem("role");
             const name = sessionStorage.getItem("userName");
@@ -201,39 +331,189 @@
 
             if (isLoggedIn !== "true") { window.location.href = "index.html"; return; }
 
-            const displayUser = name || "User Account";
-            
-            if(username) {
-                document.getElementById("displayName").innerText = `${displayUser} (${username})`;
-            } else {
-                document.getElementById("displayName").innerText = displayUser;
-            }
-            
+            const displayUser = name || username || "ผู้ใช้งาน";
             document.getElementById("welcomeName").innerText = displayUser;
+            document.getElementById("sidebarName").innerText = displayUser;
+            
+            // แก้ไข: ไม่เปลี่ยน Initial เป็นตัวอักษรเดียวแล้ว แต่ใช้ไอคอน/โลโก้แทนเพื่อความสวยงาม
+            // document.getElementById("sidebarInitial").innerText = displayUser.charAt(0).toUpperCase();
+            
+            if(role) document.getElementById("sidebarRole").innerText = role;
 
             if (role && role.toLowerCase().trim() === "admin") {
-                const adminBtn = document.getElementById("adminMenu");
-                adminBtn.classList.remove("hidden");
-                adminBtn.classList.add("block");
+                document.getElementById("adminMenuSidebar").classList.remove("hidden");
+                const adminCard = document.getElementById("adminMenuCard");
+                if(adminCard) { adminCard.classList.remove("hidden"); adminCard.classList.add("flex"); }
+                document.getElementById("adminAnnounceControls").classList.remove("hidden");
             }
-        };
+        }
 
-        function logout() {
-            Swal.fire({
-                title: 'ออกจากระบบ?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#f43f5e',
-                confirmButtonText: 'ใช่, ออกจากระบบ',
-                cancelButtonText: 'ยกเลิก',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    sessionStorage.clear();
-                    window.location.href = "index.html";
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            if (window.innerWidth < 1024) {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.remove('opacity-100');
+                    setTimeout(() => overlay.classList.add('hidden'), 300);
                 }
+            } else {
+                sidebar.classList.toggle('sidebar-closed');
+            }
+        }
+
+        function toggleTeamList() {
+            const area = document.getElementById('radarTeamListArea');
+            const icon = document.getElementById('chevronIcon');
+            const isHidden = area.classList.contains('list-hidden');
+            if (isHidden) {
+                area.classList.remove('list-hidden');
+                area.classList.add('list-visible');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                area.classList.add('list-hidden');
+                area.classList.remove('list-visible');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function setDateHeader() {
+            const now = new Date();
+            const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            document.getElementById('currentDateDisplay').innerText = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+        }
+
+        async function fetchAnnouncement() {
+            try {
+                const res = await fetch(ANNOUNCE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'getAnnounce' }) });
+                const result = await res.json();
+                document.getElementById('announceContent').innerText = result.data || "ไม่มีประกาศใหม่";
+            } catch (e) { document.getElementById('announceContent').innerText = "โหลดประกาศไม่สำเร็จ"; }
+        }
+
+        async function saveAnnounce() {
+            const text = document.getElementById('announceInput').value;
+            if(!text) return;
+            try {
+                await fetch(ANNOUNCE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateAnnounce', text: text }) });
+                document.getElementById('announceContent').innerText = text;
+                Swal.fire({ icon: 'success', title: 'อัปเดตสำเร็จ', showConfirmButton: false, timer: 1000 });
+                document.getElementById('announceInput').value = "";
+            } catch(e) { Swal.fire('Error', 'บันทึกไม่สำเร็จ', 'error'); }
+        }
+
+        async function clearAnnounce() {
+            try {
+                await fetch(ANNOUNCE_API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateAnnounce', text: "" }) });
+                document.getElementById('announceContent').innerText = "ไม่มีประกาศใหม่";
+                Swal.fire({ icon: 'info', title: 'ล้างประกาศเรียบร้อย', showConfirmButton: false, timer: 1000 });
+            } catch(e) {}
+        }
+
+        async function fetchTeamLocation() {
+            try {
+                const res = await fetch(CHECKIN_API_URL, { method: 'POST', body: JSON.stringify({action: "fetchData"}) });
+                const data = await res.json();
+                const today = new Date().toLocaleDateString('th-TH');
+                const latestMap = new Map();
+                data.forEach(d => { if (new Date(d.Timestamp).toLocaleDateString('th-TH') === today) latestMap.set(d.Name, d); });
+
+                let counts = { 'OFFICE': 0, 'WFH': 0, 'ON-SITE': 0 };
+                let htmlContent = "";
+
+                latestMap.forEach((v, k) => {
+                    const isOnline = v.Type === "Check In";
+                    const loc = v.Location ? v.Location.toUpperCase() : 'OFFLINE';
+                    if(isOnline && counts[loc] !== undefined) counts[loc]++;
+
+                    let dotColor = isOnline ? (loc==='OFFICE' ? 'bg-indigo-500' : (loc==='WFH' ? 'bg-emerald-500' : 'bg-amber-500')) : 'bg-slate-300';
+                    
+                    // แก้ไข: แสดงชื่อเต็ม (k) แทนที่จะเป็น k.split(' ')[0] และ k.charAt(0)
+                    htmlContent += `
+                    <div class="flex items-center justify-between p-2.5 bg-white border border-slate-100 rounded-xl shadow-sm transition-all hover:border-primary-100">
+                        <div class="flex items-center gap-2 truncate">
+                            <div class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold border border-indigo-100 shrink-0">
+                                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 truncate">${k}</span>
+                        </div>
+                        <div class="w-2 h-2 rounded-full ${dotColor} shrink-0"></div>
+                    </div>`;
+                });
+
+                document.getElementById('radarCountOffice').innerText = counts['OFFICE'];
+                document.getElementById('radarCountWfh').innerText = counts['WFH'];
+                document.getElementById('radarCountOnsite').innerText = counts['ON-SITE'];
+                document.getElementById('teamGrid').innerHTML = htmlContent || `<div class="col-span-full text-center p-4 text-slate-400 text-xs">ยังไม่มีการเช็คอิน</div>`;
+                lucide.createIcons();
+            } catch (e) { document.getElementById('teamGrid').innerHTML = "Error"; }
+        }
+
+        async function fetchUpcomingEvents() {
+            const username = sessionStorage.getItem("userLoginName");
+            const role = sessionStorage.getItem("userRole");
+            const isAdmin = String(role).trim().toLowerCase() === "admin";
+            try {
+                const response = await fetch(CALENDAR_API_URL, {
+                    method: "POST", body: JSON.stringify({ action: "fetchCalendarData", username: username, role: role })
+                });
+                const result = await response.json();
+                document.getElementById('eventsLoader').classList.add('hidden');
+                document.getElementById('upcomingEventsList').classList.remove('hidden');
+                if (result.status === "success") {
+                    processAndRenderEvents(result.events || [], result.holidays || [], result.myLeaves || [], isAdmin, username);
+                }
+            } catch (error) { document.getElementById('eventsLoader').innerHTML = "Error"; }
+        }
+
+        function processAndRenderEvents(events, holidays, leaves, isAdmin, currentUsername) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const clean = (arr) => arr.map(i => ({...i, date: safeDateFormat(i.date)}));
+            let combined = [...clean(holidays), ...clean(events), ...clean(leaves).map(l => ({...l, type:'leave', date: safeDateFormat(l.startDate)}))].filter(i => i.date >= todayStr);
+            combined.sort((a, b) => new Date(a.date) - new Date(b.date));
+            globalUpcomingEvents = combined;
+            const list = document.getElementById('upcomingEventsList');
+            list.innerHTML = '';
+            if (combined.length === 0) {
+                list.innerHTML = `<div class="text-center p-6 text-slate-400 text-xs">ไม่มีรายการเร็วๆ นี้</div>`;
+                return;
+            }
+            const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            combined.slice(0, 4).forEach((item, index) => {
+                const d = new Date(item.date);
+                list.innerHTML += `
+                    <div onclick="openEventDetail(${index})" class="group flex gap-3 p-3 rounded-2xl bg-slate-50/50 hover:bg-white border border-transparent hover:border-primary-100 cursor-pointer transition-all shadow-sm">
+                        <div class="w-10 h-12 shrink-0 bg-white border border-slate-200 rounded-xl flex flex-col items-center justify-center shadow-sm">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">${months[d.getMonth()]}</span>
+                            <span class="text-base font-black text-slate-800 leading-none">${d.getDate()}</span>
+                        </div>
+                        <div class="flex-1 min-w-0 flex flex-col justify-center">
+                            <h4 class="font-bold text-xs text-slate-800 truncate group-hover:text-primary-600 transition-colors">${item.name}</h4>
+                            <p class="text-[10px] text-slate-400 flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> ดูรายละเอียด</p>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function openEventDetail(index) {
+            const item = globalUpcomingEvents[index];
+            if (!item) return;
+            const d = new Date(item.date);
+            Swal.fire({
+                title: `<span class="text-lg">${item.name}</span>`,
+                html: `<div class="text-left mt-2"><p class="text-primary-600 font-bold mb-3 flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> วันที่: ${d.toLocaleDateString('th-TH', {dateStyle:'long'})}</p><div class="bg-slate-50 p-4 rounded-xl text-sm text-slate-600 border border-slate-100 whitespace-pre-wrap">${item.detail || 'ไม่มีข้อมูลเพิ่มเติม'}</div></div>`,
+                confirmButtonColor: '#4f46e5',
+                didOpen: () => { lucide.createIcons(); }
             });
         }
+
+        function safeDateFormat(d) { if(!d) return ""; try { return new Date(d).toISOString().split('T')[0]; } catch(e) { return d.toString().split('T')[0]; } }
+        function logout() { sessionStorage.clear(); window.location.href = "index.html"; }
     </script>
 </body>
 </html>
