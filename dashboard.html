@@ -140,6 +140,9 @@
             <a href="https://godrive.cubicplus.app/#/signin" target="_blank" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
                 <i data-lucide="cloud" class="w-5 h-5 shrink-0"></i><span class="text-sm">GoDrive</span>
             </a>
+            <a href="https://office.cubicplus.asia:55001/#/signin" target="_blank" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 whitespace-nowrap">
+                <i data-lucide="server" class="w-5 h-5 shrink-0"></i><span class="text-sm">NasSynology</span>
+            </a>
 
             <div id="adminMenuSidebar" class="hidden">
                 <div class="h-px bg-slate-100 my-6 mx-4"></div>
@@ -278,6 +281,14 @@
                                 </div>
                                 <div><h4 class="font-bold text-slate-800 text-sm">GoDrive</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">คลาวด์บริษัท</p></div>
                             </a>
+
+                            <a href="https://office.cubicplus.asia:55001/#/signin" target="_blank" class="bento-card tool-card p-5 flex flex-col items-start gap-4">
+                                <div class="w-12 h-12 rounded-[1rem] bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+                                    <i data-lucide="server" class="w-6 h-6"></i>
+                                </div>
+                                <div><h4 class="font-bold text-slate-800 text-sm">NasSynology</h4><p class="text-[10px] text-slate-500 mt-1 font-medium leading-tight">จัดการไฟล์และระบบ NAS</p></div>
+                            </a>
+
                             <a href="admin.html" id="adminMenuCard" class="hidden bento-card tool-card p-5 flex-col items-start gap-4 bg-rose-50/30 border-rose-100">
                                 <div class="w-12 h-12 rounded-[1rem] bg-rose-100 text-rose-600 flex items-center justify-center border border-rose-200">
                                     <i data-lucide="settings-2" class="w-6 h-6"></i>
@@ -525,7 +536,6 @@
 
         function safeDateFormat(d) { if(!d) return ""; try { return new Date(d).toISOString().split('T')[0]; } catch(e) { return d.toString().split('T')[0]; } }
         
-        // ฟังก์ชัน Logout แบบมีหน้าต่างยืนยัน
         function logout() {
             Swal.fire({
                 title: 'คุณต้องการออกจากระบบใช่หรือไม่?',
