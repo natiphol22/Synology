@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>CubicPlusBusinessPortal</title>
+     <title>CubicPlusBusinessPortal - PDF to JPG Converter</title>
 
     <link rel="icon" type="image/png" href="LOGO.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,134 +20,151 @@
 
     <style>
         body { font-family: 'Sarabun', sans-serif; }
+        
         .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05);
         }
-        .input-dark {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e2e8f0;
+        
+        .input-light {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
             transition: all 0.3s ease;
         }
-        .input-dark:focus {
-            border-color: #06b6d4;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        .input-light:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
             outline: none;
         }
+        
         .preview-container {
-            background-image: radial-gradient(circle at 50% 0%, #1e293b, #020617);
+            background-color: #f1f5f9; 
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #06b6d4;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: #ffffff;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Animation */
+        .fade-slide-up {
+            animation: fadeSlideUp 0.8s ease-out forwards;
+        }
+        @keyframes fadeSlideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="bg-black text-slate-200 h-screen overflow-hidden flex">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล (Cyan/Dark Theme) -->
-    <div id="loader" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="loader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
-          <span class="relative inline-flex rounded-full h-20 w-20 bg-cyan-600 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)]">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
+          <span class="relative inline-flex rounded-full h-20 w-20 bg-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.2)]">
               <i data-lucide="images" class="w-10 h-10 text-white animate-pulse"></i>
           </span>
         </div>
-        <h2 class="text-xl font-bold text-white tracking-wide">กำลังเตรียมข้อมูล</h2>
-        <p class="text-slate-400 font-medium mt-1">Cubic<span class="text-cyan-400">Plus</span> System</p>
+        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังเตรียมระบบแปลงไฟล์</h2>
+        <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
-    <div class="w-[450px] h-full flex flex-col glass-panel z-10 shadow-2xl relative">
-        <div class="p-6 border-b border-white/10 relative overflow-hidden flex-shrink-0">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl"></div>
+    <div class="w-[450px] md:w-[500px] h-full flex flex-col glass-panel z-10 relative fade-slide-up">
+        <div class="p-6 border-b border-slate-100 relative overflow-hidden flex-shrink-0 bg-white">
             <div class="relative z-10">
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400 flex items-center gap-2">
-                    <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    PDF to JPG Pro
+                <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="file-image" class="w-7 h-7 text-blue-600"></i>
+                    PDF to JPG Converter
                 </h1>
-                <p class="text-xs text-slate-400 mt-1">Batch Conversion System (Max 5 Files)</p>
+                <p class="text-xs text-slate-500 mt-1">Batch Conversion System (Max 5 Files)</p>
             </div>
         </div>
 
-        <div class="p-6 overflow-y-auto flex-1 space-y-6">
+        <div class="p-6 overflow-y-auto flex-1 space-y-6 custom-scroll pb-24">
             
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 hover:border-cyan-500/30 transition-all">
-                <h2 class="text-sm font-bold text-cyan-400 tracking-wider mb-4">01. อัปโหลดไฟล์ PDF</h2>
-                <div class="relative w-full h-24 rounded-lg border-2 border-dashed border-slate-600 hover:border-cyan-400 transition-colors flex items-center justify-center bg-black/20 cursor-pointer overflow-hidden group">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. อัปโหลดไฟล์ PDF</h2>
+                
+                <div class="relative w-full h-24 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center bg-slate-50 cursor-pointer overflow-hidden group">
                     <input type="file" id="pdf-upload" multiple accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                     <div class="text-center pointer-events-none group-hover:scale-105 transition-transform">
-                        <svg class="w-6 h-6 mx-auto text-slate-400 mb-1 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        <span class="text-xs text-slate-300">คลิกเพิ่มไฟล์ หรือ ลากไฟล์มาวาง</span>
+                        <i data-lucide="upload-cloud" class="w-6 h-6 mx-auto text-slate-400 mb-1 group-hover:text-blue-500 transition-colors"></i>
+                        <span class="text-xs font-medium text-slate-500">คลิกเพิ่มไฟล์ หรือ ลากไฟล์มาวาง</span>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mt-2">
-                    <p class="text-[10px] text-slate-400" id="file-count-status">สะสมไฟล์ได้สูงสุด 5 ไฟล์</p>
-                    <button onclick="clearAllFiles()" id="btn-clear" class="text-[10px] text-red-400 hover:text-red-300 hidden">ล้างทั้งหมด</button>
+
+                <div class="flex justify-between items-center mt-3">
+                    <p class="text-[10px] font-bold text-slate-500" id="file-count-status">สะสมไฟล์ได้สูงสุด 5 ไฟล์</p>
+                    <button onclick="clearAllFiles()" id="btn-clear" class="text-[10px] font-bold text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-all hidden">ล้างทั้งหมด</button>
                 </div>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-all">
-                <h2 class="text-sm font-bold text-emerald-400 tracking-wider mb-4">02. ตั้งชื่อไฟล์ใหม่ (Output Name)</h2>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-400 transition-all">
+                <h2 class="text-sm font-bold text-emerald-600 tracking-wider mb-4">02. ตั้งชื่อไฟล์ใหม่ (Output Name)</h2>
                 <div id="file-list-container" class="space-y-3">
-                    <p class="text-xs text-slate-500 italic text-center py-4">อัปโหลดไฟล์เพื่อตั้งชื่อ...</p>
+                    <div class="py-6 flex flex-col items-center justify-center text-slate-400">
+                        <i data-lucide="file-question" class="w-8 h-8 mb-2 opacity-50"></i>
+                        <p class="text-xs italic">อัปโหลดไฟล์เพื่อตั้งชื่อ...</p>
+                    </div>
                 </div>
             </div>
             
         </div>
 
-        <div class="p-5 border-t border-white/10 bg-black/40 backdrop-blur-md">
-            <button id="btn-convert" onclick="processFiles()" disabled class="w-full group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden transition-all bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed [&:not(:disabled)]:shadow-[0_0_20px_rgba(6,182,212,0.3)] [&:not(:disabled)]:hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
-                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:scale-105 transition-transform duration-300 hidden group-enabled:block"></div>
+        <div class="p-5 border-t border-slate-200 bg-slate-50 absolute bottom-0 w-full z-20">
+            <button id="btn-convert" onclick="processFiles()" disabled class="w-full group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden transition-all bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed [&:not(:disabled)]:shadow-md [&:not(:disabled)]:hover:bg-slate-900">
                 <div class="relative flex items-center justify-center gap-2">
                     <div id="loading-spinner" class="loader hidden"></div>
-                    <svg id="btn-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <i id="btn-icon" data-lucide="download" class="w-5 h-5"></i>
                     <span id="btn-text">แปลงไฟล์ & ดาวน์โหลด (ZIP)</span>
                 </div>
             </button>
         </div>
     </div>
 
-    <div class="flex-1 preview-container flex items-center justify-center relative">
+    <div class="flex-1 preview-container flex items-center justify-center relative fade-slide-up" style="animation-delay: 150ms;">
         
-        <button onclick="location.href='dashboard.html'" class="absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-cyan-400 transition-all px-4 py-2.5 rounded-xl bg-slate-900/40 hover:bg-slate-800/80 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 active:scale-95 shadow-xl">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 
+        <button onclick="location.href='dashboard.html'" class="absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i> 
             กลับหน้าหลัก
         </button>
 
-        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-            <svg class="w-96 h-96" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none text-slate-800">
+            <i data-lucide="file-box" class="w-96 h-96"></i>
         </div>
         
-        <div class="text-center z-10 space-y-4 max-w-md" id="status-panel">
-            <div class="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
-                <svg class="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <div class="text-center z-10 space-y-5 max-w-md" id="status-panel">
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto border border-slate-200 shadow-sm">
+                <i data-lucide="check-circle" class="w-10 h-10 text-emerald-500"></i>
             </div>
-            <h2 class="text-2xl font-bold text-white tracking-tight">ระบบพร้อมใช้งาน</h2>
-            <p class="text-slate-400 text-sm leading-relaxed bg-black/20 p-4 rounded-2xl border border-white/5">
-                1. ทยอยอัปโหลดไฟล์เพิ่มได้เรื่อยๆ สูงสุด 5 ไฟล์<br>
-                2. เปลี่ยนชื่อไฟล์ตามต้องการในแถบด้านซ้าย<br>
-                3. กดดาวน์โหลด ระบบจะรวมทุกไฟล์เป็น .zip ให้อัตโนมัติ
-            </p>
+            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">ระบบพร้อมใช้งาน</h2>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 text-slate-600 shadow-sm text-left">
+                <ul class="space-y-2 text-sm font-medium">
+                    <li class="flex items-start gap-2"><i data-lucide="arrow-right" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5"></i> 1. ทยอยอัปโหลดไฟล์ PDF ได้เรื่อยๆ สูงสุด 5 ไฟล์</li>
+                    <li class="flex items-start gap-2"><i data-lucide="arrow-right" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5"></i> 2. เปลี่ยนชื่อไฟล์ตามต้องการในแถบด้านซ้ายมือ</li>
+                    <li class="flex items-start gap-2"><i data-lucide="arrow-right" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5"></i> 3. กดปุ่มดาวน์โหลด ระบบจะนำภาพแปลงใส่โฟลเดอร์ .zip ให้อัตโนมัติ</li>
+                </ul>
+            </div>
         </div>
     </div>
 
     <script>
         let selectedFiles = [];
 
-        // ฟังก์ชันหน่วงเวลาซ่อน Loader เมื่อหน้าจอพร้อม
         window.onload = function() {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
@@ -194,6 +211,9 @@
             }
 
             renderFileList();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         // 3. สร้างช่องกรอกชื่อไฟล์ และปุ่มลบ
@@ -202,7 +222,11 @@
             container.innerHTML = '';
 
             if (selectedFiles.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-4">อัปโหลดไฟล์เพื่อตั้งชื่อ...</p>';
+                container.innerHTML = `
+                    <div class="py-6 flex flex-col items-center justify-center text-slate-400">
+                        <i data-lucide="file-question" class="w-8 h-8 mb-2 opacity-50"></i>
+                        <p class="text-xs italic">อัปโหลดไฟล์เพื่อตั้งชื่อ...</p>
+                    </div>`;
                 return;
             }
 
@@ -211,12 +235,12 @@
                 
                 const html = `
                     <div class="flex items-center gap-2 group">
-                        <span class="text-[10px] text-slate-400 w-4 text-center">${index + 1}.</span>
+                        <span class="text-[10px] font-bold text-slate-400 w-4 text-center">${index + 1}.</span>
                         <input type="text" id="filename-${index}" value="${defaultName}" 
-                               class="input-dark flex-1 rounded-lg p-2 text-sm" placeholder="ชื่อไฟล์ ${index + 1}">
-                        <span class="text-xs text-slate-500">.jpg</span>
-                        <button onclick="removeFile(${index})" class="text-slate-500 hover:text-red-400 p-1 transition-colors" title="ลบไฟล์นี้">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                               class="input-light flex-1 rounded-lg p-2 text-sm" placeholder="ชื่อไฟล์ ${index + 1}">
+                        <span class="text-xs font-bold text-slate-400">.jpg</span>
+                        <button onclick="removeFile(${index})" class="text-slate-400 hover:text-red-500 p-1.5 rounded hover:bg-red-50 transition-colors" title="ลบไฟล์นี้">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
                 `;
@@ -275,7 +299,7 @@
                 }
 
                 const content = await zip.generateAsync({type:"blob"});
-                saveAs(content, "Converted_Expense_Files.zip");
+                saveAs(content, "Converted_Files_CubicPlus.zip");
 
             } catch (error) {
                 console.error("Conversion Error:", error);
