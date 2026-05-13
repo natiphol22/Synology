@@ -19,7 +19,7 @@
     <style>
         /* ================= A4 PAPER CORE ================= */
         .preview-container {
-            background-color: #f1f5f9; /* เปลี่ยนพื้นหลังเป็นสีเทาอ่อน */
+            background-color: #f1f5f9; 
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -34,7 +34,7 @@
             max-height: 296.5mm;
             overflow: hidden; 
             padding: 20mm 15mm; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); /* ปรับเงาให้อ่อนลง */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
             box-sizing: border-box;
             font-size: 14px;
             line-height: 1.6;
@@ -57,11 +57,11 @@
             color: #000000 !important; 
             font-weight: 600;
             white-space: nowrap;
-            line-height: 1.4; /* ขยายบรรทัดเพื่อคลุมสระบนและวรรณยุกต์ */
-            padding-top: 4px; /* เผื่อที่ว่างด้านบนให้สระไม่โดนตัด */
-            margin-bottom: -2px; /* ดึงข้อความลงมาให้นั่งบนเส้นประพอดี */
+            line-height: 1.4; 
+            padding-top: 4px; 
+            margin-bottom: -2px; 
             display: inline-block;
-            transition: top 0s; /* เตรียมความพร้อมสำหรับการกระโดด */
+            transition: top 0s; 
         }
 
         .doc-row { margin-bottom: 8px; display: flex; align-items: flex-end; flex-wrap: wrap; }
@@ -71,27 +71,45 @@
         .col-amt { width: 25%; text-align: center; }
         .col-unit { width: 10%; text-align: center; }
 
-        /* เปลี่ยน Glass Panel เป็น Solid Light Theme */
         .glass-panel {
             background: #ffffff;
             border-right: 1px solid #e2e8f0;
             box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05);
         }
         
-        /* เปลี่ยน Input เป็น Light Theme */
+        /* ================= ปรับแต่ง Input & Select ให้สวยคลีน ================= */
         .input-light {
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
-            color: #1e293b;
-            transition: all 0.3s ease;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .input-light:hover {
+            border-color: #9ca3af;
         }
         .input-light:focus {
             border-color: #3b82f6;
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             outline: none;
         }
-        .input-light option { background: #ffffff; color: #1e293b; }
+        
+        /* สไตล์เฉพาะสำหรับ Dropdown (select) */
+        select.input-light {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+        select.input-light option { 
+            background: #ffffff; 
+            color: #374151; 
+            padding: 8px;
+        }
 
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
@@ -121,7 +139,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล (ปรับเป็น Light Theme) -->
     <div id="loader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
@@ -144,7 +161,6 @@
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6">
             
-            <!-- Card 01 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. ข้อมูลเอกสาร</h2>
                 <div class="space-y-3 relative">
@@ -163,7 +179,6 @@
                 </div>
             </div>
 
-            <!-- Card 02 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">02. ข้อมูลผู้เบิกและรายละเอียดงาน</h2>
                 <div class="space-y-3">
@@ -198,7 +213,6 @@
                 </div>
             </div>
 
-            <!-- Card 03 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">03. ระยะเวลาการปฏิบัติงาน</h2>
                 <div class="space-y-3">
@@ -228,7 +242,6 @@
                 </div>
             </div>
 
-            <!-- Card 04 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4 flex justify-between items-center">
                     04. ค่าใช้จ่าย
@@ -262,7 +275,6 @@
                 </div>
             </div>
 
-            <!-- Card 05 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between">
                     <label class="text-sm font-bold text-slate-700">05. หลักฐานแนบ (ฉบับ)</label>
@@ -311,16 +323,15 @@
             <div style="text-align: center; font-weight: bold; font-size: 16px; margin: 30px 0 25px 0;"> ใบเบิกค่าใช้จ่ายในการเดินทางไปปฏิบัติงาน
             </div>
 
-            <!-- ข้อ 4: จัดวันที่และเลขที่ชิดขวาให้ตรงกันตามรูปภาพ -->
             <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: flex-end; justify-content: flex-end;">
                         <span style="margin-right: 10px; text-align: right;">เลขที่</span>
-                        <div class="field-box" style="width: 220px; justify-content: center;"><div id="out-doc-no" class="text-value"></div></div>
+                        <div class="field-box" style="width: 250px; justify-content: flex-start; padding-left: 10px;"><div id="out-doc-no" class="text-value"></div></div>
                     </div>
                     <div style="display: flex; align-items: flex-end; justify-content: flex-end;">
                         <span style="margin-right: 10px; text-align: right;">วันที่</span>
-                        <div class="field-box" style="width: 220px; justify-content: center;"><div id="out-date" class="text-value"></div></div>
+                        <div class="field-box" style="width: 250px; justify-content: center;"><div id="out-date" class="text-value" style="margin-left: 0;"></div></div>
                     </div>
                 </div>
             </div>
@@ -340,6 +351,7 @@
                 <div class="field-box w-full"><div id="out-work2" class="text-value"></div></div>
             </div>
 
+            <!-- ข้อ 2: ปรับวันที่ให้ต่อกัน ไม่ใช่อยู่ตรงกลาง (เอา text-align: center ออก และใช้ justify-content: flex-start) -->
             <div class="doc-row">
                 ตั้งแต่วันที่ <div class="field-box" style="width: 40px; margin: 0 5px; justify-content: center;"><div id="out-d1" class="text-value"></div></div>
                 เดือน <div class="field-box" style="width: 80px; margin: 0 5px; justify-content: center;"><div id="out-m1" class="text-value"></div></div>
@@ -423,7 +435,6 @@
     </div>
 
     <script>
-        // ข้อ 3: ระบบดักจับ Ctrl+Z เพื่อให้ดึงค่าการ Undo มาแสดงบนกระดาษอัตโนมัติ
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
                 setTimeout(() => {
@@ -431,7 +442,7 @@
                         if(el.id && el.oninput) { el.dispatchEvent(new Event('input')); }
                         if(el.id && el.onchange) { el.dispatchEvent(new Event('change')); }
                     });
-                    calc(); // รันคำนวณใหม่เพื่อเปลี่ยนตัวอักษรเป็นบาทถ้วน
+                    calc(); 
                 }, 50);
             }
         });
@@ -578,7 +589,6 @@
             return BahtText + "บาทถ้วน";
         }
 
-        // --- ระบบ Export: ข้อ 1 และ ข้อ 2 ทำงานตรงนี้ ---
         async function exportDoc(type) {
             const paper = document.getElementById('a4-document');
             const personName = document.getElementById('in-name').value || 'ค่าใช้จ่าย';
@@ -592,7 +602,6 @@
 
             try {
                 if (type === 'pdf') {
-                    // ข้อ 1: PDF ไม่ต้องกระโดด สั่งโหลดเลย
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
                     txtPdf.innerText = "⏳ กำลังสร้าง PDF...";
@@ -608,15 +617,13 @@
                     await html2pdf().set(opt).from(paper).save();
                     
                 } else if (type === 'jpg') {
-                    // ข้อ 2: JPG กระโดดเฉพาะช่องที่ไม่ว่างเปล่า (มีข้อมูล)
                     textValues.forEach(el => {
                         if (el.innerText.trim() !== '') {
                             el.style.position = 'relative';
-                            el.style.top = '-5px'; // เด้งขึ้นนิดนึงกันสระตก
+                            el.style.top = '-5px'; 
                         }
                     });
 
-                    // รอเด้งก่อนแปบนึง
                     await new Promise(resolve => setTimeout(resolve, 150)); 
 
                     btnPdf.disabled = true;
@@ -640,7 +647,6 @@
                 console.error("Export Error: ", err);
                 alert("เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาลองใหม่อีกครั้ง");
             } finally {
-                // เซฟเสร็จแล้วดึงตัวอักษรกลับที่เดิม
                 textValues.forEach(el => {
                     el.style.position = '';
                     el.style.top = '';
