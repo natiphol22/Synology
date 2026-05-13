@@ -70,8 +70,9 @@
         .doc-table th { background-color: #f8fafc; font-weight: bold; text-align: center; }
         
         .col-desc { width: 65%; }
-        .col-amt { width: 25%; text-align: right; }
-        .col-unit { width: 10%; text-align: center; vertical-align: middle; } /* จัดกึ่งกลางคำว่า บาท */
+        /* จัดตัวเลขให้อยู่กึ่งกลาง */
+        .col-amt { width: 25%; text-align: center; vertical-align: middle; }
+        .col-unit { width: 10%; text-align: center; vertical-align: middle; } 
 
         .glass-panel {
             background: #ffffff;
@@ -150,7 +151,7 @@
                     <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
                 </button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.5 - Finalize Format & Approver Fields</p>
+            <p class="text-xs text-slate-500 mt-1">V.4.6 - Center Amount & 2 Approver Inputs</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
@@ -340,16 +341,23 @@
                 </div>
                 
                 <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span class="text-xs font-medium text-slate-600">แสดงช่องลงชื่อผู้อนุมัติ</span>
+                    <span class="text-xs font-medium text-slate-600">เปิดช่องกรอกชื่อผู้อนุมัติ</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="toggle-approver" onchange="toggleApproverDisplay()" checked class="sr-only peer">
                         <div class="w-8 h-4 bg-slate-200 rounded-full peer-checked:bg-blue-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:border-blue-500 peer-checked:after:bg-blue-500 shadow-sm"></div>
                     </label>
                 </div>
                 
-                <div id="approver-input-box" class="pt-3 mt-2 border-t border-slate-100">
-                    <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้อนุมัติ</label>
-                    <input type="text" id="in-approver-name" oninput="sync('in-approver-name', 'out-approver-name')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล ผู้อนุมัติ">
+                <!-- ช่องกรอกชื่อผู้อนุมัติ 2 ช่อง -->
+                <div id="approver-input-box" class="pt-3 mt-2 border-t border-slate-100 space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ลงชื่อ (ผู้อนุมัติ)</label>
+                        <input type="text" id="in-approver-sign" oninput="sync('in-approver-sign', 'out-approver-sign')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="พิมพ์ชื่อลายเซ็น (ถ้ามี)">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อตัวบรรจง (ผู้อนุมัติ)</label>
+                        <input type="text" id="in-approver-name" oninput="sync('in-approver-name', 'out-approver-name')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุลตัวบรรจง">
+                    </div>
                 </div>
             </div>
             
@@ -533,9 +541,9 @@
 
             <table style="width: 100%; margin-top: 25px; border: none; font-size: 13px;">
                 <tr>
-                    <td id="a4-approver-box" style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
+                    <td style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
                         อนุมัติให้จ่ายได้<br>
-                        ลงชื่อ <div class="field-box" style="width: 200px;"></div><br>
+                        ลงชื่อ <div class="field-box" style="width: 200px; justify-content: center;"><div id="out-approver-sign" class="text-value"></div></div><br>
                         <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"><div id="out-approver-name" class="text-value"></div></div><span>)</span>
                     </td>
                     <td style="width: 50%; vertical-align: top; text-align: center; border: none; line-height: 2;">
@@ -737,7 +745,7 @@
 
         function toggleApproverDisplay() {
             const isVisible = document.getElementById('toggle-approver').checked;
-            document.getElementById('a4-approver-box').style.display = isVisible ? 'table-cell' : 'none';
+            // ซ่อน/แสดงเฉพาะกล่องกรอกข้อมูลฝั่งซ้าย ส่วนในกระดาษ A4 ให้แสดงตลอดเวลา
             document.getElementById('approver-input-box').style.display = isVisible ? 'block' : 'none';
         }
 
