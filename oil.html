@@ -3,269 +3,584 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>CubicPlusBusinessPortal</title>
+     <title>CubicPlusBusinessPortal - คำนวณค่าเดินทาง</title>
 
     <link rel="icon" type="image/png" href="LOGO.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script>
-        tailwind.config = { 
-            theme: { 
-                extend: { 
-                    fontFamily: { sans: ['Sarabun', 'sans-serif'] },
-                    colors: {
-                        gold: '#C5A059',
-                        darkGold: '#8C6F39',
-                        onyx: '#0D0D0D'
-                    }
-                } 
-            } 
-        }
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Sarabun', 'sans-serif'] } } } }
     </script>
 
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #050505; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
-
-        .luxury-input {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(197, 160, 89, 0.15);
-            color: #E2E8F0;
-            padding: 10px 14px;
-            border-radius: 10px;
-            width: 100%;
+        /* ================= A4 PAPER CORE ================= */
+        .preview-container {
+            background-color: #f1f5f9; 
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 40px;
+        }
+        
+        .a4-paper {
+            background: white;
+            width: 210mm; 
+            height: 296.5mm; 
+            max-height: 296.5mm;
+            overflow: hidden; 
+            padding: 20mm 15mm; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
+            box-sizing: border-box;
             font-size: 14px;
-            transition: all 0.3s;
+            line-height: 1.6;
+            color: #000;
+            position: relative;
+            flex-shrink: 0;
         }
-        .luxury-input:focus { 
-            border-color: #C5A059; 
-            background: rgba(197, 160, 89, 0.05);
-            outline: none; 
-            box-shadow: 0 0 10px rgba(197, 160, 89, 0.1);
+        
+        .field-box {
+            display: inline-flex;
+            border-bottom: 1.5px dotted #666;
+            align-items: flex-end;
+            min-height: 24px; 
+            white-space: nowrap;
+            overflow: visible; 
+            padding: 0 4px;
+            box-sizing: border-box;
+        }
+        .text-value {
+            color: #000000 !important; 
+            font-weight: 600;
+            white-space: nowrap;
+            line-height: 1.4; 
+            padding-top: 4px; 
+            margin-bottom: -2px; 
+            display: inline-block;
+            transition: top 0s; 
         }
 
-        .paper {
-            background: #0D0D0D;
-            border: 1px solid rgba(197, 160, 89, 0.3);
+        .doc-row { margin-bottom: 8px; display: flex; align-items: flex-end; flex-wrap: wrap; }
+        .doc-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .doc-table th, .doc-table td { border: 1px solid #000; padding: 6px 10px; }
+        .doc-table th { background-color: #f8fafc; font-weight: bold; text-align: center; }
+
+        .glass-panel {
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05);
         }
+        
+        .input-light {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+            transition: all 0.3s ease;
+        }
+        .input-light:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] { -moz-appearance: textfield; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         @media print {
             @page { size: A4; margin: 0; }
+            body { background: white; margin: 0; padding: 0; overflow: visible; }
+            .glass-panel { display: none !important; }
             .no-print { display: none !important; }
-            #preview-pane { 
-                display: flex !important; 
-                width: 210mm !important; 
-                height: 297mm !important; 
-                padding: 10mm !important; 
-                background: #050505 !important;
-                justify-content: center;
-                align-items: flex-start;
+            .preview-container { 
+                background: none; padding: 0; margin: 0; width: 100%; display: block; 
             }
-            .paper { 
-                width: 100% !important;
-                background: #0D0D0D !important;
-                -webkit-print-color-adjust: exact !important;
+            .a4-paper { 
+                box-shadow: none !important; width: 210mm !important; height: 297mm !important; margin: 0 !important; padding: 20mm 15mm !important; 
             }
         }
     </style>
 </head>
-<body class="text-slate-400 min-h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล (Luxury Gold Theme) -->
-    <div id="loader" class="fixed inset-0 z-[9999] bg-[#050505]/95 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- 🟢 Loader หน้าเตรียมข้อมูล -->
+    <div id="loader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style="background-color: #C5A059;"></span>
-          <span class="relative inline-flex rounded-full h-20 w-20 flex items-center justify-center shadow-[0_0_30px_rgba(197,160,89,0.4)]" style="background-color: #8C6F39;">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
+          <span class="relative inline-flex rounded-full h-20 w-20 bg-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.2)]">
               <i data-lucide="car" class="w-10 h-10 text-white animate-pulse"></i>
           </span>
         </div>
-        <h2 class="text-xl font-bold text-white tracking-wide">กำลังเตรียมข้อมูล</h2>
-        <p class="text-slate-400 font-medium mt-1">Cubic<span class="text-gold">Plus</span> System</p>
+        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังเตรียมข้อมูล</h2>
+        <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
-    <div class="w-full md:w-[380px] h-screen flex flex-col border-r border-white/5 bg-onyx no-print">
-        
-        <div class="p-6 border-b border-white/5">
-            <h1 class="text-white font-bold text-lg tracking-tight flex items-center gap-2">
-                <i data-lucide="calculator" class="w-5 h-5 text-gold"></i> คำนวณค่าเดินทาง
-            </h1>
+    <!-- แผง Sidebar ด้านซ้าย (Light Theme) -->
+    <div class="w-[450px] h-full flex flex-col glass-panel z-10 relative">
+        <div class="p-6 border-b border-slate-100 relative overflow-hidden bg-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="map" class="w-7 h-7 text-blue-600"></i>
+                    คำนวณค่าเดินทาง
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">V.3.0 - Standardized Form Layout</p>
+            </div>
+            <button onclick="openMaps()" class="text-[10px] flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> เปิด Google Maps
+            </button>
         </div>
 
-        <div class="p-6 space-y-6 flex-grow overflow-y-auto custom-scroll">
-            <div class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">ชื่อผู้ขอเบิกเงิน</label>
-                    <input type="text" id="user-name" oninput="updateUI()" placeholder="ระบุชื่อ-นามสกุลของคุณ" class="luxury-input">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] text-gold font-bold uppercase tracking-wider">วัตถุประสงค์การเดินทาง</label>
-                    <textarea id="travel-purpose" oninput="updateUI()" placeholder="เช่น ไปปฏิบัติหน้าที่ตรวจเช็คหน้างาน..." class="luxury-input h-20 resize-none"></textarea>
+        <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24">
+            
+            <!-- Card 01 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. ข้อมูลผู้เบิกและวัตถุประสงค์</h2>
+                <div class="space-y-3 relative">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้ขอเบิกเงิน</label>
+                        <input type="text" id="in-name" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">วัตถุประสงค์การเดินทาง</label>
+                        <textarea id="in-purpose" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm h-16 resize-none" placeholder="เช่น ไปปฏิบัติหน้าที่ตรวจเช็คหน้างาน..."></textarea>
+                    </div>
                 </div>
             </div>
 
-            <hr class="border-white/5">
-
-            <div class="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">01 รายละเอียดขาไป</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="out-from" oninput="updateUI()" placeholder="ต้นทาง" class="luxury-input !text-xs">
-                    <input type="text" id="out-to" oninput="updateUI()" placeholder="ปลายทาง" class="luxury-input !text-xs">
+            <!-- Card 02 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-emerald-400 transition-all">
+                <h2 class="text-sm font-bold text-emerald-600 tracking-wider mb-4">02. รายละเอียดขาไป</h2>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ต้นทาง</label>
+                            <input type="text" id="in-out-from" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ปลายทาง</label>
+                            <input type="text" id="in-out-to" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ระยะทาง (กม.)</label>
+                        <input type="number" id="in-dist-out" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm font-bold text-emerald-600" placeholder="0.00">
+                    </div>
                 </div>
-                <input type="number" id="dist-out" oninput="updateUI()" placeholder="ระยะทาง (กม.)" class="luxury-input !text-emerald-500 font-bold">
             </div>
 
-            <div class="flex items-center justify-between px-2">
-                <span class="text-[10px] font-bold text-gold uppercase tracking-wider">เพิ่มจุดแวะระหว่างทาง</span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="enable-waypoint" onchange="toggleWaypoint()" class="sr-only peer">
-                    <div class="w-9 h-5 bg-slate-800 rounded-full peer-checked:bg-gold/40 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gold after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
-                </label>
+            <!-- Card 03: จุดแวะ -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group transition-all">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-sm font-bold text-slate-700 tracking-wider">เพิ่มจุดแวะระหว่างทาง</h2>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="enable-waypoint" onchange="toggleWaypoint()" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-200 rounded-full peer-checked:bg-blue-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-blue-500 peer-checked:after:bg-blue-500 shadow-sm"></div>
+                    </label>
+                </div>
+                
+                <div id="waypoint-fields" class="hidden space-y-3 pt-3 border-t border-slate-100 mt-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">จาก</label>
+                            <input type="text" id="in-wp-from" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ถึง</label>
+                            <input type="text" id="in-wp-to" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ระยะทาง (กม.)</label>
+                        <input type="number" id="in-dist-wp" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm font-bold text-blue-600" placeholder="0.00">
+                    </div>
+                </div>
             </div>
 
-            <div id="waypoint-fields" class="hidden p-4 rounded-xl bg-gold/[0.03] border border-gold/10 space-y-3">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="wp-from" oninput="updateUI()" placeholder="จากจุดแวะ" class="luxury-input !text-xs">
-                    <input type="text" id="wp-to" oninput="updateUI()" placeholder="ไปยัง..." class="luxury-input !text-xs">
-                </div>
-                <input type="number" id="dist-wp" oninput="updateUI()" placeholder="ระยะทางเพิ่ม (กม.)" class="luxury-input !text-gold font-bold">
-            </div>
-
-            <div class="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
-                <div class="flex justify-between items-center">
-                    <p class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">02 รายละเอียดขากลับ</p>
-                    <button onclick="copyFromOut()" class="text-[9px] bg-gold/10 hover:bg-gold/20 text-gold border border-gold/20 px-2 py-1 rounded transition-all">ใช้ข้อมูลเดียวกับขาไป</button>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="in-from" oninput="updateUI()" placeholder="ต้นทาง" class="luxury-input !text-xs">
-                    <input type="text" id="in-to" oninput="updateUI()" placeholder="ปลายทาง" class="luxury-input !text-xs">
-                </div>
-                <input type="number" id="dist-in" oninput="updateUI()" placeholder="ระยะทาง (กม.)" class="luxury-input !text-orange-500 font-bold">
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label class="text-[9px] text-slate-500 font-bold uppercase">บาท ต่อ กม.</label>
-                    <input type="number" id="rate" value="3.66" step="0.01" oninput="updateUI()" class="luxury-input !text-gold font-bold">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="openMaps()" class="w-full h-[40px] border border-gold/30 rounded-lg text-[10px] font-bold text-gold hover:bg-gold hover:text-black transition-all flex items-center justify-center gap-1.5">
-                        <i data-lucide="map" class="w-3.5 h-3.5"></i> แผนที่
+            <!-- Card 04 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-orange-400 transition-all">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-orange-600 tracking-wider">03. รายละเอียดขากลับ</h2>
+                    <button onclick="copyFromOut()" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg transition-all font-medium">
+                        <i data-lucide="copy" class="w-3 h-3 inline pb-0.5"></i> ใช้ข้อมูลขาไป
                     </button>
                 </div>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ต้นทาง</label>
+                            <input type="text" id="in-in-from" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ปลายทาง</label>
+                            <input type="text" id="in-in-to" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุสถานที่">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ระยะทาง (กม.)</label>
+                        <input type="number" id="in-dist-in" oninput="updateUI()" class="input-light w-full rounded-lg p-2.5 text-sm font-bold text-orange-600" placeholder="0.00">
+                    </div>
+                </div>
             </div>
+
+            <!-- Card 05 -->
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <label class="text-sm font-bold text-slate-700">04. อัตราค่าเดินทาง (บาท/กม.)</label>
+                    <input type="number" id="in-rate" value="3.66" step="0.01" oninput="updateUI()" class="input-light w-24 rounded-lg p-2 text-center text-sm font-bold text-blue-600">
+                </div>
+            </div>
+            
         </div>
 
-        <div class="p-6 border-t border-white/5">
-            <button onclick="window.print()" class="w-full py-4 bg-gradient-to-r from-gold to-darkGold text-black rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(197,160,89,0.2)] hover:shadow-[0_0_30px_rgba(197,160,89,0.4)] hover:-translate-y-0.5 transition-all">
-                พิมพ์รายงาน (PDF)
+        <div class="p-5 border-t border-slate-200 bg-slate-50 grid grid-cols-2 gap-4 absolute bottom-0 w-full z-20">
+            <button id="btn-export-jpg" onclick="exportDoc('jpg')" class="group relative py-3 px-4 rounded-xl font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 hover:border-slate-400 transition-all shadow-sm disabled:opacity-50">
+                <div class="relative flex items-center justify-center gap-2">
+                    <i data-lucide="image" class="w-5 h-5 text-slate-500"></i>
+                    <span id="txt-export-jpg">Save JPG</span>
+                </div>
+            </button>
+            <button id="btn-export-pdf" onclick="exportDoc('pdf')" class="group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden bg-slate-800 hover:bg-slate-900 transition-all shadow-md disabled:opacity-50">
+                <div class="relative flex items-center justify-center gap-2">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    <span id="txt-export-pdf">Download PDF</span>
+                </div>
             </button>
         </div>
     </div>
 
-    <div id="preview-pane" class="flex-1 bg-black p-8 md:p-12 overflow-y-auto flex justify-center items-start relative">
+    <!-- กระดาษ A4 พรีวิว (ขวา) -->
+    <div class="flex-1 preview-container relative" id="print-area">
         
-        <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-gold transition-all px-4 py-2.5 rounded-xl bg-onyx/60 hover:bg-onyx backdrop-blur-md border border-white/10 hover:border-gold/30 active:scale-95 shadow-xl">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> 
+        <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
             กลับหน้าหลัก
         </button>
 
-        <div class="paper w-full max-w-[580px] rounded-[2.5rem] p-10 relative">
+        <div class="a4-paper" id="a4-document">
             
-            <div class="flex justify-between items-start mb-6 border-b border-gold/20 pb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-white tracking-tight">ใบสรุปค่าเดินทาง</h2>
-                    <p class="text-[10px] text-gold font-bold mt-0.5 tracking-widest uppercase">รายงานการเดินทางปฏิบัติหน้าที่</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-[9px] text-slate-500 font-bold">วันที่เอกสาร</p>
-                    <p id="v-date" class="text-xs font-bold text-white">-</p>
-                </div>
-            </div>
-
-            <div class="mb-8 p-4 rounded-2xl bg-white/[0.03] border-l-2 border-gold">
-                <p class="text-[9px] text-gold font-bold uppercase mb-1">วัตถุประสงค์การเดินทาง</p>
-                <p id="v-purpose" class="text-[13px] text-slate-200 leading-relaxed">ยังไม่ได้ระบุวัตถุประสงค์</p>
-            </div>
-
-            <div class="space-y-2 mb-8">
-                <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <div class="text-emerald-500 text-[10px] font-bold min-w-[40px]">ขาไป</div>
-                    <div class="flex-grow grid grid-cols-2 text-[12px]">
-                        <div class="pl-3"><span id="v-out-from" class="text-white">-</span></div>
-                        <div class="pl-3"><span id="v-out-to" class="text-white">-</span></div>
-                    </div>
-                    <div class="text-right"><span id="v-dist-out" class="text-[13px] font-bold text-emerald-400">0.00</span> <span class="text-[9px]">กม.</span></div>
-                </div>
-
-                <div id="v-wp-row" class="hidden flex items-center gap-4 p-3 rounded-xl bg-gold/5 border border-gold/20">
-                    <div class="text-gold text-[10px] font-bold min-w-[40px]">จุดแวะ</div>
-                    <div class="flex-grow grid grid-cols-2 text-[12px]">
-                        <div class="pl-3"><span id="v-wp-from" class="text-white">-</span></div>
-                        <div class="pl-3"><span id="v-wp-to" class="text-white">-</span></div>
-                    </div>
-                    <div class="text-right"><span id="v-dist-wp" class="text-[13px] font-bold text-gold">0.00</span> <span class="text-[9px]">กม.</span></div>
-                </div>
-
-                <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                    <div class="text-orange-500 text-[10px] font-bold min-w-[40px]">ขากลับ</div>
-                    <div class="flex-grow grid grid-cols-2 text-[12px]">
-                        <div class="pl-3"><span id="v-in-from" class="text-white">-</span></div>
-                        <div class="pl-3"><span id="v-in-to" class="text-white">-</span></div>
-                    </div>
-                    <div class="text-right"><span id="v-dist-in" class="text-[13px] font-bold text-orange-400">0.00</span> <span class="text-[9px]">กม.</span></div>
+            <div style="display: flex; align-items: center; justify-content: flex-start; margin-left: 5%; margin-bottom: 25px;">
+                <img src="LOGO.png" alt="CUBIC PLUS LOGO" style="width: 75px; height: auto; margin-right: 20px;">
+                <div style="line-height: 1.5; text-align: left;">
+                    <strong style="font-size: 15px;">บริษัท คิวบิค พลัส คอมเมอร์เชียล จำกัด</strong><br> <span style="font-size: 12.5px;"> 339/25 ม.5 ถ.พุทธรักษา ต.แพรกษาใหม่ อ.เมืองสมุทรปราการ จ.สมุทรปราการ 10280<br>
+                        Call Center: 02-001-4902 Email: sales@cubicplus.co.th<br>
+                        Website https://www.cubicplus.co.th
+                    </span>
                 </div>
             </div>
 
-            <div class="p-6 rounded-2xl bg-black border border-gold/20 shadow-inner">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <p class="text-[9px] text-slate-500 font-bold mb-1 uppercase">ระยะทางรวม</p>
-                        <p class="text-xl font-bold text-white"><span id="v-total-km">0.00</span> กม.</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] text-slate-500 font-bold mb-1 uppercase">อัตราค่าเดินทาง</p>
-                        <p id="v-formula" class="text-[10px] font-bold text-gold px-2 py-0.5 border border-gold/30 rounded-full">-</p>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-white/10 flex justify-between items-end">
-                    <p class="text-[11px] font-bold text-slate-400 uppercase">รวมเงินสุทธิ</p>
-                    <p class="text-3xl font-bold text-white"><span id="v-total-money">0.00</span> <span class="text-sm text-gold">บาท</span></p>
+            <div style="text-align: center; font-weight: bold; font-size: 18px; margin: 30px 0 10px 0;"> ใบสรุปค่าเดินทาง / รายงานการเดินทางปฏิบัติหน้าที่
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 25px;">
+                <div style="display: flex; align-items: flex-end;">
+                    <span style="margin-right: 10px;">วันที่ทำเอกสาร</span>
+                    <div class="field-box" style="min-width: 160px; justify-content: center; padding: 0 15px;"><div id="out-date" class="text-value"></div></div>
                 </div>
             </div>
 
-            <div class="mt-10 grid grid-cols-2 gap-12">
-                <div class="text-center">
-                    <div class="w-full h-px bg-white/10 mb-3"></div>
-                    <p id="v-user-name" class="text-[12px] font-bold text-white">-</p>
-                    <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">ผู้ขอเบิกเงิน</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-full h-px bg-white/10 mb-3"></div>
-                    <p class="text-[12px] font-bold text-white">( ............................................ )</p>
-                    <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">ผู้อนุมัติ</p>
-                </div>
+            <div class="doc-row">
+                ชื่อผู้ขอเบิกเงิน <div class="field-box" style="width: 300px; margin: 0 10px;"><div id="out-name" class="text-value"></div></div>
             </div>
+            
+            <div class="doc-row" style="margin-bottom: 5px;">
+                วัตถุประสงค์การเดินทาง <div class="field-box flex-1 ml-2"><div id="out-purpose" class="text-value"></div></div>
+            </div>
+
+            <div style="margin-top: 30px; font-weight: bold; font-size: 15px;">รายละเอียดเส้นทางและระยะทาง</div>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">ลำดับ</th>
+                        <th style="width: 15%;">รายการ</th>
+                        <th style="width: 30%;">จากต้นทาง</th>
+                        <th style="width: 30%;">ถึงปลายทาง</th>
+                        <th style="width: 15%;">ระยะทาง (กม.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ขาไป -->
+                    <tr>
+                        <td style="text-align: center;">1</td>
+                        <td style="text-align: center;">ขาไป</td>
+                        <td><div id="out-out-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td><div id="out-out-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td style="text-align: right;"><div id="out-dist-out" class="text-value" style="margin-bottom: 0;"></div></td>
+                    </tr>
+                    <!-- จุดแวะ (ซ่อนเริ่มต้น) -->
+                    <tr id="row-wp" style="display: none;">
+                        <td style="text-align: center;">2</td>
+                        <td style="text-align: center;">จุดแวะ</td>
+                        <td><div id="out-wp-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td><div id="out-wp-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td style="text-align: right;"><div id="out-dist-wp" class="text-value" style="margin-bottom: 0;"></div></td>
+                    </tr>
+                    <!-- ขากลับ -->
+                    <tr>
+                        <td style="text-align: center;" id="idx-in">2</td>
+                        <td style="text-align: center;">ขากลับ</td>
+                        <td><div id="out-in-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td><div id="out-in-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                        <td style="text-align: right;"><div id="out-dist-in" class="text-value" style="margin-bottom: 0;"></div></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right; font-weight: bold; background-color: #f8fafc;">รวมระยะทางทั้งสิ้น</td>
+                        <td style="text-align: right; font-weight: bold; background-color: #f8fafc;"><div id="out-total-km" class="text-value" style="margin-bottom: 0;"></div></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="doc-row" style="justify-content: flex-end; margin-right: 0; margin-top: 15px;">
+                อัตราเบิกค่าเดินทาง <div class="field-box" style="width: 80px; justify-content: center; margin: 0 10px;"><div id="out-rate" class="text-value">3.66</div></div> บาท / กม.
+            </div>
+
+            <div class="doc-row" style="justify-content: flex-end; margin-right: 0; margin-top: 10px;">
+                รวมเป็นเงินทั้งสิ้น <div class="field-box" style="width: 150px; justify-content: center; margin: 0 10px;"><div id="out-total-money" class="text-value">0.00</div></div> บาท
+            </div>
+
+            <div class="doc-row" style="margin-top: 10px; justify-content: flex-end;">
+                ( <div class="field-box" style="width: 250px; justify-content: center; margin: 0 10px;"><div id="out-baht-text" class="text-value">ศูนย์บาทถ้วน</div></div> )
+            </div>
+
+            <table style="width: 100%; margin-top: 60px; border: none;">
+                <tr>
+                    <td style="width: 50%; vertical-align: top; text-align: center; border: none; line-height: 2;">
+                        ลงชื่อ <div class="field-box" style="width: 200px; justify-content: center;"><div id="sign-name" class="text-value"></div></div> ผู้ขอเบิก<br>
+                        (<div class="field-box" style="width: 250px; justify-content: center;"></div>)<br>
+                        วันที่ <div class="field-box" style="width: 250px; justify-content: center;"></div>
+                    </td>
+                    <td style="width: 50%; vertical-align: top; text-align: center; border: none; line-height: 2;">
+                        ลงชื่อ <div class="field-box" style="width: 200px; justify-content: center;"></div> ผู้อนุมัติ<br>
+                        (<div class="field-box" style="width: 250px; justify-content: center;"></div>)<br>
+                        วันที่ <div class="field-box" style="width: 250px; justify-content: center;"></div>
+                    </td>
+                </tr>
+            </table>
+
         </div>
     </div>
 
     <script>
-        window.onload = function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                setTimeout(() => {
+                    document.querySelectorAll('input, textarea').forEach(el => {
+                        if(el.id && el.oninput) { el.dispatchEvent(new Event('input')); }
+                    });
+                    updateUI(); 
+                }, 50);
             }
-            document.getElementById('v-date').textContent = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+        });
+
+        function toggleWaypoint() {
+            const isEnabled = document.getElementById('enable-waypoint').checked;
+            document.getElementById('waypoint-fields').classList.toggle('hidden', !isEnabled);
             
-            // นำชื่อที่ Login อยู่มาใส่ให้โดยอัตโนมัติ (ถ้ามี)
-            const savedName = sessionStorage.getItem("userName");
-            if (savedName) {
-                document.getElementById('user-name').value = savedName;
-                updateUI();
+            // บน A4
+            document.getElementById('row-wp').style.display = isEnabled ? 'table-row' : 'none';
+            document.getElementById('idx-in').textContent = isEnabled ? '3' : '2';
+            
+            updateUI();
+        }
+
+        function copyFromOut() {
+            const outFrom = document.getElementById('in-out-from').value;
+            const outTo = document.getElementById('in-out-to').value;
+            const distOut = document.getElementById('in-dist-out').value;
+
+            document.getElementById('in-in-from').value = outTo;
+            document.getElementById('in-in-to').value = outFrom;
+            document.getElementById('in-dist-in').value = distOut;
+            
+            updateUI();
+        }
+
+        function syncText(inId, outId) {
+            const inputEl = document.getElementById(inId);
+            const outEl = document.getElementById(outId);
+            if(inputEl && outEl) {
+                outEl.textContent = inputEl.value;
+                autoSizeText(outEl);
+            }
+        }
+
+        function autoSizeText(el) {
+            const container = el.parentElement;
+            el.style.fontSize = '14px'; 
+            let fontSize = 14;
+            setTimeout(() => {
+                while (el.scrollWidth > container.clientWidth && fontSize > 8) {
+                    fontSize -= 0.5;
+                    el.style.fontSize = fontSize + 'px';
+                }
+            }, 0);
+        }
+
+        function updateUI() {
+            syncText('in-name', 'out-name');
+            syncText('in-name', 'sign-name');
+            syncText('in-purpose', 'out-purpose');
+            
+            syncText('in-out-from', 'out-out-from');
+            syncText('in-out-to', 'out-out-to');
+            
+            syncText('in-in-from', 'out-in-from');
+            syncText('in-in-to', 'out-in-to');
+
+            const isWpEnabled = document.getElementById('enable-waypoint').checked;
+            let dWp = 0;
+            if (isWpEnabled) {
+                syncText('in-wp-from', 'out-wp-from');
+                syncText('in-wp-to', 'out-wp-to');
+                dWp = parseFloat(document.getElementById('in-dist-wp').value) || 0;
+                document.getElementById('out-dist-wp').textContent = dWp > 0 ? dWp.toFixed(2) : '';
+            } else {
+                document.getElementById('out-dist-wp').textContent = '';
             }
 
-            // ซ่อนหน้าจอ Loading หลังจากเตรียมข้อมูลเสร็จ
+            const dOut = parseFloat(document.getElementById('in-dist-out').value) || 0;
+            const dIn = parseFloat(document.getElementById('in-dist-in').value) || 0;
+            const rate = parseFloat(document.getElementById('in-rate').value) || 0;
+
+            document.getElementById('out-dist-out').textContent = dOut > 0 ? dOut.toFixed(2) : '';
+            document.getElementById('out-dist-in').textContent = dIn > 0 ? dIn.toFixed(2) : '';
+            document.getElementById('out-rate').textContent = rate > 0 ? rate : '';
+
+            const totalKm = dOut + dIn + dWp;
+            const totalMoney = totalKm * rate;
+
+            document.getElementById('out-total-km').textContent = totalKm > 0 ? totalKm.toLocaleString(undefined, {minimumFractionDigits: 2}) : '';
+            document.getElementById('out-total-money').textContent = totalMoney > 0 ? totalMoney.toLocaleString(undefined, {minimumFractionDigits: 2}) : '';
+            
+            document.getElementById('out-baht-text').textContent = totalMoney > 0 ? ThaiNumberToText(totalMoney) : '';
+        }
+
+        function openMaps() {
+            const s = encodeURIComponent(document.getElementById('in-out-from').value);
+            const e = encodeURIComponent(document.getElementById('in-out-to').value);
+            window.open(s && e ? `https://www.google.com/maps/dir/${s}/${e}` : `https://www.google.com/maps`, '_blank');
+        }
+
+        function ThaiNumberToText(amount) {
+            let numberStr = Math.floor(amount).toString();
+            let TxtNumArr = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ"];
+            let TxtDigitArr = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+            let BahtText = "";
+            if (numberStr === "0") return "ศูนย์บาทถ้วน";
+            for (let i = 0; i < numberStr.length; i++) {
+                let val = parseInt(numberStr.charAt(i));
+                let pos = numberStr.length - i - 1;
+                if (val !== 0) {
+                    if (pos === 1 && val === 1) BahtText += TxtDigitArr[pos];
+                    else if (pos === 1 && val === 2) BahtText += "ยี่" + TxtDigitArr[pos];
+                    else if (pos === 0 && val === 1 && numberStr.length > 1) BahtText += "เอ็ด";
+                    else BahtText += TxtNumArr[val] + TxtDigitArr[pos];
+                }
+            }
+            return BahtText + "บาทถ้วน";
+        }
+
+        async function exportDoc(type) {
+            const paper = document.getElementById('a4-document');
+            const personName = document.getElementById('in-name').value || 'ค่าเดินทาง';
+            const fileName = 'ใบสรุปค่าเดินทาง_' + personName;
+            
+            const btnJpg = document.getElementById('btn-export-jpg');
+            const btnPdf = document.getElementById('btn-export-pdf');
+            const txtJpg = document.getElementById('txt-export-jpg');
+            const txtPdf = document.getElementById('txt-export-pdf');
+            const textValues = document.querySelectorAll('.text-value');
+
+            try {
+                if (type === 'pdf') {
+                    btnPdf.disabled = true;
+                    btnJpg.disabled = true;
+                    txtPdf.innerText = "⏳ กำลังสร้าง PDF...";
+                    
+                    const opt = {
+                        margin: 0,
+                        filename: fileName + '.pdf',
+                        image: { type: 'jpeg', quality: 1.0 },
+                        html2canvas: { scale: 3, useCORS: true, backgroundColor: "#ffffff", scrollY: 0 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: 'avoid-all' }
+                    };
+                    await html2pdf().set(opt).from(paper).save();
+                    
+                } else if (type === 'jpg') {
+                    textValues.forEach(el => {
+                        if (el.innerText.trim() !== '') {
+                            el.style.position = 'relative';
+                            el.style.top = '-5px'; 
+                        }
+                    });
+
+                    await new Promise(resolve => setTimeout(resolve, 150)); 
+
+                    btnPdf.disabled = true;
+                    btnJpg.disabled = true;
+                    txtJpg.innerText = "⏳ กำลังสร้าง JPG...";
+                    
+                    const canvas = await html2canvas(paper, { 
+                        scale: 3, 
+                        useCORS: true, 
+                        backgroundColor: "#ffffff",
+                        scrollY: 0 
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const link = document.createElement('a');
+                    link.download = fileName + '.jpg';
+                    link.href = imgData;
+                    link.click();
+                }
+            } catch (err) {
+                console.error("Export Error: ", err);
+                alert("เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาลองใหม่อีกครั้ง");
+            } finally {
+                textValues.forEach(el => {
+                    el.style.position = '';
+                    el.style.top = '';
+                });
+
+                btnPdf.disabled = false;
+                btnJpg.disabled = false;
+                txtPdf.innerText = "Download PDF";
+                txtJpg.innerText = "Save JPG";
+            }
+        }
+
+        window.onload = function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // ใส่วันที่ปัจจุบันบน A4
+            const now = new Date();
+            const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+            document.getElementById('out-date').textContent = dateStr;
+            
+            // นำชื่อที่ Login อยู่มาใส่ให้โดยอัตโนมัติ (ถ้ามี)
+            const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
+            if (savedName) {
+                document.getElementById('in-name').value = savedName;
+            }
+
+            updateUI();
+
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
@@ -274,65 +589,6 @@
                 }
             }, 600);
         };
-
-        function toggleWaypoint() {
-            const isEnabled = document.getElementById('enable-waypoint').checked;
-            document.getElementById('waypoint-fields').classList.toggle('hidden', !isEnabled);
-            document.getElementById('v-wp-row').classList.toggle('hidden', !isEnabled);
-            updateUI();
-        }
-
-        // ฟังก์ชัน Copy และสลับข้อมูลจากขาไป
-        function copyFromOut() {
-            const outFrom = document.getElementById('out-from').value;
-            const outTo = document.getElementById('out-to').value;
-            const distOut = document.getElementById('dist-out').value;
-
-            document.getElementById('in-from').value = outTo;
-            document.getElementById('in-to').value = outFrom;
-            document.getElementById('dist-in').value = distOut;
-            
-            updateUI();
-        }
-
-        function updateUI() {
-            const getVal = (id) => document.getElementById(id).value;
-            const setTxt = (id, val) => document.getElementById(id).textContent = val;
-            const isWpEnabled = document.getElementById('enable-waypoint').checked;
-
-            setTxt('v-user-name', getVal('user-name') || "( ............................................ )");
-            setTxt('v-purpose', getVal('travel-purpose') || "ยังไม่ได้ระบุวัตถุประสงค์");
-            setTxt('v-out-from', getVal('out-from') || "-");
-            setTxt('v-out-to', getVal('out-to') || "-");
-            setTxt('v-in-from', getVal('in-from') || "-");
-            setTxt('v-in-to', getVal('in-to') || "-");
-            
-            const dOut = parseFloat(getVal('dist-out')) || 0;
-            const dIn = parseFloat(getVal('dist-in')) || 0;
-            const rate = parseFloat(getVal('rate')) || 0;
-            let dWp = 0;
-
-            if (isWpEnabled) {
-                setTxt('v-wp-from', getVal('wp-from') || "-");
-                setTxt('v-wp-to', getVal('wp-to') || "-");
-                dWp = parseFloat(getVal('dist-wp')) || 0;
-                setTxt('v-dist-wp', dWp.toFixed(2));
-            }
-
-            setTxt('v-dist-out', dOut.toFixed(2));
-            setTxt('v-dist-in', dIn.toFixed(2));
-            
-            const totalKm = dOut + dIn + dWp;
-            setTxt('v-total-km', totalKm.toLocaleString(undefined, {minimumFractionDigits: 2}));
-            setTxt('v-total-money', (totalKm * rate).toLocaleString(undefined, {minimumFractionDigits: 2}));
-            setTxt('v-formula', `${rate.toFixed(2)} บาท/กม.`);
-        }
-
-        function openMaps() {
-            const s = encodeURIComponent(document.getElementById('out-from').value);
-            const e = encodeURIComponent(document.getElementById('out-to').value);
-            window.open(s && e ? `https://www.google.com/maps/dir/${s}/${e}` : `https://www.google.com/maps`, '_blank');
-        }
     </script>
 </body>
 </html>
