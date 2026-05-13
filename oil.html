@@ -66,7 +66,7 @@
 
         .doc-row { margin-bottom: 6px; display: flex; align-items: flex-end; flex-wrap: wrap; }
         .doc-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
-        .doc-table th, .doc-table td { border: 1px solid #000; padding: 4px 8px; }
+        .doc-table th, .doc-table td { border: 1px solid #000; padding: 6px 8px; }
         .doc-table th { background-color: #f8fafc; font-weight: bold; text-align: center; }
 
         .glass-panel {
@@ -146,7 +146,7 @@
                     <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
                 </button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.2 - Toggleable Route Table & Font Fix</p>
+            <p class="text-xs text-slate-500 mt-1">V.4.3 - Balanced Numbers & Fuel Editing</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
@@ -225,31 +225,27 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-emerald-600 tracking-wider">03. คำนวณเส้นทางและน้ำมัน</h2>
                     <div class="flex items-center gap-3">
-                        <!-- ปุ่มเปิดปิดตาราง (เพิ่มใหม่) -->
                         <label class="flex items-center gap-1.5 cursor-pointer">
                             <input type="checkbox" id="toggle-route-table" onchange="toggleRouteTableDisplay()" checked class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                             <span class="text-[10px] text-slate-500 font-bold hover:text-slate-700">แสดงตารางเอกสาร</span>
                         </label>
-                        <!-- เรทน้ำมัน -->
                         <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
                             <span class="text-[10px] text-slate-400 uppercase font-bold">เรท(บ./กม.)</span>
-                            <input type="number" id="in-rate-km" value="3.66" step="0.01" oninput="calcTotal()" class="input-light w-14 rounded p-1 text-center text-xs font-bold text-emerald-600">
+                            <input type="number" id="in-rate-km" value="3.66" step="0.01" oninput="calcFuelFromDistance()" class="input-light w-14 rounded p-1 text-center text-xs font-bold text-emerald-600">
                         </div>
                     </div>
                 </div>
                 
                 <div class="space-y-4">
-                    <!-- ขาไป -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">ขาไป</p>
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <input type="text" id="in-out-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
                             <input type="text" id="in-out-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
                         </div>
-                        <input type="number" id="in-dist-out" oninput="calcTotal()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขาไป">
+                        <input type="number" id="in-dist-out" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขาไป">
                     </div>
 
-                    <!-- จุดแวะ -->
                     <div>
                         <div class="flex items-center justify-between mb-2 px-1">
                             <span class="text-xs font-medium text-slate-600">เพิ่มจุดแวะ</span>
@@ -263,11 +259,10 @@
                                 <input type="text" id="in-wp-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="จากจุดแวะ">
                                 <input type="text" id="in-wp-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ถึง">
                             </div>
-                            <input type="number" id="in-dist-wp" oninput="calcTotal()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทางเพิ่ม (กม.)">
+                            <input type="number" id="in-dist-wp" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทางเพิ่ม (กม.)">
                         </div>
                     </div>
 
-                    <!-- ขากลับ -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-[10px] font-bold text-slate-500 uppercase">ขากลับ</p>
@@ -277,12 +272,11 @@
                             <input type="text" id="in-in-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
                             <input type="text" id="in-in-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
                         </div>
-                        <input type="number" id="in-dist-in" oninput="calcTotal()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขากลับ">
+                        <input type="number" id="in-dist-in" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขากลับ">
                     </div>
                     
-                    <!-- สรุปค่าน้ำมัน -->
                     <div class="flex justify-between items-center px-2 pt-2 border-t border-slate-100">
-                        <span class="text-xs font-bold text-slate-600">รวมค่าน้ำมัน (ระบบคำนวณ)</span>
+                        <span class="text-xs font-bold text-slate-600">ยอดอ้างอิงจากระยะทาง</span>
                         <span id="txt-calc-fuel" class="font-bold text-emerald-600">0.00 บาท</span>
                     </div>
                 </div>
@@ -296,40 +290,55 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
                         <label class="text-xs font-medium text-slate-600">1. ค่าพาหนะอื่นๆ/ที่จอดรถ</label>
-                        <input type="number" id="in-car" oninput="calcTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-car" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                     <div class="pt-2 border-t border-slate-100">
                         <label class="block text-xs font-medium text-slate-600 mb-2">2. ค่าเบี้ยเลี้ยง</label>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] text-slate-400 uppercase font-bold">Rate</span>
-                                <input type="number" id="in-rate" value="500" oninput="calcTotal()" class="input-light w-16 rounded-lg p-1.5 text-center text-sm">
+                                <input type="number" id="in-rate" value="500" oninput="calcGrandTotal()" class="input-light w-16 rounded-lg p-1.5 text-center text-sm">
                                 <span class="text-[10px] text-slate-400 uppercase font-bold">x Days</span>
-                                <input type="number" id="in-days" value="1" oninput="calcTotal()" class="input-light w-12 rounded-lg p-1.5 text-center text-sm">
+                                <input type="number" id="in-days" value="1" oninput="calcGrandTotal()" class="input-light w-12 rounded-lg p-1.5 text-center text-sm">
                             </div>
-                            <span id="txt-calc-allowance" class="text-sm font-bold text-slate-700">500</span>
+                            <span id="txt-calc-allowance" class="text-sm font-bold text-slate-700">500.00</span>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
-                        <label class="text-xs font-medium text-emerald-600">3. ค่าน้ำมัน (จากข้อ 03)</label>
-                        <input type="number" id="in-fuel" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 font-bold text-emerald-700 pointer-events-none" readonly placeholder="0">
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100 relative">
+                        <div>
+                            <label class="block text-xs font-medium text-emerald-600">3. ค่าน้ำมันเชื้อเพลิง</label>
+                            <span class="text-[9px] text-slate-400 font-bold">(แก้ไขตัวเลขเองได้)</span>
+                        </div>
+                        <!-- ปลดล็อคให้พิมพ์แก้เองได้ -->
+                        <input type="number" id="in-fuel" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 focus:bg-white font-bold text-emerald-700" placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-slate-600">4. ค่าทางด่วน</label>
-                        <input type="number" id="in-toll" oninput="calcTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-toll" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-slate-600">5. ค่าใช้จ่ายอื่น</label>
-                        <input type="number" id="in-other" oninput="calcTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-other" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                 </div>
             </div>
 
             <!-- Card 05: เอกสาร -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <label class="text-sm font-bold text-slate-700">05. หลักฐานแนบ (ฉบับ)</label>
-                    <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-light w-20 rounded-lg p-2 text-center text-sm" placeholder="0">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-sm font-bold text-slate-700">05. เอกสารและการอนุมัติ</label>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-medium text-slate-500 uppercase">หลักฐาน (ฉบับ)</span>
+                        <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-light w-12 rounded-lg p-1.5 text-center text-sm font-bold" placeholder="0">
+                    </div>
+                </div>
+                <!-- ปุ่มสวิตช์เปิดปิดช่องผู้อนุมัติ -->
+                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <span class="text-xs font-medium text-slate-600">แสดงช่องลงชื่อผู้อนุมัติบนกระดาษ</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="toggle-approver" onchange="toggleApproverDisplay()" checked class="sr-only peer">
+                        <div class="w-8 h-4 bg-slate-200 rounded-full peer-checked:bg-blue-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:border-blue-500 peer-checked:after:bg-blue-500 shadow-sm"></div>
+                    </label>
                 </div>
             </div>
             
@@ -403,7 +412,6 @@
                 <div class="field-box w-full"><div id="out-work2" class="text-value"></div></div>
             </div>
 
-            <!-- แก้ไขกล่องใส่วันที่ ให้มีขนาดเพียงพอ ไม่ถูกบีบอักษร และกำหนด font-size ให้เท่ากัน -->
             <div class="doc-row" style="font-size: 13px;">
                 ตั้งแต่วันที่ <div class="field-box" style="min-width: 35px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-d1" class="text-value" style="font-size: inherit;"></div></div>
                 เดือน <div class="field-box" style="min-width: 80px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-m1" class="text-value" style="font-size: inherit;"></div></div>
@@ -456,7 +464,7 @@
                         <tr>
                             <td colspan="3" style="text-align: right; background-color: #f8fafc;">
                                 ระยะทางรวม <div class="field-box" style="width: 50px; justify-content: center; margin: 0 5px;"><div id="out-total-km" class="text-value"></div></div> กม.  
-                                x อัตรา <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate-km" class="text-value">3.66</div></div> บาท/กม. =
+                                x อัตรา <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate-km" class="text-value"></div></div> บาท/กม. =
                             </td>
                             <td style="text-align: right; font-weight: bold; background-color: #f8fafc;"><div id="out-fuel-calc" class="text-value" style="margin-bottom: 0;"></div></td>
                         </tr>
@@ -474,13 +482,13 @@
                 </tr>
                 <tr>
                     <td class="col-desc">
-                        2. ค่าเบี้ยเลี้ยงอัตราวันละ <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate" class="text-value">500</div></div> บาท 
+                        2. ค่าเบี้ยเลี้ยงอัตราวันละ <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate" class="text-value"></div></div> บาท 
                         <span style="margin-left: 10px;"></span> จำนวน <div class="field-box" style="width: 30px; justify-content: center; margin: 0 5px;"><div id="out-days" class="text-value">1</div></div> วัน
                     </td>
-                    <td class="col-amt"><div id="out-allowance" class="text-value">500</div></td>
+                    <td class="col-amt"><div id="out-allowance" class="text-value"></div></td>
                     <td class="col-unit">บาท</td>
                 </tr>
-                <tr id="a4-fuel-row">
+                <tr>
                     <td class="col-desc">3. ค่าน้ำมันเชื้อเพลิง (ยกยอดจากตารางด้านบน)</td>
                     <td class="col-amt"><div id="out-fuel" class="text-value"></div></td>
                     <td class="col-unit">บาท</td>
@@ -498,11 +506,11 @@
             </table>
 
             <div class="doc-row" style="justify-content: flex-end; margin-right: 10%;">
-                รวมเงินทั้งสิ้น <div class="field-box" style="width: 130px; justify-content: center; margin: 0 10px;"><div id="out-grand-total" class="text-value">500</div></div> บาท
+                รวมเงินทั้งสิ้น <div class="field-box" style="width: 130px; justify-content: center; margin: 0 10px;"><div id="out-grand-total" class="text-value"></div></div> บาท
             </div>
 
             <div class="doc-row" style="margin-top: 10px;">
-                จำนวนเงิน (ตัวอักษร) <div class="field-box flex-1 ml-2"><div id="out-baht-text" class="text-value">ห้าร้อยบาทถ้วน</div></div>
+                จำนวนเงิน (ตัวอักษร) <div class="field-box flex-1 ml-2"><div id="out-baht-text" class="text-value">ศูนย์บาทถ้วน</div></div>
             </div>
 
             <div style="padding-left: 40px; margin-top: 20px;">
@@ -514,7 +522,7 @@
 
             <table style="width: 100%; margin-top: 25px; border: none; font-size: 13px;">
                 <tr>
-                    <td style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
+                    <td id="a4-approver-box" style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
                         อนุมัติให้จ่ายได้<br>
                         ลงชื่อ <div class="field-box" style="width: 200px;"></div><br>
                         <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"></div><span>)</span>
@@ -538,7 +546,7 @@
                         if(el.id && el.oninput) { el.dispatchEvent(new Event('input')); }
                         if(el.id && el.onchange) { el.dispatchEvent(new Event('change')); }
                     });
-                    calcTotal(); 
+                    calcFuelFromDistance(); 
                 }, 50);
             }
         });
@@ -668,13 +676,12 @@
             ['in-y1', 'in-y2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = yearOpts; });
         }
 
-        // เปลี่ยนจากการดึงเข้าฟังก์ชัน auto-shrink ให้ใส่ค่าลงไปตรงๆ ป้องกันอักษรหดตัว
         function syncDate(inputId, outputId) {
             const el = document.getElementById(inputId);
             const outEl = document.getElementById(outputId);
             if(el && outEl) {
                 outEl.textContent = el.value;
-                outEl.style.fontSize = ''; // เคลียร์ style กันเหนียว
+                outEl.style.fontSize = ''; 
             }
         }
 
@@ -707,17 +714,26 @@
             document.getElementById('chk-group').textContent = type === 'single' ? '◯' : '◉';
         }
 
-        // ================= Travel & Fuel Functions =================
+        // ================= Formatting & Features =================
+        function fmt2(val) {
+            return Number(val).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
         function toggleRouteTableDisplay() {
             const isVisible = document.getElementById('toggle-route-table').checked;
             document.getElementById('a4-route-table-section').style.display = isVisible ? 'block' : 'none';
+        }
+
+        function toggleApproverDisplay() {
+            const isVisible = document.getElementById('toggle-approver').checked;
+            document.getElementById('a4-approver-box').style.display = isVisible ? 'table-cell' : 'none';
         }
 
         function toggleWaypoint() {
             const isEnabled = document.getElementById('enable-waypoint').checked;
             document.getElementById('wp-fields').classList.toggle('hidden', !isEnabled);
             document.getElementById('row-wp').style.display = isEnabled ? 'table-row' : 'none';
-            calcTotal();
+            calcFuelFromDistance();
         }
 
         function copyFromOut() {
@@ -725,7 +741,7 @@
             document.getElementById('in-in-to').value = document.getElementById('in-out-from').value;
             document.getElementById('in-dist-in').value = document.getElementById('in-dist-out').value;
             syncTravel();
-            calcTotal();
+            calcFuelFromDistance();
         }
 
         function openMaps() {
@@ -744,8 +760,7 @@
         }
 
         // ================= Main Calculation =================
-        function calcTotal() {
-            // 1. คำนวณเส้นทางและน้ำมัน
+        function calcFuelFromDistance() {
             const dOut = parseFloat(document.getElementById('in-dist-out').value) || 0;
             const dIn = parseFloat(document.getElementById('in-dist-in').value) || 0;
             const isWpEnabled = document.getElementById('enable-waypoint').checked;
@@ -755,60 +770,80 @@
             const totalKm = dOut + dIn + dWp;
             const fuelMoney = totalKm * rateKm;
 
-            document.getElementById('out-dist-out').textContent = dOut > 0 ? dOut.toFixed(2) : '';
-            document.getElementById('out-dist-wp').textContent = dWp > 0 ? dWp.toFixed(2) : '';
-            document.getElementById('out-dist-in').textContent = dIn > 0 ? dIn.toFixed(2) : '';
-            document.getElementById('out-total-km').textContent = totalKm > 0 ? totalKm.toFixed(2) : '';
-            document.getElementById('out-rate-km').textContent = rateKm > 0 ? rateKm : '';
-            document.getElementById('out-fuel-calc').textContent = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
+            document.getElementById('out-dist-out').textContent = dOut > 0 ? fmt2(dOut) : '';
+            document.getElementById('out-dist-wp').textContent = dWp > 0 ? fmt2(dWp) : '';
+            document.getElementById('out-dist-in').textContent = dIn > 0 ? fmt2(dIn) : '';
+            document.getElementById('out-total-km').textContent = totalKm > 0 ? fmt2(totalKm) : '';
+            document.getElementById('out-rate-km').textContent = rateKm > 0 ? fmt2(rateKm) : '';
+            document.getElementById('out-fuel-calc').textContent = fuelMoney > 0 ? fmt2(fuelMoney) : '';
 
-            // นำยอดน้ำมันไปใส่ในช่องค่าใช้จ่ายข้อ 3 (ถ้าตารางถูกซ่อนอยู่ ก็ยังคงคำนวณตามปกติ)
+            // นำยอดน้ำมันไปใส่ในช่องค่าใช้จ่ายข้อ 3 อัตโนมัติ (แต่ยังพิมพ์ทับได้)
             document.getElementById('in-fuel').value = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
-            document.getElementById('txt-calc-fuel').textContent = fuelMoney > 0 ? fuelMoney.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' บาท' : '0.00 บาท';
+            document.getElementById('txt-calc-fuel').textContent = fuelMoney > 0 ? fmt2(fuelMoney) + ' บาท' : '0.00 บาท';
 
-            // 2. คำนวณค่าใช้จ่ายทั้งหมด
+            calcGrandTotal();
+        }
+
+        function calcGrandTotal() {
             let rate = parseFloat(document.getElementById('in-rate').value) || 0;
             let days = parseFloat(document.getElementById('in-days').value) || 0;
             let allowance = rate * days;
             
-            document.getElementById('out-rate').textContent = rate > 0 ? rate : '';
+            document.getElementById('out-rate').textContent = rate > 0 ? fmt2(rate) : '';
             document.getElementById('out-days').textContent = days > 0 ? days : '';
             document.getElementById('out-days-total').textContent = days > 0 ? days : '';
-            document.getElementById('out-allowance').textContent = allowance > 0 ? allowance : '';
-            document.getElementById('txt-calc-allowance').textContent = allowance > 0 ? allowance.toLocaleString() : '0';
+            document.getElementById('out-allowance').textContent = allowance > 0 ? fmt2(allowance) : '';
+            document.getElementById('txt-calc-allowance').textContent = allowance > 0 ? fmt2(allowance) : '0.00';
 
+            // ดึงค่าใช้จ่ายทั้งหมด รวมถึง in-fuel ที่อนุญาตให้แก้เอง
             let car = parseFloat(document.getElementById('in-car').value) || 0;
             let fuel = parseFloat(document.getElementById('in-fuel').value) || 0;
             let toll = parseFloat(document.getElementById('in-toll').value) || 0;
             let other = parseFloat(document.getElementById('in-other').value) || 0;
 
-            document.getElementById('out-car').textContent = car > 0 ? car : '';
-            document.getElementById('out-fuel').textContent = fuel > 0 ? fuel : '';
-            document.getElementById('out-toll').textContent = toll > 0 ? toll : '';
-            document.getElementById('out-other').textContent = other > 0 ? other : '';
+            document.getElementById('out-car').textContent = car > 0 ? fmt2(car) : '';
+            document.getElementById('out-fuel').textContent = fuel > 0 ? fmt2(fuel) : '';
+            document.getElementById('out-toll').textContent = toll > 0 ? fmt2(toll) : '';
+            document.getElementById('out-other').textContent = other > 0 ? fmt2(other) : '';
 
             let grandTotal = car + allowance + fuel + toll + other;
-            document.getElementById('out-grand-total').textContent = grandTotal > 0 ? grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2}) : '';
-            document.getElementById('out-baht-text').textContent = grandTotal > 0 ? ThaiNumberToText(grandTotal) : '';
+            document.getElementById('out-grand-total').textContent = grandTotal > 0 ? fmt2(grandTotal) : '';
+            document.getElementById('out-baht-text').textContent = grandTotal > 0 ? ThaiNumberToText(grandTotal) : 'ศูนย์บาทถ้วน';
         }
 
+        // อ่านเลขไทยให้รองรับจุดทศนิยม 2 ตำแหน่ง (สตางค์)
         function ThaiNumberToText(amount) {
+            if (amount === 0) return "ศูนย์บาทถ้วน";
+            
             let numberStr = Math.floor(amount).toString();
+            let satangStr = Math.round((amount - Math.floor(amount)) * 100).toString();
+            
             let TxtNumArr = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ"];
             let TxtDigitArr = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
-            let BahtText = "";
-            if (numberStr === "0") return "ศูนย์บาทถ้วน";
-            for (let i = 0; i < numberStr.length; i++) {
-                let val = parseInt(numberStr.charAt(i));
-                let pos = numberStr.length - i - 1;
-                if (val !== 0) {
-                    if (pos === 1 && val === 1) BahtText += TxtDigitArr[pos];
-                    else if (pos === 1 && val === 2) BahtText += "ยี่" + TxtDigitArr[pos];
-                    else if (pos === 0 && val === 1 && numberStr.length > 1) BahtText += "เอ็ด";
-                    else BahtText += TxtNumArr[val] + TxtDigitArr[pos];
+            
+            function convert(str) {
+                let text = "";
+                for (let i = 0; i < str.length; i++) {
+                    let val = parseInt(str.charAt(i));
+                    let pos = str.length - i - 1;
+                    if (val !== 0) {
+                        if (pos === 1 && val === 1) text += TxtDigitArr[pos];
+                        else if (pos === 1 && val === 2) text += "ยี่" + TxtDigitArr[pos];
+                        else if (pos === 0 && val === 1 && str.length > 1) text += "เอ็ด";
+                        else text += TxtNumArr[val] + TxtDigitArr[pos];
+                    }
                 }
+                return text;
             }
-            return BahtText + "บาทถ้วน";
+
+            let BahtText = numberStr === "0" ? "" : convert(numberStr) + "บาท";
+            
+            if (satangStr === "0" || satangStr === "00") {
+                BahtText += "ถ้วน";
+            } else {
+                BahtText += convert(satangStr) + "สตางค์";
+            }
+            return BahtText;
         }
 
         async function exportDoc(type) {
@@ -884,10 +919,8 @@
         window.onload = () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
-            // เตรียม Dropdown เดือน/ปี 
             populateDateDropdowns();
             
-            // ตั้งค่าวันที่ปัจจุบันอัตโนมัติ
             const now = new Date();
             const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
@@ -910,7 +943,7 @@
             syncDate('in-m2', 'out-m2');
             syncDate('in-y2', 'out-y2');
             
-            calcTotal();
+            calcFuelFromDistance();
 
             const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
             if (savedName) {
@@ -925,7 +958,6 @@
 
             initCustomDropdowns();
 
-            // ปิดหน้าโหลด
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
