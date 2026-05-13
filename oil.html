@@ -36,7 +36,7 @@
             padding: 20mm 15mm; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
             box-sizing: border-box;
-            font-size: 13px; /* ปรับขนาดอักษรลงนิดหน่อยเพื่อให้พอดีกับเนื้อหาที่เยอะขึ้น */
+            font-size: 13px;
             line-height: 1.5;
             color: #000;
             position: relative;
@@ -146,7 +146,7 @@
                     <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
                 </button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.0 - Unified System</p>
+            <p class="text-xs text-slate-500 mt-1">V.4.1 - Unified System (Bug Fixed)</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
@@ -162,7 +162,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">วันที่เอกสาร</label>
-                            <input type="text" id="in-doc-date" oninput="sync('in-doc-date', 'out-date')" class="input-light w-full rounded-lg p-2.5 text-sm font-medium" readonly>
+                            <input type="text" id="in-doc-date" oninput="sync('in-doc-date', 'out-date')" class="input-light w-full rounded-lg p-2.5 text-sm font-medium">
                         </div>
                     </div>
                     
@@ -220,7 +220,7 @@
                 </div>
             </div>
 
-            <!-- Card 03: เส้นทางและค่าเดินทาง (รวมใหม่) -->
+            <!-- Card 03: เส้นทางและค่าเดินทาง -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-emerald-400 transition-all">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-emerald-600 tracking-wider">03. คำนวณเส้นทางและน้ำมัน</h2>
@@ -304,7 +304,7 @@
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-emerald-600">3. ค่าน้ำมัน (จากข้อ 03)</label>
-                        <input type="number" id="in-fuel" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 font-bold text-emerald-700" readonly placeholder="0">
+                        <input type="number" id="in-fuel" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 font-bold text-emerald-700 pointer-events-none" readonly placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-slate-600">4. ค่าทางด่วน</label>
@@ -652,29 +652,21 @@
                 yearOpts += `<option value="${i}" ${i === currentYear ? 'selected' : ''}>${i}</option>`;
             }
 
-            ['in-doc-d', 'in-d1', 'in-d2'].forEach(id => document.getElementById(id).innerHTML = dayOpts);
-            ['in-doc-m', 'in-m1', 'in-m2'].forEach(id => document.getElementById(id).innerHTML = monthOpts);
-            ['in-doc-y', 'in-y1', 'in-y2'].forEach(id => document.getElementById(id).innerHTML = yearOpts);
+            // นำ in-doc-x ออกแล้ว จึงดึงแค่วันที่เริ่มและถึง
+            ['in-d1', 'in-d2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = dayOpts; });
+            ['in-m1', 'in-m2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = monthOpts; });
+            ['in-y1', 'in-y2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = yearOpts; });
         }
 
         function syncDate(inputId, outputId) {
-            document.getElementById(outputId).textContent = document.getElementById(inputId).value;
+            const el = document.getElementById(inputId);
+            if(el) document.getElementById(outputId).textContent = el.value;
         }
 
         function handlePosSelect(select) {
             document.getElementById('in-position').value = select.value;
             sync('in-position', 'out-position');
             sync('in-position', 'out-position-sign');
-        }
-
-        function syncTopDate() {
-            const d = document.getElementById('in-doc-d').value;
-            const m = document.getElementById('in-doc-m').value;
-            const y = document.getElementById('in-doc-y').value;
-            let str = "";
-            if(d || m || y) str = `${d} ${m} ${y}`.trim();
-            document.getElementById('in-doc-date').value = str;
-            document.getElementById('out-date').textContent = str;
         }
 
         function sync(inputId, outputId) {
@@ -872,18 +864,17 @@
         window.onload = () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
+            // เตรียม Dropdown เดือน/ปี 
             populateDateDropdowns();
             
-            // Set current date directly via script to match requirement #2 visually
+            // ตั้งค่าวันที่ปัจจุบันอัตโนมัติ
             const now = new Date();
             const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
-            document.getElementById('in-doc-date').value = dateStr;
-            document.getElementById('out-date').textContent = dateStr;
-
-            document.getElementById('in-doc-d').value = now.getDate().toString().padStart(2, '0');
-            document.getElementById('in-doc-m').value = months[now.getMonth()];
-            document.getElementById('in-doc-y').value = now.getFullYear() + 543;
+            const inDocDate = document.getElementById('in-doc-date');
+            if(inDocDate) inDocDate.value = dateStr;
+            const outDate = document.getElementById('out-date');
+            if(outDate) outDate.textContent = dateStr;
 
             sync('in-m1', 'out-m1');
             sync('in-y1', 'out-y1');
@@ -904,6 +895,7 @@
 
             initCustomDropdowns();
 
+            // ปิดหน้าโหลด
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
