@@ -146,7 +146,7 @@
                     <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
                 </button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.1 - Unified System (Bug Fixed)</p>
+            <p class="text-xs text-slate-500 mt-1">V.4.2 - Toggleable Route Table & Font Fix</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
@@ -198,16 +198,16 @@
                         <label class="block text-xs font-medium text-slate-500 mb-1">ตั้งแต่วันที่</label>
                         <div class="flex gap-2">
                             <select id="in-d1" onchange="syncDate('in-d1', 'out-d1')" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-m1" onchange="sync('in-m1', 'out-m1')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-y1" onchange="sync('in-y1', 'out-y1')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-m1" onchange="syncDate('in-m1', 'out-m1')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-y1" onchange="syncDate('in-y1', 'out-y1')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ถึงวันที่</label>
                         <div class="flex gap-2">
                             <select id="in-d2" onchange="syncDate('in-d2', 'out-d2')" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-m2" onchange="sync('in-m2', 'out-m2')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-y2" onchange="sync('in-y2', 'out-y2')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-m2" onchange="syncDate('in-m2', 'out-m2')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-y2" onchange="syncDate('in-y2', 'out-y2')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
                         </div>
                     </div>
                     <div class="pt-2">
@@ -224,9 +224,17 @@
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-emerald-400 transition-all">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-emerald-600 tracking-wider">03. คำนวณเส้นทางและน้ำมัน</h2>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-slate-400 uppercase font-bold">เรท (บ./กม.)</span>
-                        <input type="number" id="in-rate-km" value="3.66" step="0.01" oninput="calcTotal()" class="input-light w-16 rounded p-1 text-center text-xs font-bold text-emerald-600">
+                    <div class="flex items-center gap-3">
+                        <!-- ปุ่มเปิดปิดตาราง (เพิ่มใหม่) -->
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="toggle-route-table" onchange="toggleRouteTableDisplay()" checked class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                            <span class="text-[10px] text-slate-500 font-bold hover:text-slate-700">แสดงตารางเอกสาร</span>
+                        </label>
+                        <!-- เรทน้ำมัน -->
+                        <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">เรท(บ./กม.)</span>
+                            <input type="number" id="in-rate-km" value="3.66" step="0.01" oninput="calcTotal()" class="input-light w-14 rounded p-1 text-center text-xs font-bold text-emerald-600">
+                        </div>
                     </div>
                 </div>
                 
@@ -395,63 +403,66 @@
                 <div class="field-box w-full"><div id="out-work2" class="text-value"></div></div>
             </div>
 
-            <div class="doc-row" style="font-size: 12px;">
-                ตั้งแต่วันที่ <div class="field-box" style="width: 30px; margin: 0 5px; justify-content: center;"><div id="out-d1" class="text-value"></div></div>
-                เดือน <div class="field-box" style="width: 70px; margin: 0 5px; justify-content: center;"><div id="out-m1" class="text-value"></div></div>
-                พ.ศ. <div class="field-box" style="width: 40px; margin: 0 5px; justify-content: center;"><div id="out-y1" class="text-value"></div></div>
-                ถึงวันที่ <div class="field-box" style="width: 30px; margin: 0 5px; justify-content: center;"><div id="out-d2" class="text-value"></div></div>
-                เดือน <div class="field-box" style="width: 70px; margin: 0 5px; justify-content: center;"><div id="out-m2" class="text-value"></div></div>
-                พ.ศ. <div class="field-box" style="width: 40px; margin: 0 5px; justify-content: center;"><div id="out-y2" class="text-value"></div></div>
+            <!-- แก้ไขกล่องใส่วันที่ ให้มีขนาดเพียงพอ ไม่ถูกบีบอักษร และกำหนด font-size ให้เท่ากัน -->
+            <div class="doc-row" style="font-size: 13px;">
+                ตั้งแต่วันที่ <div class="field-box" style="min-width: 35px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-d1" class="text-value" style="font-size: inherit;"></div></div>
+                เดือน <div class="field-box" style="min-width: 80px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-m1" class="text-value" style="font-size: inherit;"></div></div>
+                พ.ศ. <div class="field-box" style="min-width: 45px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-y1" class="text-value" style="font-size: inherit;"></div></div>
+                ถึงวันที่ <div class="field-box" style="min-width: 35px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-d2" class="text-value" style="font-size: inherit;"></div></div>
+                เดือน <div class="field-box" style="min-width: 80px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-m2" class="text-value" style="font-size: inherit;"></div></div>
+                พ.ศ. <div class="field-box" style="min-width: 45px; width: auto; padding: 0 8px; justify-content: center;"><div id="out-y2" class="text-value" style="font-size: inherit;"></div></div>
             </div>
             
-            <div class="doc-row" style="font-size: 12px;">
+            <div class="doc-row" style="font-size: 13px;">
                 รวมเวลาไปปฏิบัติงานครั้งนี้ <div class="field-box" style="width: 50px; margin: 0 10px; justify-content: center;"><div id="out-days-total" class="text-value">1</div></div> วัน 
                 <span style="margin-left: 20px;">รูปแบบการเดินทาง:</span>
                 <span id="chk-single" style="margin: 0 5px 0 15px; font-size: 14px;">◉</span> <label>ข้าพเจ้า</label> 
                 <span id="chk-group" style="margin: 0 5px 0 15px; font-size: 14px;">◯</span> <label>คณะเดินทาง</label>
             </div>
 
-            <!-- ตารางสรุปเส้นทาง (ใหม่) -->
-            <div style="margin-top: 15px; font-weight: bold; font-size: 13px;">ตารางสรุปเส้นทางและระยะทาง</div>
-            <table class="doc-table">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">รายการ</th>
-                        <th style="width: 35%;">ต้นทาง</th>
-                        <th style="width: 35%;">ปลายทาง</th>
-                        <th style="width: 15%;">ระยะทาง (กม.)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="text-align: center;">ขาไป</td>
-                        <td><div id="out-out-from" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td><div id="out-out-to" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td style="text-align: right;"><div id="out-dist-out" class="text-value" style="margin-bottom: 0;"></div></td>
-                    </tr>
-                    <tr id="row-wp" style="display: none;">
-                        <td style="text-align: center;">จุดแวะ</td>
-                        <td><div id="out-wp-from" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td><div id="out-wp-to" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td style="text-align: right;"><div id="out-dist-wp" class="text-value" style="margin-bottom: 0;"></div></td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: center;">ขากลับ</td>
-                        <td><div id="out-in-from" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td><div id="out-in-to" class="text-value" style="margin-bottom: 0;"></div></td>
-                        <td style="text-align: right;"><div id="out-dist-in" class="text-value" style="margin-bottom: 0;"></div></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3" style="text-align: right; background-color: #f8fafc;">
-                            ระยะทางรวม <div class="field-box" style="width: 50px; justify-content: center; margin: 0 5px;"><div id="out-total-km" class="text-value"></div></div> กม.  
-                            x อัตรา <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate-km" class="text-value">3.66</div></div> บาท/กม. =
-                        </td>
-                        <td style="text-align: right; font-weight: bold; background-color: #f8fafc;"><div id="out-fuel-calc" class="text-value" style="margin-bottom: 0;"></div></td>
-                    </tr>
-                </tfoot>
-            </table>
+            <!-- ส่วนตารางที่เปิด-ปิดได้ -->
+            <div id="a4-route-table-section">
+                <div style="margin-top: 15px; font-weight: bold; font-size: 13px;">ตารางสรุปเส้นทางและระยะทาง</div>
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">รายการ</th>
+                            <th style="width: 35%;">ต้นทาง</th>
+                            <th style="width: 35%;">ปลายทาง</th>
+                            <th style="width: 15%;">ระยะทาง (กม.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;">ขาไป</td>
+                            <td><div id="out-out-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td><div id="out-out-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td style="text-align: right;"><div id="out-dist-out" class="text-value" style="margin-bottom: 0;"></div></td>
+                        </tr>
+                        <tr id="row-wp" style="display: none;">
+                            <td style="text-align: center;">จุดแวะ</td>
+                            <td><div id="out-wp-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td><div id="out-wp-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td style="text-align: right;"><div id="out-dist-wp" class="text-value" style="margin-bottom: 0;"></div></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center;">ขากลับ</td>
+                            <td><div id="out-in-from" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td><div id="out-in-to" class="text-value" style="margin-bottom: 0;"></div></td>
+                            <td style="text-align: right;"><div id="out-dist-in" class="text-value" style="margin-bottom: 0;"></div></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: right; background-color: #f8fafc;">
+                                ระยะทางรวม <div class="field-box" style="width: 50px; justify-content: center; margin: 0 5px;"><div id="out-total-km" class="text-value"></div></div> กม.  
+                                x อัตรา <div class="field-box" style="width: 40px; justify-content: center; margin: 0 5px;"><div id="out-rate-km" class="text-value">3.66</div></div> บาท/กม. =
+                            </td>
+                            <td style="text-align: right; font-weight: bold; background-color: #f8fafc;"><div id="out-fuel-calc" class="text-value" style="margin-bottom: 0;"></div></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
 
             <!-- ตารางสรุปค่าใช้จ่ายทั้งหมด -->
             <div style="margin-top: 15px; font-weight: bold; font-size: 13px;">สรุปค่าใช้จ่ายทั้งหมด ข้าพเจ้าขอเบิกค่าใช้จ่ายดังนี้</div>
@@ -469,7 +480,7 @@
                     <td class="col-amt"><div id="out-allowance" class="text-value">500</div></td>
                     <td class="col-unit">บาท</td>
                 </tr>
-                <tr>
+                <tr id="a4-fuel-row">
                     <td class="col-desc">3. ค่าน้ำมันเชื้อเพลิง (ยกยอดจากตารางด้านบน)</td>
                     <td class="col-amt"><div id="out-fuel" class="text-value"></div></td>
                     <td class="col-unit">บาท</td>
@@ -652,15 +663,19 @@
                 yearOpts += `<option value="${i}" ${i === currentYear ? 'selected' : ''}>${i}</option>`;
             }
 
-            // นำ in-doc-x ออกแล้ว จึงดึงแค่วันที่เริ่มและถึง
             ['in-d1', 'in-d2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = dayOpts; });
             ['in-m1', 'in-m2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = monthOpts; });
             ['in-y1', 'in-y2'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerHTML = yearOpts; });
         }
 
+        // เปลี่ยนจากการดึงเข้าฟังก์ชัน auto-shrink ให้ใส่ค่าลงไปตรงๆ ป้องกันอักษรหดตัว
         function syncDate(inputId, outputId) {
             const el = document.getElementById(inputId);
-            if(el) document.getElementById(outputId).textContent = el.value;
+            const outEl = document.getElementById(outputId);
+            if(el && outEl) {
+                outEl.textContent = el.value;
+                outEl.style.fontSize = ''; // เคลียร์ style กันเหนียว
+            }
         }
 
         function handlePosSelect(select) {
@@ -693,6 +708,11 @@
         }
 
         // ================= Travel & Fuel Functions =================
+        function toggleRouteTableDisplay() {
+            const isVisible = document.getElementById('toggle-route-table').checked;
+            document.getElementById('a4-route-table-section').style.display = isVisible ? 'block' : 'none';
+        }
+
         function toggleWaypoint() {
             const isEnabled = document.getElementById('enable-waypoint').checked;
             document.getElementById('wp-fields').classList.toggle('hidden', !isEnabled);
@@ -742,7 +762,7 @@
             document.getElementById('out-rate-km').textContent = rateKm > 0 ? rateKm : '';
             document.getElementById('out-fuel-calc').textContent = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
 
-            // นำยอดน้ำมันไปใส่ในช่องค่าใช้จ่ายข้อ 3
+            // นำยอดน้ำมันไปใส่ในช่องค่าใช้จ่ายข้อ 3 (ถ้าตารางถูกซ่อนอยู่ ก็ยังคงคำนวณตามปกติ)
             document.getElementById('in-fuel').value = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
             document.getElementById('txt-calc-fuel').textContent = fuelMoney > 0 ? fuelMoney.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' บาท' : '0.00 บาท';
 
@@ -876,10 +896,20 @@
             const outDate = document.getElementById('out-date');
             if(outDate) outDate.textContent = dateStr;
 
-            sync('in-m1', 'out-m1');
-            sync('in-y1', 'out-y1');
-            sync('in-m2', 'out-m2');
-            sync('in-y2', 'out-y2');
+            document.getElementById('in-d1').value = now.getDate().toString().padStart(2, '0');
+            document.getElementById('in-m1').value = months[now.getMonth()];
+            document.getElementById('in-y1').value = now.getFullYear() + 543;
+            document.getElementById('in-d2').value = now.getDate().toString().padStart(2, '0');
+            document.getElementById('in-m2').value = months[now.getMonth()];
+            document.getElementById('in-y2').value = now.getFullYear() + 543;
+
+            syncDate('in-d1', 'out-d1');
+            syncDate('in-m1', 'out-m1');
+            syncDate('in-y1', 'out-y1');
+            syncDate('in-d2', 'out-d2');
+            syncDate('in-m2', 'out-m2');
+            syncDate('in-y2', 'out-y2');
+            
             calcTotal();
 
             const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
