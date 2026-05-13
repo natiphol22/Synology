@@ -70,7 +70,6 @@
         .doc-table th { background-color: #f8fafc; font-weight: bold; text-align: center; }
         
         .col-desc { width: 65%; }
-        /* จัดตัวเลขให้อยู่กึ่งกลาง */
         .col-amt { width: 25%; text-align: center; vertical-align: middle; }
         .col-unit { width: 10%; text-align: center; vertical-align: middle; } 
 
@@ -93,7 +92,6 @@
             outline: none;
         }
 
-        /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -111,6 +109,17 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        /* Animation classes */
+        .fade-slide-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .fade-slide-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media print {
             @page { size: A4; margin: 0; }
             body { background: white; margin: 0; padding: 0; overflow: visible; }
@@ -127,53 +136,59 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล -->
-    <div id="loader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="toast-container" class="fixed top-5 right-5 z-[10000] flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="loader" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
           <span class="relative inline-flex rounded-full h-20 w-20 bg-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.2)]">
               <i data-lucide="layers" class="w-10 h-10 text-white animate-pulse"></i>
           </span>
         </div>
-        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังเตรียมระบบ</h2>
+        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังโหลดข้อมูลของคุณ...</h2>
         <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
-    <!-- แผง Sidebar ด้านซ้าย -->
-    <div class="w-[450px] md:w-[500px] h-full flex flex-col glass-panel z-10 relative">
+    <div id="sidebar-panel" class="w-[450px] md:w-[500px] h-full flex flex-col glass-panel z-10 relative fade-slide-up">
         <div class="p-6 border-b border-slate-100 relative overflow-hidden bg-white">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center mb-1">
                 <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="file-text" class="w-7 h-7 text-blue-600"></i>
-                    ฟอร์มเบิกจ่าย & ค่าเดินทาง
+                    ฟอร์มเบิกจ่าย
                 </h1>
-                <button onclick="openMaps()" class="text-[10px] flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all">
-                    <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="openMaps()" class="text-[10px] flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-all" title="แผนที่">
+                        <i data-lucide="map" class="w-3.5 h-3.5"></i> Maps
+                    </button>
+                    <button onclick="clearForm()" class="text-[10px] flex items-center gap-1 font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded-lg transition-all" title="ล้างข้อมูลทั้งหมด">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> ล้าง
+                    </button>
+                </div>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.6 - Center Amount & 2 Approver Inputs</p>
+            <p class="text-xs text-slate-500 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Save ทำงาน
+            </p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
             
-            <!-- Card 01: ข้อมูลเอกสาร & ผู้เบิก -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. ข้อมูลเอกสารและผู้เบิก</h2>
                 <div class="space-y-3 relative">
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่เอกสาร</label>
-                            <input type="text" id="in-doc-no" oninput="sync('in-doc-no', 'out-doc-no')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="Ex. EXP-2569/001">
+                            <input type="text" id="in-doc-no" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="Ex. EXP-2569/001">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">วันที่เอกสาร</label>
-                            <input type="text" id="in-doc-date" oninput="sync('in-doc-date', 'out-date')" class="input-light w-full rounded-lg p-2.5 text-sm font-medium">
+                            <input type="text" id="in-doc-date" class="input-light w-full rounded-lg p-2.5 text-sm font-medium">
                         </div>
                     </div>
                     
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้เบิก</label>
-                        <input type="text" id="in-name" oninput="sync('in-name', 'out-name'); sync('in-name', 'out-name-sign1'); sync('in-name', 'out-name-sign2');" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
+                        <input type="text" id="in-name" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ตำแหน่ง</label>
@@ -181,38 +196,37 @@
                             <option value="">-- เลือกตำแหน่ง --</option>
                             <option value="IT Support">IT Support</option>
                         </select>
-                        <input type="text" id="in-position" oninput="sync('in-position', 'out-position'); sync('in-position', 'out-position-sign');" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุตำแหน่ง">
+                        <input type="text" id="in-position" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุตำแหน่ง">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อลูกค้า / บริษัท</label>
-                        <input type="text" id="in-customer" oninput="sync('in-customer', 'out-customer')" class="input-light w-full rounded-lg p-2.5 text-sm">
+                        <input type="text" id="in-customer" class="input-light w-full rounded-lg p-2.5 text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">รายละเอียดงาน / วัตถุประสงค์</label>
-                        <input type="text" id="in-work1" oninput="sync('in-work1', 'out-work1')" class="input-light w-full rounded-lg p-2.5 text-sm mb-2" placeholder="บรรทัดที่ 1">
-                        <input type="text" id="in-work2" oninput="sync('in-work2', 'out-work2')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="บรรทัดที่ 2 (ถ้ามี)">
+                        <input type="text" id="in-work1" class="input-light w-full rounded-lg p-2.5 text-sm mb-2" placeholder="บรรทัดที่ 1">
+                        <input type="text" id="in-work2" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="บรรทัดที่ 2 (ถ้ามี)">
                     </div>
                 </div>
             </div>
 
-            <!-- Card 02: ระยะเวลา -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">02. ระยะเวลาการปฏิบัติงาน</h2>
                 <div class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ตั้งแต่วันที่</label>
                         <div class="flex gap-2">
-                            <select id="in-d1" onchange="syncDate('in-d1', 'out-d1')" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-m1" onchange="syncDate('in-m1', 'out-m1')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-y1" onchange="syncDate('in-y1', 'out-y1')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-d1" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-m1" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-y1" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ถึงวันที่</label>
                         <div class="flex gap-2">
-                            <select id="in-d2" onchange="syncDate('in-d2', 'out-d2')" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-m2" onchange="syncDate('in-m2', 'out-m2')" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
-                            <select id="in-y2" onchange="syncDate('in-y2', 'out-y2')" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-d2" class="input-light w-20 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-m2" class="input-light flex-1 rounded-lg p-2.5 text-sm text-center"></select>
+                            <select id="in-y2" class="input-light w-24 rounded-lg p-2.5 text-sm text-center"></select>
                         </div>
                     </div>
                     <div class="pt-2">
@@ -225,7 +239,6 @@
                 </div>
             </div>
 
-            <!-- Card 03: เส้นทางและค่าเดินทาง -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-emerald-400 transition-all">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-emerald-600 tracking-wider">03. คำนวณเส้นทางและน้ำมัน</h2>
@@ -236,23 +249,21 @@
                         </label>
                         <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
                             <span class="text-[10px] text-slate-400 uppercase font-bold">เรท(บ./กม.)</span>
-                            <input type="number" id="in-rate-km" value="3.66" step="0.01" oninput="calcFuelFromDistance()" class="input-light w-14 rounded p-1 text-center text-xs font-bold text-emerald-600">
+                            <input type="number" id="in-rate-km" value="3.66" step="0.01" class="input-light w-14 rounded p-1 text-center text-xs font-bold text-emerald-600">
                         </div>
                     </div>
                 </div>
                 
                 <div class="space-y-4">
-                    <!-- ขาไป -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">ขาไป</p>
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="text" id="in-out-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
-                            <input type="text" id="in-out-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
+                            <input type="text" id="in-out-from" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
+                            <input type="text" id="in-out-to" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
                         </div>
-                        <input type="number" id="in-dist-out" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขาไป">
+                        <input type="number" id="in-dist-out" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขาไป">
                     </div>
 
-                    <!-- จุดแวะ -->
                     <div>
                         <div class="flex items-center justify-between mb-2 px-1">
                             <span class="text-xs font-medium text-slate-600">เพิ่มจุดแวะ</span>
@@ -263,24 +274,23 @@
                         </div>
                         <div id="wp-fields" class="hidden p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                             <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="text" id="in-wp-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="จากจุดแวะ">
-                                <input type="text" id="in-wp-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ถึง">
+                                <input type="text" id="in-wp-from" class="input-light w-full rounded p-2 text-xs" placeholder="จากจุดแวะ">
+                                <input type="text" id="in-wp-to" class="input-light w-full rounded p-2 text-xs" placeholder="ถึง">
                             </div>
-                            <input type="number" id="in-dist-wp" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทางเพิ่ม (กม.)">
+                            <input type="number" id="in-dist-wp" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทางเพิ่ม (กม.)">
                         </div>
                     </div>
 
-                    <!-- ขากลับ -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-[10px] font-bold text-slate-500 uppercase">ขากลับ</p>
                             <button onclick="copyFromOut()" class="text-[9px] bg-white border border-slate-200 text-slate-500 px-2 py-1 rounded hover:bg-slate-100 transition-all">สลับจากขาไป</button>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="text" id="in-in-from" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
-                            <input type="text" id="in-in-to" oninput="syncTravel()" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
+                            <input type="text" id="in-in-from" class="input-light w-full rounded p-2 text-xs" placeholder="ต้นทาง">
+                            <input type="text" id="in-in-to" class="input-light w-full rounded p-2 text-xs" placeholder="ปลายทาง">
                         </div>
-                        <input type="number" id="in-dist-in" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขากลับ">
+                        <input type="number" id="in-dist-in" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขากลับ">
                     </div>
                     
                     <div class="flex justify-between items-center px-2 pt-2 border-t border-slate-100">
@@ -290,7 +300,6 @@
                 </div>
             </div>
 
-            <!-- Card 04: ค่าใช้จ่ายทั้งหมด -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-orange-400 transition-all">
                 <h2 class="text-sm font-bold text-orange-600 tracking-wider mb-4 flex justify-between items-center">
                     04. สรุปค่าใช้จ่ายทั้งหมด
@@ -298,16 +307,16 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
                         <label class="text-xs font-medium text-slate-600">1. ค่าพาหนะอื่นๆ/ที่จอดรถ</label>
-                        <input type="number" id="in-car" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-car" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                     <div class="pt-2 border-t border-slate-100">
                         <label class="block text-xs font-medium text-slate-600 mb-2">2. ค่าเบี้ยเลี้ยง</label>
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-[10px] text-slate-400 uppercase font-bold">Rate</span>
-                                <input type="number" id="in-rate" value="500" oninput="calcGrandTotal()" class="input-light w-16 rounded-lg p-1.5 text-center text-sm">
+                                <input type="number" id="in-rate" value="500" class="input-light w-16 rounded-lg p-1.5 text-center text-sm">
                                 <span class="text-[10px] text-slate-400 uppercase font-bold">x Days</span>
-                                <input type="number" id="in-days" value="1" oninput="calcGrandTotal()" class="input-light w-12 rounded-lg p-1.5 text-center text-sm">
+                                <input type="number" id="in-days" value="1" class="input-light w-12 rounded-lg p-1.5 text-center text-sm">
                             </div>
                             <span id="txt-calc-allowance" class="text-sm font-bold text-slate-700">500.00</span>
                         </div>
@@ -317,26 +326,25 @@
                             <label class="block text-xs font-medium text-emerald-600">3. ค่าน้ำมันเชื้อเพลิง</label>
                             <span class="text-[9px] text-slate-400 font-bold">(แก้ไขตัวเลขเองได้)</span>
                         </div>
-                        <input type="number" id="in-fuel" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 focus:bg-white font-bold text-emerald-700" placeholder="0">
+                        <input type="number" id="in-fuel" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 focus:bg-white font-bold text-emerald-700" placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-slate-600">4. ค่าทางด่วน</label>
-                        <input type="number" id="in-toll" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-toll" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
                         <label class="text-xs font-medium text-slate-600">5. ค่าใช้จ่ายอื่น</label>
-                        <input type="number" id="in-other" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
+                        <input type="number" id="in-other" class="input-light w-28 rounded-lg p-2 text-right text-sm" placeholder="0">
                     </div>
                 </div>
             </div>
 
-            <!-- Card 05: เอกสารและการอนุมัติ -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between mb-3">
                     <label class="text-sm font-bold text-slate-700">05. เอกสารและการอนุมัติ</label>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] font-medium text-slate-500 uppercase">หลักฐาน (ฉบับ)</span>
-                        <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-light w-12 rounded-lg p-1.5 text-center text-sm font-bold" placeholder="0">
+                        <input type="number" id="in-docs-count" class="input-light w-12 rounded-lg p-1.5 text-center text-sm font-bold" placeholder="0">
                     </div>
                 </div>
                 
@@ -348,15 +356,14 @@
                     </label>
                 </div>
                 
-                <!-- ช่องกรอกชื่อผู้อนุมัติ 2 ช่อง -->
                 <div id="approver-input-box" class="pt-3 mt-2 border-t border-slate-100 space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ลงชื่อ (ผู้อนุมัติ)</label>
-                        <input type="text" id="in-approver-sign" oninput="sync('in-approver-sign', 'out-approver-sign')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="พิมพ์ชื่อลายเซ็น (ถ้ามี)">
+                        <input type="text" id="in-approver-sign" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="พิมพ์ชื่อลายเซ็น (ถ้ามี)">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อตัวบรรจง (ผู้อนุมัติ)</label>
-                        <input type="text" id="in-approver-name" oninput="sync('in-approver-name', 'out-approver-name')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุลตัวบรรจง">
+                        <input type="text" id="in-approver-name" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุลตัวบรรจง">
                     </div>
                 </div>
             </div>
@@ -379,8 +386,7 @@
         </div>
     </div>
 
-    <!-- 📄 กระดาษ A4 พรีวิว (รวมฟอร์ม) -->
-    <div class="flex-1 preview-container relative" id="print-area">
+    <div id="preview-panel" class="flex-1 preview-container relative fade-slide-up" style="transition-delay: 150ms;">
         
         <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -447,7 +453,6 @@
                 <span id="chk-group" style="margin: 0 5px 0 15px; font-size: 14px;">◯</span> <label>คณะเดินทาง</label>
             </div>
 
-            <!-- ส่วนตารางที่เปิด-ปิดได้ -->
             <div id="a4-route-table-section">
                 <div style="margin-top: 15px; font-weight: bold; font-size: 13px;">ตารางสรุปเส้นทางและระยะทาง</div>
                 <table class="doc-table">
@@ -491,7 +496,6 @@
                 </table>
             </div>
 
-            <!-- ตารางสรุปค่าใช้จ่ายทั้งหมด -->
             <div style="margin-top: 15px; font-weight: bold; font-size: 13px;">สรุปค่าใช้จ่ายทั้งหมด ข้าพเจ้าขอเบิกค่าใช้จ่ายดังนี้</div>
             <table class="doc-table">
                 <tr>
@@ -541,7 +545,7 @@
 
             <table style="width: 100%; margin-top: 25px; border: none; font-size: 13px;">
                 <tr>
-                    <td style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
+                    <td id="a4-approver-box" style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
                         อนุมัติให้จ่ายได้<br>
                         ลงชื่อ <div class="field-box" style="width: 200px; justify-content: center;"><div id="out-approver-sign" class="text-value"></div></div><br>
                         <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"><div id="out-approver-name" class="text-value"></div></div><span>)</span>
@@ -569,6 +573,76 @@
                 }, 50);
             }
         });
+
+        // ================= Toast Notifications =================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass, iconHtml;
+            if (type === 'success') {
+                bgClass = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+            } else if (type === 'error') {
+                bgClass = 'bg-red-50 text-red-600 border-red-200';
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+            } else {
+                bgClass = 'bg-blue-50 text-blue-600 border-blue-200';
+                iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+            }
+
+            toast.className = `px-4 py-3 rounded-xl shadow-lg border text-sm font-bold flex items-center gap-2.5 transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+            
+            // Animate Out & Remove
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ================= Auto-Save System =================
+        function saveToLocal() {
+            const data = {};
+            document.querySelectorAll('input[id], select[id], textarea[id]').forEach(el => {
+                if (el.type === 'checkbox') data[el.id] = el.checked;
+                else data[el.id] = el.value;
+            });
+            localStorage.setItem('cubicFormSavedData', JSON.stringify(data));
+        }
+
+        function loadFromLocal() {
+            const saved = localStorage.getItem('cubicFormSavedData');
+            if(saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    for(let id in data) {
+                        const el = document.getElementById(id);
+                        if(el) {
+                            if(el.type === 'checkbox') el.checked = data[id];
+                            else el.value = data[id];
+                        }
+                    }
+                } catch(e) {
+                    console.error('Error loading saved data');
+                }
+            }
+        }
+
+        function clearForm() {
+            if(confirm("ต้องการล้างข้อมูลทั้งหมดบนฟอร์มนี้ใช่หรือไม่?")) {
+                localStorage.removeItem('cubicFormSavedData');
+                showToast('กำลังล้างข้อมูล...', 'info');
+                setTimeout(() => location.reload(), 800);
+            }
+        }
 
         // ================= Custom Dropdown =================
         function initCustomDropdowns() {
@@ -616,6 +690,7 @@
                             select.dispatchEvent(new Event('change')); 
                             closeAllDropdowns();
                             updateOptionsList();
+                            saveToLocal(); // Auto-save when custom dropdown changes
                         });
                         listContainer.appendChild(item);
                     });
@@ -745,7 +820,6 @@
 
         function toggleApproverDisplay() {
             const isVisible = document.getElementById('toggle-approver').checked;
-            // ซ่อน/แสดงเฉพาะกล่องกรอกข้อมูลฝั่งซ้าย ส่วนในกระดาษ A4 ให้แสดงตลอดเวลา
             document.getElementById('approver-input-box').style.display = isVisible ? 'block' : 'none';
         }
 
@@ -797,7 +871,7 @@
             document.getElementById('out-rate-km').textContent = rateKm > 0 ? fmt2(rateKm) : '';
             document.getElementById('out-fuel-calc').textContent = fuelMoney > 0 ? fmt2(fuelMoney) : '';
 
-            // นำยอดน้ำมันไปใส่ในช่องค่าใช้จ่ายข้อ 3 อัตโนมัติ (แต่ยังพิมพ์ทับได้)
+            // ถ้าระยะทางรวมมากกว่า 0 ให้ใส่ค่าในช่องอัตโนมัติ ถ้าผู้ใช้แก้ก็จะใช้ค่าที่แก้ใน calcGrandTotal
             document.getElementById('in-fuel').value = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
             document.getElementById('txt-calc-fuel').textContent = fuelMoney > 0 ? fmt2(fuelMoney) + ' บาท' : '0.00 บาท';
 
@@ -815,7 +889,6 @@
             document.getElementById('out-allowance').textContent = allowance > 0 ? fmt2(allowance) : '';
             document.getElementById('txt-calc-allowance').textContent = allowance > 0 ? fmt2(allowance) : '0.00';
 
-            // ดึงค่าใช้จ่ายทั้งหมด รวมถึง in-fuel ที่อนุญาตให้แก้เอง
             let car = parseFloat(document.getElementById('in-car').value) || 0;
             let fuel = parseFloat(document.getElementById('in-fuel').value) || 0;
             let toll = parseFloat(document.getElementById('in-toll').value) || 0;
@@ -831,7 +904,6 @@
             document.getElementById('out-baht-text').textContent = grandTotal > 0 ? ThaiNumberToText(grandTotal) : 'ศูนย์บาทถ้วน';
         }
 
-        // อ่านเลขไทยให้รองรับจุดทศนิยม 2 ตำแหน่ง (สตางค์)
         function ThaiNumberToText(amount) {
             if (amount === 0) return "ศูนย์บาทถ้วน";
             
@@ -873,15 +945,14 @@
             
             const btnJpg = document.getElementById('btn-export-jpg');
             const btnPdf = document.getElementById('btn-export-pdf');
-            const txtJpg = document.getElementById('txt-export-jpg');
-            const txtPdf = document.getElementById('txt-export-pdf');
             const textValues = document.querySelectorAll('.text-value');
 
             try {
+                showToast('⏳ กำลังเตรียมไฟล์ กรุณารอสักครู่...', 'info');
+                
                 if (type === 'pdf') {
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
-                    txtPdf.innerText = "⏳ กำลังสร้าง PDF...";
                     
                     const opt = {
                         margin: 0,
@@ -892,6 +963,7 @@
                         pagebreak: { mode: 'avoid-all' }
                     };
                     await html2pdf().set(opt).from(paper).save();
+                    showToast('✅ ดาวน์โหลด PDF สำเร็จ!', 'success');
                     
                 } else if (type === 'jpg') {
                     textValues.forEach(el => {
@@ -905,7 +977,6 @@
 
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
-                    txtJpg.innerText = "⏳ กำลังสร้าง JPG...";
                     
                     const canvas = await html2canvas(paper, { 
                         scale: 3, 
@@ -919,10 +990,11 @@
                     link.download = fileName + '.jpg';
                     link.href = imgData;
                     link.click();
+                    showToast('✅ บันทึกรูปภาพ JPG สำเร็จ!', 'success');
                 }
             } catch (err) {
                 console.error("Export Error: ", err);
-                alert("เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาลองใหม่อีกครั้ง");
+                showToast('❌ เกิดข้อผิดพลาดในการสร้างไฟล์', 'error');
             } finally {
                 textValues.forEach(el => {
                     el.style.position = '';
@@ -931,30 +1003,47 @@
 
                 btnPdf.disabled = false;
                 btnJpg.disabled = false;
-                txtPdf.innerText = "Download PDF";
-                txtJpg.innerText = "Save JPG";
             }
         }
 
         window.onload = () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
-            
             populateDateDropdowns();
             
+            // 1. กำหนดค่าพื้นฐานตั้งต้น (ถ้าไม่มีการเซฟไว้)
             const now = new Date();
             const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
-            const inDocDate = document.getElementById('in-doc-date');
-            if(inDocDate) inDocDate.value = dateStr;
-            const outDate = document.getElementById('out-date');
-            if(outDate) outDate.textContent = dateStr;
-
+            
+            document.getElementById('in-doc-date').value = dateStr;
             document.getElementById('in-d1').value = now.getDate().toString().padStart(2, '0');
             document.getElementById('in-m1').value = months[now.getMonth()];
             document.getElementById('in-y1').value = now.getFullYear() + 543;
             document.getElementById('in-d2').value = now.getDate().toString().padStart(2, '0');
             document.getElementById('in-m2').value = months[now.getMonth()];
             document.getElementById('in-y2').value = now.getFullYear() + 543;
+
+            // ดึงชื่อจาก Session (ถ้ามี)
+            const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
+            if (savedName) document.getElementById('in-name').value = savedName;
+
+            // 2. โหลดข้อมูลจากการ Auto-Save (ทับค่าพื้นฐาน)
+            loadFromLocal();
+
+            // 3. ซิงค์ข้อมูลทั้งหมดขึ้นกระดาษ A4
+            sync('in-doc-no', 'out-doc-no');
+            sync('in-doc-date', 'out-date');
+            sync('in-name', 'out-name');
+            sync('in-name', 'out-name-sign1');
+            sync('in-name', 'out-name-sign2');
+            sync('in-position', 'out-position');
+            sync('in-position', 'out-position-sign');
+            sync('in-customer', 'out-customer');
+            sync('in-work1', 'out-work1');
+            sync('in-work2', 'out-work2');
+            sync('in-docs-count', 'out-docs-count');
+            sync('in-approver-sign', 'out-approver-sign');
+            sync('in-approver-name', 'out-approver-name');
 
             syncDate('in-d1', 'out-d1');
             syncDate('in-m1', 'out-m1');
@@ -963,26 +1052,38 @@
             syncDate('in-m2', 'out-m2');
             syncDate('in-y2', 'out-y2');
             
-            calcFuelFromDistance();
-
-            const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
-            if (savedName) {
-                const nameInput = document.getElementById('in-name');
-                if(nameInput) {
-                    nameInput.value = savedName;
-                    sync('in-name', 'out-name');
-                    sync('in-name', 'out-name-sign1');
-                    sync('in-name', 'out-name-sign2');
-                }
+            updateTravelType();
+            toggleRouteTableDisplay();
+            toggleApproverDisplay();
+            
+            // เช็คว่าต้องเปิดกล่องจุดแวะไหม
+            if(document.getElementById('enable-waypoint').checked) {
+                document.getElementById('wp-fields').classList.remove('hidden');
+                document.getElementById('row-wp').style.display = 'table-row';
             }
+            syncTravel();
+            calcFuelFromDistance(); // จะทำการเรียก calcGrandTotal() ในตัว
 
+            // เริ่มระบบ Custom Dropdown 
             initCustomDropdowns();
 
+            // ตั้งค่า Event Linstener ให้ Auto-save เมื่อผู้ใช้กรอกอะไรก็ตาม
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('input', saveToLocal);
+                el.addEventListener('change', saveToLocal);
+            });
+
+            // ปิดหน้าโหลด และเริ่ม Animation
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
                     loader.style.opacity = '0';
-                    setTimeout(() => loader.style.display = 'none', 500);
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        document.getElementById('sidebar-panel').classList.add('active');
+                        document.getElementById('preview-panel').classList.add('active');
+                        showToast('โหลดข้อมูลสำเร็จ', 'success');
+                    }, 500);
                 }
             }, 600);
         };
