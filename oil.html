@@ -68,6 +68,10 @@
         .doc-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
         .doc-table th, .doc-table td { border: 1px solid #000; padding: 6px 8px; }
         .doc-table th { background-color: #f8fafc; font-weight: bold; text-align: center; }
+        
+        .col-desc { width: 65%; }
+        .col-amt { width: 25%; text-align: right; }
+        .col-unit { width: 10%; text-align: center; vertical-align: middle; } /* จัดกึ่งกลางคำว่า บาท */
 
         .glass-panel {
             background: #ffffff;
@@ -146,7 +150,7 @@
                     <i data-lucide="map" class="w-3.5 h-3.5"></i> Google Maps
                 </button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">V.4.3 - Balanced Numbers & Fuel Editing</p>
+            <p class="text-xs text-slate-500 mt-1">V.4.5 - Finalize Format & Approver Fields</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24 custom-scroll">
@@ -237,6 +241,7 @@
                 </div>
                 
                 <div class="space-y-4">
+                    <!-- ขาไป -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
                         <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">ขาไป</p>
                         <div class="grid grid-cols-2 gap-2 mb-2">
@@ -246,6 +251,7 @@
                         <input type="number" id="in-dist-out" oninput="calcFuelFromDistance()" class="input-light w-full rounded p-2 text-xs font-bold text-emerald-600" placeholder="ระยะทาง (กม.) ขาไป">
                     </div>
 
+                    <!-- จุดแวะ -->
                     <div>
                         <div class="flex items-center justify-between mb-2 px-1">
                             <span class="text-xs font-medium text-slate-600">เพิ่มจุดแวะ</span>
@@ -263,6 +269,7 @@
                         </div>
                     </div>
 
+                    <!-- ขากลับ -->
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 relative">
                         <div class="flex justify-between items-center mb-2">
                             <p class="text-[10px] font-bold text-slate-500 uppercase">ขากลับ</p>
@@ -309,7 +316,6 @@
                             <label class="block text-xs font-medium text-emerald-600">3. ค่าน้ำมันเชื้อเพลิง</label>
                             <span class="text-[9px] text-slate-400 font-bold">(แก้ไขตัวเลขเองได้)</span>
                         </div>
-                        <!-- ปลดล็อคให้พิมพ์แก้เองได้ -->
                         <input type="number" id="in-fuel" oninput="calcGrandTotal()" class="input-light w-28 rounded-lg p-2 text-right text-sm bg-emerald-50 focus:bg-white font-bold text-emerald-700" placeholder="0">
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-slate-100">
@@ -323,7 +329,7 @@
                 </div>
             </div>
 
-            <!-- Card 05: เอกสาร -->
+            <!-- Card 05: เอกสารและการอนุมัติ -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between mb-3">
                     <label class="text-sm font-bold text-slate-700">05. เอกสารและการอนุมัติ</label>
@@ -332,13 +338,18 @@
                         <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-light w-12 rounded-lg p-1.5 text-center text-sm font-bold" placeholder="0">
                     </div>
                 </div>
-                <!-- ปุ่มสวิตช์เปิดปิดช่องผู้อนุมัติ -->
+                
                 <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span class="text-xs font-medium text-slate-600">แสดงช่องลงชื่อผู้อนุมัติบนกระดาษ</span>
+                    <span class="text-xs font-medium text-slate-600">แสดงช่องลงชื่อผู้อนุมัติ</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="toggle-approver" onchange="toggleApproverDisplay()" checked class="sr-only peer">
                         <div class="w-8 h-4 bg-slate-200 rounded-full peer-checked:bg-blue-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:border-blue-500 peer-checked:after:bg-blue-500 shadow-sm"></div>
                     </label>
+                </div>
+                
+                <div id="approver-input-box" class="pt-3 mt-2 border-t border-slate-100">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้อนุมัติ</label>
+                    <input type="text" id="in-approver-name" oninput="sync('in-approver-name', 'out-approver-name')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล ผู้อนุมัติ">
                 </div>
             </div>
             
@@ -525,7 +536,7 @@
                     <td id="a4-approver-box" style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
                         อนุมัติให้จ่ายได้<br>
                         ลงชื่อ <div class="field-box" style="width: 200px;"></div><br>
-                        <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"></div><span>)</span>
+                        <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"><div id="out-approver-name" class="text-value"></div></div><span>)</span>
                     </td>
                     <td style="width: 50%; vertical-align: top; text-align: center; border: none; line-height: 2;">
                         ลงชื่อ <div class="field-box" style="width: 160px; justify-content: center;"><div id="out-name-sign1" class="text-value"></div></div> ผู้ขอเบิก/ผู้รับเงิน<br>
@@ -727,6 +738,7 @@
         function toggleApproverDisplay() {
             const isVisible = document.getElementById('toggle-approver').checked;
             document.getElementById('a4-approver-box').style.display = isVisible ? 'table-cell' : 'none';
+            document.getElementById('approver-input-box').style.display = isVisible ? 'block' : 'none';
         }
 
         function toggleWaypoint() {
@@ -816,7 +828,7 @@
             if (amount === 0) return "ศูนย์บาทถ้วน";
             
             let numberStr = Math.floor(amount).toString();
-            let satangStr = Math.round((amount - Math.floor(amount)) * 100).toString();
+            let satangStr = Math.round((amount - Math.floor(amount)) * 100).toString().padStart(2, '0');
             
             let TxtNumArr = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า", "สิบ"];
             let TxtDigitArr = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
@@ -838,7 +850,7 @@
 
             let BahtText = numberStr === "0" ? "" : convert(numberStr) + "บาท";
             
-            if (satangStr === "0" || satangStr === "00") {
+            if (satangStr === "00") {
                 BahtText += "ถ้วน";
             } else {
                 BahtText += convert(satangStr) + "สตางค์";
