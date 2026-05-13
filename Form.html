@@ -142,7 +142,7 @@
                 <i data-lucide="file-text" class="w-7 h-7 text-blue-600"></i>
                 เบิกค่าใช้จ่าย
             </h1>
-            <p class="text-xs text-slate-500 mt-1">V.2.0 - Premium Custom Dropdowns</p>
+            <p class="text-xs text-slate-500 mt-1">V.2.1 - Remove Name Dropdown</p>
         </div>
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6 pb-24">
@@ -175,12 +175,9 @@
                         <input type="text" id="in-customer" oninput="sync('in-customer', 'out-customer')" class="input-light w-full rounded-lg p-2.5 text-sm">
                     </div>
                     
+                    <!-- นำ Dropdown เลือกชื่อออก เหลือแต่ Input Text -->
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">เลือกผู้เบิก</label>
-                        <select id="select-name" onchange="handleNameSelect(this)" class="input-light w-full rounded-lg p-2.5 text-sm mb-2">
-                            <option value="">-- เลือกรายชื่อ --</option>
-                            <option value="นาย เนติพล ชาญชนะโรจน์" data-pos="IT Support">นาย เนติพล ชาญชนะโรจน์</option>
-                        </select>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อผู้เบิก</label>
                         <input type="text" id="in-name" oninput="sync('in-name', 'out-name'); sync('in-name', 'out-name-sign1'); sync('in-name', 'out-name-sign2');" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
                     </div>
 
@@ -567,26 +564,6 @@
         function syncDate(inputId, outputId) {
             const val = document.getElementById(inputId).value;
             document.getElementById(outputId).textContent = val;
-        }
-
-        function handleNameSelect(select) {
-            const nameInput = document.getElementById('in-name');
-            const posInput = document.getElementById('in-position');
-            const posSelect = document.getElementById('select-pos');
-
-            nameInput.value = select.value;
-            const selectedOption = select.options[select.selectedIndex];
-            const pos = selectedOption.getAttribute('data-pos');
-            if(pos) {
-                posInput.value = pos;
-                posSelect.value = pos;
-            }
-
-            sync('in-name', 'out-name');
-            sync('in-name', 'out-name-sign1');
-            sync('in-name', 'out-name-sign2');
-            sync('in-position', 'out-position');
-            sync('in-position', 'out-position-sign');
         }
 
         function handlePosSelect(select) {
