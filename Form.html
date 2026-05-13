@@ -109,15 +109,13 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Animation classes */
+        /* Animation */
         .fade-slide-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeSlideUp 0.8s ease-out;
         }
-        .fade-slide-up.active {
-            opacity: 1;
-            transform: translateY(0);
+        @keyframes fadeSlideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         @media print {
@@ -125,6 +123,7 @@
             body { background: white; margin: 0; padding: 0; overflow: visible; }
             .glass-panel { display: none !important; }
             .no-print { display: none !important; }
+            #toast-container { display: none !important; }
             .preview-container { 
                 background: none; padding: 0; margin: 0; width: 100%; display: block; 
             }
@@ -145,19 +144,19 @@
               <i data-lucide="layers" class="w-10 h-10 text-white animate-pulse"></i>
           </span>
         </div>
-        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังโหลดข้อมูลของคุณ...</h2>
+        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังเตรียมระบบ</h2>
         <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
-    <div id="sidebar-panel" class="w-[450px] md:w-[500px] h-full flex flex-col glass-panel z-10 relative fade-slide-up">
+    <div class="w-[450px] md:w-[500px] h-full flex flex-col glass-panel z-10 relative fade-slide-up">
         <div class="p-6 border-b border-slate-100 relative overflow-hidden bg-white">
-            <div class="flex justify-between items-center mb-1">
+            <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="file-text" class="w-7 h-7 text-blue-600"></i>
                     ฟอร์มเบิกจ่าย
                 </h1>
                 <div class="flex gap-2">
-                    <button onclick="openMaps()" class="text-[10px] flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-all" title="แผนที่">
+                    <button onclick="openMaps()" class="text-[10px] flex items-center gap-1 font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1.5 rounded-lg transition-all">
                         <i data-lucide="map" class="w-3.5 h-3.5"></i> Maps
                     </button>
                     <button onclick="clearForm()" class="text-[10px] flex items-center gap-1 font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded-lg transition-all" title="ล้างข้อมูลทั้งหมด">
@@ -165,8 +164,8 @@
                     </button>
                 </div>
             </div>
-            <p class="text-xs text-slate-500 flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Save ทำงาน
+            <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Auto-Save: ข้อมูลปลอดภัย
             </p>
         </div>
 
@@ -231,7 +230,7 @@
                     </div>
                     <div class="pt-2">
                         <label class="block text-xs font-medium text-slate-500 mb-1">รูปแบบ</label>
-                        <select id="in-travel-type" onchange="updateTravelType()" class="input-light w-full rounded-lg p-2.5 text-sm">
+                        <select id="in-travel-type" class="input-light w-full rounded-lg p-2.5 text-sm">
                             <option value="single">เดินทางเฉพาะข้าพเจ้า</option>
                             <option value="group">คณะเดินทาง</option>
                         </select>
@@ -244,7 +243,7 @@
                     <h2 class="text-sm font-bold text-emerald-600 tracking-wider">03. คำนวณเส้นทางและน้ำมัน</h2>
                     <div class="flex items-center gap-3">
                         <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="toggle-route-table" onchange="toggleRouteTableDisplay()" checked class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                            <input type="checkbox" id="toggle-route-table" checked class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                             <span class="text-[10px] text-slate-500 font-bold hover:text-slate-700">แสดงตารางเอกสาร</span>
                         </label>
                         <div class="flex items-center gap-1 pl-2 border-l border-slate-200">
@@ -268,7 +267,7 @@
                         <div class="flex items-center justify-between mb-2 px-1">
                             <span class="text-xs font-medium text-slate-600">เพิ่มจุดแวะ</span>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="enable-waypoint" onchange="toggleWaypoint()" class="sr-only peer">
+                                <input type="checkbox" id="enable-waypoint" class="sr-only peer">
                                 <div class="w-8 h-4 bg-slate-200 rounded-full peer-checked:bg-emerald-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:border-emerald-500 peer-checked:after:bg-emerald-500 shadow-sm"></div>
                             </label>
                         </div>
@@ -351,7 +350,7 @@
                 <div class="flex items-center justify-between pt-3 border-t border-slate-100">
                     <span class="text-xs font-medium text-slate-600">เปิดช่องกรอกชื่อผู้อนุมัติ</span>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="toggle-approver" onchange="toggleApproverDisplay()" checked class="sr-only peer">
+                        <input type="checkbox" id="toggle-approver" checked class="sr-only peer">
                         <div class="w-8 h-4 bg-slate-200 rounded-full peer-checked:bg-blue-100 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:border-blue-500 peer-checked:after:bg-blue-500 shadow-sm"></div>
                     </label>
                 </div>
@@ -359,11 +358,11 @@
                 <div id="approver-input-box" class="pt-3 mt-2 border-t border-slate-100 space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ลงชื่อ (ผู้อนุมัติ)</label>
-                        <input type="text" id="in-approver-sign" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="พิมพ์ชื่อลายเซ็น (ถ้ามี)">
+                        <input type="text" id="in-approver-sign" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="พิมพ์ลายเซ็น (ถ้ามี)">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อตัวบรรจง (ผู้อนุมัติ)</label>
-                        <input type="text" id="in-approver-name" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุลตัวบรรจง">
+                        <input type="text" id="in-approver-name" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
                     </div>
                 </div>
             </div>
@@ -386,7 +385,7 @@
         </div>
     </div>
 
-    <div id="preview-panel" class="flex-1 preview-container relative fade-slide-up" style="transition-delay: 150ms;">
+    <div class="flex-1 preview-container relative fade-slide-up" style="animation-delay: 150ms;">
         
         <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -406,7 +405,7 @@
             </div>
 
             <div style="text-align: center; font-weight: bold; font-size: 16px; margin: 20px 0 15px 0;"> 
-                ใบเบิกค่าใช้จ่ายในการเดินทางไปปฏิบัติงาน
+                ใบเบิกค่าใช้จ่าย และ รายงานการเดินทางไปปฏิบัติงาน
             </div>
 
             <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
@@ -545,7 +544,7 @@
 
             <table style="width: 100%; margin-top: 25px; border: none; font-size: 13px;">
                 <tr>
-                    <td id="a4-approver-box" style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
+                    <td style="width: 50%; vertical-align: top; text-align: left; padding-top: 30px; border: none; line-height: 2;">
                         อนุมัติให้จ่ายได้<br>
                         ลงชื่อ <div class="field-box" style="width: 200px; justify-content: center;"><div id="out-approver-sign" class="text-value"></div></div><br>
                         <span style="margin-left: 25px;">(</span><div class="field-box" style="width: 170px; justify-content: center;"><div id="out-approver-name" class="text-value"></div></div><span>)</span>
@@ -562,21 +561,10 @@
     </div>
 
     <script>
-        document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
-                setTimeout(() => {
-                    document.querySelectorAll('input, select').forEach(el => {
-                        if(el.id && el.oninput) { el.dispatchEvent(new Event('input')); }
-                        if(el.id && el.onchange) { el.dispatchEvent(new Event('change')); }
-                    });
-                    calcFuelFromDistance(); 
-                }, 50);
-            }
-        });
-
         // ================= Toast Notifications =================
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if(!container) return;
             const toast = document.createElement('div');
             
             let bgClass, iconHtml;
@@ -596,12 +584,7 @@
             
             container.appendChild(toast);
             
-            // Animate In
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-            }, 10);
-            
-            // Animate Out & Remove
+            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -630,9 +613,7 @@
                             else el.value = data[id];
                         }
                     }
-                } catch(e) {
-                    console.error('Error loading saved data');
-                }
+                } catch(e) { console.error('Error loading saved data'); }
             }
         }
 
@@ -643,6 +624,13 @@
                 setTimeout(() => location.reload(), 800);
             }
         }
+
+        // ================= General Event Listeners =================
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                setTimeout(() => { syncAllData(); }, 50);
+            }
+        });
 
         // ================= Custom Dropdown =================
         function initCustomDropdowns() {
@@ -661,7 +649,7 @@
                 
                 const selectedText = document.createElement('span');
                 selectedText.className = 'truncate pointer-events-none pr-2';
-                selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+                selectedText.textContent = select.options.length > 0 ? select.options[select.selectedIndex].text : '';
                 
                 const iconContainer = document.createElement('div');
                 iconContainer.className = 'pointer-events-none shrink-0 transition-transform duration-300';
@@ -690,7 +678,6 @@
                             select.dispatchEvent(new Event('change')); 
                             closeAllDropdowns();
                             updateOptionsList();
-                            saveToLocal(); // Auto-save when custom dropdown changes
                         });
                         listContainer.appendChild(item);
                     });
@@ -720,7 +707,7 @@
                 select.parentNode.insertBefore(wrapper, select.nextSibling);
                 
                 select.addEventListener('change', () => {
-                    selectedText.textContent = select.options[select.selectedIndex]?.text || '';
+                    selectedText.textContent = select.options.length > 0 ? select.options[select.selectedIndex].text : '';
                     updateOptionsList();
                 });
             });
@@ -781,8 +768,7 @@
 
         function handlePosSelect(select) {
             document.getElementById('in-position').value = select.value;
-            sync('in-position', 'out-position');
-            sync('in-position', 'out-position-sign');
+            syncAllData();
         }
 
         function sync(inputId, outputId) {
@@ -834,23 +820,13 @@
             document.getElementById('in-in-from').value = document.getElementById('in-out-to').value;
             document.getElementById('in-in-to').value = document.getElementById('in-out-from').value;
             document.getElementById('in-dist-in').value = document.getElementById('in-dist-out').value;
-            syncTravel();
-            calcFuelFromDistance();
+            syncAllData();
         }
 
         function openMaps() {
             const s = encodeURIComponent(document.getElementById('in-out-from').value);
             const e = encodeURIComponent(document.getElementById('in-out-to').value);
             window.open(s && e ? `https://www.google.com/maps/dir/${s}/${e}` : `https://www.google.com/maps`, '_blank');
-        }
-
-        function syncTravel() {
-            sync('in-out-from', 'out-out-from');
-            sync('in-out-to', 'out-out-to');
-            sync('in-wp-from', 'out-wp-from');
-            sync('in-wp-to', 'out-wp-to');
-            sync('in-in-from', 'out-in-from');
-            sync('in-in-to', 'out-in-to');
         }
 
         // ================= Main Calculation =================
@@ -871,7 +847,6 @@
             document.getElementById('out-rate-km').textContent = rateKm > 0 ? fmt2(rateKm) : '';
             document.getElementById('out-fuel-calc').textContent = fuelMoney > 0 ? fmt2(fuelMoney) : '';
 
-            // ถ้าระยะทางรวมมากกว่า 0 ให้ใส่ค่าในช่องอัตโนมัติ ถ้าผู้ใช้แก้ก็จะใช้ค่าที่แก้ใน calcGrandTotal
             document.getElementById('in-fuel').value = fuelMoney > 0 ? fuelMoney.toFixed(2) : '';
             document.getElementById('txt-calc-fuel').textContent = fuelMoney > 0 ? fmt2(fuelMoney) + ' บาท' : '0.00 บาท';
 
@@ -938,6 +913,62 @@
             return BahtText;
         }
 
+        // ================= Core Sync System =================
+        function syncAllData() {
+            try {
+                sync('in-doc-no', 'out-doc-no');
+                sync('in-doc-date', 'out-date');
+                sync('in-name', 'out-name');
+                sync('in-name', 'out-name-sign1');
+                sync('in-name', 'out-name-sign2');
+                sync('in-position', 'out-position');
+                sync('in-position', 'out-position-sign');
+                sync('in-customer', 'out-customer');
+                sync('in-work1', 'out-work1');
+                sync('in-work2', 'out-work2');
+                sync('in-docs-count', 'out-docs-count');
+                
+                sync('in-approver-sign', 'out-approver-sign');
+                sync('in-approver-name', 'out-approver-name');
+
+                syncDate('in-d1', 'out-d1');
+                syncDate('in-m1', 'out-m1');
+                syncDate('in-y1', 'out-y1');
+                syncDate('in-d2', 'out-d2');
+                syncDate('in-m2', 'out-m2');
+                syncDate('in-y2', 'out-y2');
+
+                sync('in-out-from', 'out-out-from');
+                sync('in-out-to', 'out-out-to');
+                sync('in-wp-from', 'out-wp-from');
+                sync('in-wp-to', 'out-wp-to');
+                sync('in-in-from', 'out-in-from');
+                sync('in-in-to', 'out-in-to');
+
+                updateTravelType();
+                toggleRouteTableDisplay();
+                toggleApproverDisplay();
+                
+                if(document.getElementById('enable-waypoint').checked) {
+                    document.getElementById('wp-fields').classList.remove('hidden');
+                    document.getElementById('row-wp').style.display = 'table-row';
+                } else {
+                    document.getElementById('wp-fields').classList.add('hidden');
+                    document.getElementById('row-wp').style.display = 'none';
+                }
+
+                calcFuelFromDistance(); // Recalculates everything
+            } catch(e) { console.error("Sync Error", e); }
+        }
+
+        // Event Listeners set up
+        function setupEventListeners() {
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.addEventListener('input', () => { syncAllData(); saveToLocal(); });
+                el.addEventListener('change', () => { syncAllData(); saveToLocal(); });
+            });
+        }
+
         async function exportDoc(type) {
             const paper = document.getElementById('a4-document');
             const personName = document.getElementById('in-name').value || 'ค่าใช้จ่าย';
@@ -949,11 +980,10 @@
 
             try {
                 showToast('⏳ กำลังเตรียมไฟล์ กรุณารอสักครู่...', 'info');
-                
+                btnPdf.disabled = true;
+                btnJpg.disabled = true;
+
                 if (type === 'pdf') {
-                    btnPdf.disabled = true;
-                    btnJpg.disabled = true;
-                    
                     const opt = {
                         margin: 0,
                         filename: fileName + '.pdf',
@@ -974,9 +1004,6 @@
                     });
 
                     await new Promise(resolve => setTimeout(resolve, 150)); 
-
-                    btnPdf.disabled = true;
-                    btnJpg.disabled = true;
                     
                     const canvas = await html2canvas(paper, { 
                         scale: 3, 
@@ -1007,85 +1034,43 @@
         }
 
         window.onload = () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            populateDateDropdowns();
+            try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
             
-            // 1. กำหนดค่าพื้นฐานตั้งต้น (ถ้าไม่มีการเซฟไว้)
-            const now = new Date();
-            const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-            const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+            try { populateDateDropdowns(); } catch(e){}
             
-            document.getElementById('in-doc-date').value = dateStr;
-            document.getElementById('in-d1').value = now.getDate().toString().padStart(2, '0');
-            document.getElementById('in-m1').value = months[now.getMonth()];
-            document.getElementById('in-y1').value = now.getFullYear() + 543;
-            document.getElementById('in-d2').value = now.getDate().toString().padStart(2, '0');
-            document.getElementById('in-m2').value = months[now.getMonth()];
-            document.getElementById('in-y2').value = now.getFullYear() + 543;
+            try {
+                const now = new Date();
+                const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                const dateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+                
+                if(document.getElementById('in-doc-date')) document.getElementById('in-doc-date').value = dateStr;
+                if(document.getElementById('in-d1')) document.getElementById('in-d1').value = now.getDate().toString().padStart(2, '0');
+                if(document.getElementById('in-m1')) document.getElementById('in-m1').value = months[now.getMonth()];
+                if(document.getElementById('in-y1')) document.getElementById('in-y1').value = now.getFullYear() + 543;
+                if(document.getElementById('in-d2')) document.getElementById('in-d2').value = now.getDate().toString().padStart(2, '0');
+                if(document.getElementById('in-m2')) document.getElementById('in-m2').value = months[now.getMonth()];
+                if(document.getElementById('in-y2')) document.getElementById('in-y2').value = now.getFullYear() + 543;
 
-            // ดึงชื่อจาก Session (ถ้ามี)
-            const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
-            if (savedName) document.getElementById('in-name').value = savedName;
+                const savedName = sessionStorage.getItem("userName") || sessionStorage.getItem("username");
+                if (savedName && document.getElementById('in-name')) document.getElementById('in-name').value = savedName;
+            } catch(e){}
 
-            // 2. โหลดข้อมูลจากการ Auto-Save (ทับค่าพื้นฐาน)
-            loadFromLocal();
-
-            // 3. ซิงค์ข้อมูลทั้งหมดขึ้นกระดาษ A4
-            sync('in-doc-no', 'out-doc-no');
-            sync('in-doc-date', 'out-date');
-            sync('in-name', 'out-name');
-            sync('in-name', 'out-name-sign1');
-            sync('in-name', 'out-name-sign2');
-            sync('in-position', 'out-position');
-            sync('in-position', 'out-position-sign');
-            sync('in-customer', 'out-customer');
-            sync('in-work1', 'out-work1');
-            sync('in-work2', 'out-work2');
-            sync('in-docs-count', 'out-docs-count');
-            sync('in-approver-sign', 'out-approver-sign');
-            sync('in-approver-name', 'out-approver-name');
-
-            syncDate('in-d1', 'out-d1');
-            syncDate('in-m1', 'out-m1');
-            syncDate('in-y1', 'out-y1');
-            syncDate('in-d2', 'out-d2');
-            syncDate('in-m2', 'out-m2');
-            syncDate('in-y2', 'out-y2');
+            try { loadFromLocal(); } catch(e){}
             
-            updateTravelType();
-            toggleRouteTableDisplay();
-            toggleApproverDisplay();
-            
-            // เช็คว่าต้องเปิดกล่องจุดแวะไหม
-            if(document.getElementById('enable-waypoint').checked) {
-                document.getElementById('wp-fields').classList.remove('hidden');
-                document.getElementById('row-wp').style.display = 'table-row';
-            }
-            syncTravel();
-            calcFuelFromDistance(); // จะทำการเรียก calcGrandTotal() ในตัว
+            try { setupEventListeners(); } catch(e){}
+            try { syncAllData(); } catch(e){}
+            try { initCustomDropdowns(); } catch(e){}
 
-            // เริ่มระบบ Custom Dropdown 
-            initCustomDropdowns();
-
-            // ตั้งค่า Event Linstener ให้ Auto-save เมื่อผู้ใช้กรอกอะไรก็ตาม
-            document.querySelectorAll('input, select, textarea').forEach(el => {
-                el.addEventListener('input', saveToLocal);
-                el.addEventListener('change', saveToLocal);
-            });
-
-            // ปิดหน้าโหลด และเริ่ม Animation
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
                     loader.style.opacity = '0';
                     setTimeout(() => {
                         loader.style.display = 'none';
-                        document.getElementById('sidebar-panel').classList.add('active');
-                        document.getElementById('preview-panel').classList.add('active');
-                        showToast('โหลดข้อมูลสำเร็จ', 'success');
+                        showToast('โหลดข้อมูลสำเร็จพร้อมใช้งาน', 'success');
                     }, 500);
                 }
-            }, 600);
+            }, 500);
         };
     </script>
 </body>
