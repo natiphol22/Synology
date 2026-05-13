@@ -58,9 +58,10 @@
             color: #000000 !important; 
             font-weight: 600;
             white-space: nowrap;
-            line-height: 1.4; /* ขยายบรรทัดเพื่อคลุมสระบนและวรรณยุกต์ */
+            line-height: 1.2; /* ปรับลดลงเล็กน้อยให้พอดีกับภาษาไทย */
             padding-top: 4px; /* เผื่อที่ว่างด้านบนให้สระไม่โดนตัด */
-            margin-bottom: -2px; /* ดึงข้อความลงมาให้นั่งบนเส้นประพอดี */
+            position: relative; /* ใช้ relative + top แทน margin-bottom */
+            top: 2px; /* ดึงข้อความลงมาให้นั่งบนเส้นประพอดี ป้องกันตัวอักษรกระโดดตอนปริ้นท์ */
             display: inline-block;
         }
 
