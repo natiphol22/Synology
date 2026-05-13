@@ -19,7 +19,7 @@
     <style>
         /* ================= A4 PAPER CORE ================= */
         .preview-container {
-            background-color: #f1f5f9; /* เปลี่ยนพื้นหลังเป็นสีเทาอ่อน */
+            background-color: #f1f5f9;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -34,7 +34,7 @@
             max-height: 296.5mm;
             overflow: hidden; 
             padding: 20mm 15mm; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); /* ปรับเงาให้อ่อนลง */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             box-sizing: border-box;
             font-size: 14px;
             line-height: 1.6;
@@ -45,7 +45,7 @@
         
         .field-box {
             display: inline-flex;
-            border-bottom: 1.5px dotted #666;
+            border-bottom: 1px dotted #333; /* ปรับให้เส้นประคมขึ้น */
             align-items: flex-end;
             min-height: 24px; 
             white-space: nowrap;
@@ -57,11 +57,10 @@
             color: #000000 !important; 
             font-weight: 600;
             white-space: nowrap;
-            line-height: 1.4; 
-            padding-top: 4px; 
-            margin-bottom: -2px; 
+            line-height: 1; /* ปรับให้ความสูงบรรทัดพอดี ป้องกันการลอย */
+            transform: translateY(2px); /* ขยับตัวอักษรให้นั่งบนเส้นประเป๊ะๆ */
             display: inline-block;
-            transition: top 0s; /* เตรียมความพร้อมสำหรับการกระโดด */
+            transition: top 0s;
         }
 
         .doc-row { margin-bottom: 8px; display: flex; align-items: flex-end; flex-wrap: wrap; }
@@ -71,14 +70,12 @@
         .col-amt { width: 25%; text-align: center; }
         .col-unit { width: 10%; text-align: center; }
 
-        /* เปลี่ยน Glass Panel เป็น Solid Light Theme */
         .glass-panel {
             background: #ffffff;
             border-right: 1px solid #e2e8f0;
             box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05);
         }
         
-        /* เปลี่ยน Input เป็น Light Theme */
         .input-light {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -121,7 +118,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล (ปรับเป็น Light Theme) -->
+    <!-- 🟢 Loader -->
     <div id="loader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
@@ -133,6 +130,7 @@
         <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
+    <!-- แถบเมนูด้านซ้าย -->
     <div class="w-[450px] h-full flex flex-col glass-panel z-10 relative">
         <div class="p-6 border-b border-slate-100 relative overflow-hidden bg-white">
             <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -144,7 +142,6 @@
 
         <div class="p-6 overflow-y-auto flex-1 space-y-6">
             
-            <!-- Card 01 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. ข้อมูลเอกสาร</h2>
                 <div class="space-y-3 relative">
@@ -163,7 +160,6 @@
                 </div>
             </div>
 
-            <!-- Card 02 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">02. ข้อมูลผู้เบิกและรายละเอียดงาน</h2>
                 <div class="space-y-3">
@@ -198,7 +194,6 @@
                 </div>
             </div>
 
-            <!-- Card 03 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">03. ระยะเวลาการปฏิบัติงาน</h2>
                 <div class="space-y-3">
@@ -228,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Card 04 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
                 <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4 flex justify-between items-center">
                     04. ค่าใช้จ่าย
@@ -262,7 +256,6 @@
                 </div>
             </div>
 
-            <!-- Card 05 -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between">
                     <label class="text-sm font-bold text-slate-700">05. หลักฐานแนบ (ฉบับ)</label>
@@ -289,6 +282,7 @@
         </div>
     </div>
 
+    <!-- หน้ากระดาษ A4 -->
     <div class="flex-1 preview-container relative" id="print-area">
         
         <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
@@ -311,9 +305,18 @@
             <div style="text-align: center; font-weight: bold; font-size: 16px; margin: 30px 0 25px 0;"> ใบเบิกค่าใช้จ่ายในการเดินทางไปปฏิบัติงาน
             </div>
 
-            <div style="text-align: right; margin-bottom: 20px;">
-                เลขที่ <div class="field-box" style="width: 200px;"><div id="out-doc-no" class="text-value"></div></div><br>
-                <div style="margin-top: 5px;">วันที่ <div class="field-box" style="width: 200px; justify-content: center;"><div id="out-date" class="text-value"></div></div></div>
+            <!-- จัดวันที่และเลขที่ชิดขวาให้ตรงกันตามดีไซน์เป๊ะๆ -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                        <span style="margin-right: 10px; text-align: right;">เลขที่</span>
+                        <div class="field-box" style="width: 220px; justify-content: center;"><div id="out-doc-no" class="text-value"></div></div>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                        <span style="margin-right: 10px; text-align: right;">วันที่</span>
+                        <div class="field-box" style="width: 220px; justify-content: center;"><div id="out-date" class="text-value"></div></div>
+                    </div>
+                </div>
             </div>
 
             <div class="doc-row">
@@ -414,6 +417,19 @@
     </div>
 
     <script>
+        // 🟢 เพิ่มระบบดักจับ Ctrl+Z เพื่อให้ดึงค่าการ Undo มาแสดงบนกระดาษอัตโนมัติ
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                setTimeout(() => {
+                    document.querySelectorAll('input, select').forEach(el => {
+                        if(el.id && el.oninput) { el.dispatchEvent(new Event('input')); }
+                        if(el.id && el.onchange) { el.dispatchEvent(new Event('change')); }
+                    });
+                    calc(); // รันคำนวณใหม่
+                }, 50); // ดีเลย์เล็กน้อยเพื่อให้เบราว์เซอร์จัดการ Undo ตัวอักษรก่อน
+            }
+        });
+
         function populateDateDropdowns() {
             const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             const now = new Date();
@@ -556,7 +572,7 @@
             return BahtText + "บาทถ้วน";
         }
 
-        // --- ระบบ Export PDF & JPG พร้อมระบบกระโดดตัวอักษรเพื่อป้องกันสระตก ---
+        // --- ระบบ Export: แก้ไขตามเงื่อนไขใหม่ ---
         async function exportDoc(type) {
             const paper = document.getElementById('a4-document');
             const personName = document.getElementById('in-name').value || 'ค่าใช้จ่าย';
@@ -566,21 +582,11 @@
             const btnPdf = document.getElementById('btn-export-pdf');
             const txtJpg = document.getElementById('txt-export-jpg');
             const txtPdf = document.getElementById('txt-export-pdf');
-
-            // 1. ทำให้ตัวอักษรกระโดดขึ้น (เฉพาะช่องที่มีข้อมูล)
             const textValues = document.querySelectorAll('.text-value');
-            textValues.forEach(el => {
-                if (el.innerText.trim() !== '') {
-                    el.style.position = 'relative';
-                    el.style.top = '-5px'; // ปรับระยะความสูงตรงนี้ได้ถ้าต้องการให้โดดมากหรือน้อยกว่านี้
-                }
-            });
-
-            // รอเบราว์เซอร์จัดการให้ตัวอักษรเด้งขึ้นไปก่อนค่อยแคปเจอร์ภาพ
-            await new Promise(resolve => setTimeout(resolve, 150)); 
 
             try {
                 if (type === 'pdf') {
+                    // 1. PDF ทำการโหลดเลย ไม่ต้องเด้งตัวอักษร
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
                     txtPdf.innerText = "⏳ กำลังสร้าง PDF...";
@@ -596,6 +602,16 @@
                     await html2pdf().set(opt).from(paper).save();
                     
                 } else if (type === 'jpg') {
+                    // 2. JPG สั่งให้ตัวอักษรกระโดดเฉพาะช่องที่ "มีข้อมูล" เท่านั้น (ไม่ว่างเปล่า)
+                    textValues.forEach(el => {
+                        if (el.innerText.trim() !== '') {
+                            el.style.position = 'relative';
+                            el.style.top = '-5px';
+                        }
+                    });
+
+                    await new Promise(resolve => setTimeout(resolve, 150)); 
+
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
                     txtJpg.innerText = "⏳ กำลังสร้าง JPG...";
@@ -617,7 +633,7 @@
                 console.error("Export Error: ", err);
                 alert("เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาลองใหม่อีกครั้ง");
             } finally {
-                // 2. ดึงตัวอักษรกลับลงมาที่เดิมหลังจากกระบวนการเซฟเสร็จสิ้น
+                // คืนค่าตำแหน่งให้กลับมาปกติไม่ว่าจะผ่านหรือพัง
                 textValues.forEach(el => {
                     el.style.position = '';
                     el.style.top = '';
@@ -634,8 +650,6 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
             populateDateDropdowns();
-            
-            // Sync default selected dates to the preview immediately
             syncTopDate();
             sync('in-m1', 'out-m1');
             sync('in-y1', 'out-y1');
@@ -655,7 +669,6 @@
                 }
             }
 
-            // ซ่อนหน้าจอ Loading หลังจากเตรียมข้อมูลเสร็จ
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 if (loader) {
