@@ -19,7 +19,7 @@
     <style>
         /* ================= A4 PAPER CORE ================= */
         .preview-container {
-            background-image: radial-gradient(circle at 50% 0%, #1e293b, #020617);
+            background-color: #f1f5f9; /* เปลี่ยนพื้นหลังเป็นสีเทาอ่อน */
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -34,7 +34,7 @@
             max-height: 296.5mm;
             overflow: hidden; 
             padding: 20mm 15mm; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); /* ปรับเงาให้อ่อนลง */
             box-sizing: border-box;
             font-size: 14px;
             line-height: 1.6;
@@ -43,7 +43,6 @@
             flex-shrink: 0;
         }
         
-        /* แก้ไข: ใช้ CSS บริหารกรอบแทนการขยับ JS ป้องกันภาพเบี้ยว */
         .field-box {
             display: inline-flex;
             border-bottom: 1.5px dotted #666;
@@ -58,11 +57,11 @@
             color: #000000 !important; 
             font-weight: 600;
             white-space: nowrap;
-            line-height: 1.2; /* ปรับลดลงเล็กน้อยให้พอดีกับภาษาไทย */
-            padding-top: 4px; /* เผื่อที่ว่างด้านบนให้สระไม่โดนตัด */
-            position: relative; /* ใช้ relative + top แทน margin-bottom */
-            top: 2px; /* ดึงข้อความลงมาให้นั่งบนเส้นประพอดี ป้องกันตัวอักษรกระโดดตอนปริ้นท์ */
+            line-height: 1.4; 
+            padding-top: 4px; 
+            margin-bottom: -2px; 
             display: inline-block;
+            transition: top 0s; /* เตรียมความพร้อมสำหรับการกระโดด */
         }
 
         .doc-row { margin-bottom: 8px; display: flex; align-items: flex-end; flex-wrap: wrap; }
@@ -72,24 +71,27 @@
         .col-amt { width: 25%; text-align: center; }
         .col-unit { width: 10%; text-align: center; }
 
+        /* เปลี่ยน Glass Panel เป็น Solid Light Theme */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.05);
         }
-        .input-dark {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e2e8f0;
+        
+        /* เปลี่ยน Input เป็น Light Theme */
+        .input-light {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
             transition: all 0.3s ease;
         }
-        .input-dark:focus {
-            border-color: #06b6d4;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        .input-light:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
             outline: none;
         }
-        .input-dark option { background: #1e293b; color: #fff; }
+        .input-light option { background: #ffffff; color: #1e293b; }
 
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
@@ -100,8 +102,8 @@
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         @media print {
             @page { size: A4; margin: 0; }
@@ -117,105 +119,108 @@
         }
     </style>
 </head>
-<body class="bg-black text-slate-200 h-screen overflow-hidden flex">
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex">
 
-    <!-- 🟢 Loader หน้าเตรียมข้อมูล -->
-    <div id="loader" class="fixed inset-0 z-[9999] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- 🟢 Loader หน้าเตรียมข้อมูล (ปรับเป็น Light Theme) -->
+    <div id="loader" class="fixed inset-0 z-[9999] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="relative flex h-20 w-20 mb-6">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
-          <span class="relative inline-flex rounded-full h-20 w-20 bg-cyan-600 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.4)]">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-60"></span>
+          <span class="relative inline-flex rounded-full h-20 w-20 bg-blue-600 flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.2)]">
               <i data-lucide="receipt" class="w-10 h-10 text-white animate-pulse"></i>
           </span>
         </div>
-        <h2 class="text-xl font-bold text-white tracking-wide">กำลังเตรียมข้อมูล</h2>
-        <p class="text-slate-400 font-medium mt-1">Cubic<span class="text-cyan-400">Plus</span> System</p>
+        <h2 class="text-xl font-bold text-slate-800 tracking-wide">กำลังเตรียมข้อมูล</h2>
+        <p class="text-slate-500 font-medium mt-1">Cubic<span class="text-blue-600">Plus</span> System</p>
     </div>
 
-    <div class="w-[450px] h-full flex flex-col glass-panel z-10 shadow-2xl relative">
-        <div class="p-6 border-b border-white/10 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl"></div>
-            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400 flex items-center gap-2">
-                <i data-lucide="file-text" class="w-7 h-7 text-cyan-400"></i>
+    <div class="w-[450px] h-full flex flex-col glass-panel z-10 relative">
+        <div class="p-6 border-b border-slate-100 relative overflow-hidden bg-white">
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-7 h-7 text-blue-600"></i>
                 เบิกค่าใช้จ่าย
             </h1>
-            <p class="text-xs text-slate-400 mt-1">V.1.9 - Auto Current Date</p>
+            <p class="text-xs text-slate-500 mt-1">V.1.9 - Auto Current Date</p>
         </div>
 
-        <div class="p-6 overflow-y-auto flex-1 space-y-8">
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group hover:border-cyan-500/30 transition-all">
-                <h2 class="text-sm font-bold text-cyan-400 tracking-wider mb-4">01. ข้อมูลเอกสาร</h2>
+        <div class="p-6 overflow-y-auto flex-1 space-y-6">
+            
+            <!-- Card 01 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">01. ข้อมูลเอกสาร</h2>
                 <div class="space-y-3 relative">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">เลขที่เอกสาร</label>
-                        <input type="text" id="in-doc-no" oninput="sync('in-doc-no', 'out-doc-no')" class="input-dark w-full rounded-lg p-2.5 text-sm" placeholder="Ex. EXP-2569/001">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">เลขที่เอกสาร</label>
+                        <input type="text" id="in-doc-no" oninput="sync('in-doc-no', 'out-doc-no')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="Ex. EXP-2569/001">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">วันที่ทำเอกสาร</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">วันที่ทำเอกสาร</label>
                         <div class="flex gap-2">
-                            <select id="in-doc-d" onchange="syncTopDate()" class="input-dark w-20 rounded-lg p-2.5 text-sm"></select>
-                            <select id="in-doc-m" onchange="syncTopDate()" class="input-dark flex-1 rounded-lg p-2.5 text-sm"></select>
-                            <select id="in-doc-y" onchange="syncTopDate()" class="input-dark w-24 rounded-lg p-2.5 text-sm"></select>
+                            <select id="in-doc-d" onchange="syncTopDate()" class="input-light w-20 rounded-lg p-2.5 text-sm"></select>
+                            <select id="in-doc-m" onchange="syncTopDate()" class="input-light flex-1 rounded-lg p-2.5 text-sm"></select>
+                            <select id="in-doc-y" onchange="syncTopDate()" class="input-light w-24 rounded-lg p-2.5 text-sm"></select>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group hover:border-emerald-500/30 transition-all">
-                <h2 class="text-sm font-bold text-emerald-400 tracking-wider mb-4">02. ข้อมูลผู้เบิกและรายละเอียดงาน</h2>
+            <!-- Card 02 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">02. ข้อมูลผู้เบิกและรายละเอียดงาน</h2>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">ชื่อลูกค้า / บริษัท</label>
-                        <input type="text" id="in-customer" oninput="sync('in-customer', 'out-customer')" class="input-dark w-full rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ชื่อลูกค้า / บริษัท</label>
+                        <input type="text" id="in-customer" oninput="sync('in-customer', 'out-customer')" class="input-light w-full rounded-lg p-2.5 text-sm">
                     </div>
                     
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">เลือกผู้เบิก</label>
-                        <select id="select-name" onchange="handleNameSelect(this)" class="input-dark w-full rounded-lg p-2.5 text-sm mb-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">เลือกผู้เบิก</label>
+                        <select id="select-name" onchange="handleNameSelect(this)" class="input-light w-full rounded-lg p-2.5 text-sm mb-2">
                             <option value="">-- เลือกรายชื่อ --</option>
                             <option value="นาย เนติพล ชาญชนะโรจน์" data-pos="IT Support">นาย เนติพล ชาญชนะโรจน์</option>
                         </select>
-                        <input type="text" id="in-name" oninput="sync('in-name', 'out-name'); sync('in-name', 'out-name-sign1'); sync('in-name', 'out-name-sign2');" class="input-dark w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
+                        <input type="text" id="in-name" oninput="sync('in-name', 'out-name'); sync('in-name', 'out-name-sign1'); sync('in-name', 'out-name-sign2');" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุชื่อ-นามสกุล">
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">ตำแหน่ง</label>
-                        <select id="select-pos" onchange="handlePosSelect(this)" class="input-dark w-full rounded-lg p-2.5 text-sm mb-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ตำแหน่ง</label>
+                        <select id="select-pos" onchange="handlePosSelect(this)" class="input-light w-full rounded-lg p-2.5 text-sm mb-2">
                             <option value="">-- เลือกตำแหน่ง --</option>
                             <option value="IT Support">IT Support</option>
                         </select>
-                        <input type="text" id="in-position" oninput="sync('in-position', 'out-position'); sync('in-position', 'out-position-sign');" class="input-dark w-full rounded-lg p-2.5 text-sm" placeholder="ระบุตำแหน่ง">
+                        <input type="text" id="in-position" oninput="sync('in-position', 'out-position'); sync('in-position', 'out-position-sign');" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="ระบุตำแหน่ง">
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">รายละเอียดงาน</label>
-                        <input type="text" id="in-work1" oninput="sync('in-work1', 'out-work1')" class="input-dark w-full rounded-lg p-2.5 text-sm mb-2" placeholder="บรรทัดที่ 1">
-                        <input type="text" id="in-work2" oninput="sync('in-work2', 'out-work2')" class="input-dark w-full rounded-lg p-2.5 text-sm" placeholder="บรรทัดที่ 2 (ถ้ามี)">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">รายละเอียดงาน</label>
+                        <input type="text" id="in-work1" oninput="sync('in-work1', 'out-work1')" class="input-light w-full rounded-lg p-2.5 text-sm mb-2" placeholder="บรรทัดที่ 1">
+                        <input type="text" id="in-work2" oninput="sync('in-work2', 'out-work2')" class="input-light w-full rounded-lg p-2.5 text-sm" placeholder="บรรทัดที่ 2 (ถ้ามี)">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group hover:border-blue-500/30 transition-all">
-                <h2 class="text-sm font-bold text-blue-400 tracking-wider mb-4">03. ระยะเวลาการปฏิบัติงาน</h2>
+            <!-- Card 03 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4">03. ระยะเวลาการปฏิบัติงาน</h2>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">ตั้งแต่วันที่</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ตั้งแต่วันที่</label>
                         <div class="flex gap-2">
-                            <select id="in-d1" onchange="syncDate('in-d1', 'out-d1')" class="input-dark w-20 rounded-lg p-2 text-sm text-center"></select>
-                            <select id="in-m1" onchange="sync('in-m1', 'out-m1')" class="input-dark flex-1 rounded-lg p-2 text-sm text-center"></select>
-                            <select id="in-y1" onchange="sync('in-y1', 'out-y1')" class="input-dark w-24 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-d1" onchange="syncDate('in-d1', 'out-d1')" class="input-light w-20 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-m1" onchange="sync('in-m1', 'out-m1')" class="input-light flex-1 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-y1" onchange="sync('in-y1', 'out-y1')" class="input-light w-24 rounded-lg p-2 text-sm text-center"></select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">ถึงวันที่</label>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">ถึงวันที่</label>
                         <div class="flex gap-2">
-                            <select id="in-d2" onchange="syncDate('in-d2', 'out-d2')" class="input-dark w-20 rounded-lg p-2 text-sm text-center"></select>
-                            <select id="in-m2" onchange="sync('in-m2', 'out-m2')" class="input-dark flex-1 rounded-lg p-2 text-sm text-center"></select>
-                            <select id="in-y2" onchange="sync('in-y2', 'out-y2')" class="input-dark w-24 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-d2" onchange="syncDate('in-d2', 'out-d2')" class="input-light w-20 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-m2" onchange="sync('in-m2', 'out-m2')" class="input-light flex-1 rounded-lg p-2 text-sm text-center"></select>
+                            <select id="in-y2" onchange="sync('in-y2', 'out-y2')" class="input-light w-24 rounded-lg p-2 text-sm text-center"></select>
                         </div>
                     </div>
                     <div class="pt-2">
-                        <label class="block text-xs text-slate-400 mb-1">รูปแบบ</label>
-                        <select id="in-travel-type" onchange="updateTravelType()" class="input-dark w-full rounded-lg p-2.5 text-sm">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">รูปแบบ</label>
+                        <select id="in-travel-type" onchange="updateTravelType()" class="input-light w-full rounded-lg p-2.5 text-sm">
                             <option value="single">เดินทางเฉพาะข้าพเจ้า</option>
                             <option value="group">คณะเดินทาง</option>
                         </select>
@@ -223,58 +228,59 @@
                 </div>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group hover:border-purple-500/30 transition-all">
-                <h2 class="text-sm font-bold text-purple-400 tracking-wider mb-4 flex justify-between items-center">
+            <!-- Card 04 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group hover:border-blue-400 transition-all">
+                <h2 class="text-sm font-bold text-blue-600 tracking-wider mb-4 flex justify-between items-center">
                     04. ค่าใช้จ่าย
                 </h2>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                        <label class="text-xs text-slate-300">1. ค่าพาหนะ/ที่จอดรถ</label>
-                        <input type="number" id="in-car" oninput="calc()" class="input-dark w-28 rounded p-1.5 text-right text-sm" placeholder="0">
+                        <label class="text-xs font-medium text-slate-600">1. ค่าพาหนะ/ที่จอดรถ</label>
+                        <input type="number" id="in-car" oninput="calc()" class="input-light w-28 rounded p-1.5 text-right text-sm" placeholder="0">
                     </div>
-                    <div class="pt-2 border-t border-white/5">
-                        <label class="block text-xs text-slate-300 mb-2">2. ค่าเบี้ยเลี้ยง</label>
+                    <div class="pt-2 border-t border-slate-100">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">2. ค่าเบี้ยเลี้ยง</label>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-slate-500 uppercase">Rate</span>
-                            <input type="number" id="in-rate" value="500" oninput="calc()" class="input-dark w-20 rounded p-1.5 text-center text-sm">
-                            <span class="text-[10px] text-slate-500 uppercase">x Days</span>
-                            <input type="number" id="in-days" value="1" oninput="calc()" class="input-dark w-16 rounded p-1.5 text-center text-sm">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">Rate</span>
+                            <input type="number" id="in-rate" value="500" oninput="calc()" class="input-light w-20 rounded p-1.5 text-center text-sm">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold">x Days</span>
+                            <input type="number" id="in-days" value="1" oninput="calc()" class="input-light w-16 rounded p-1.5 text-center text-sm">
                         </div>
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-white/5">
-                        <label class="text-xs text-slate-300">3. ค่าน้ำมันเชื้อเพลิง</label>
-                        <input type="number" id="in-fuel" oninput="calc()" class="input-dark w-28 rounded p-1.5 text-right text-sm" placeholder="0">
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <label class="text-xs font-medium text-slate-600">3. ค่าน้ำมันเชื้อเพลิง</label>
+                        <input type="number" id="in-fuel" oninput="calc()" class="input-light w-28 rounded p-1.5 text-right text-sm" placeholder="0">
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-white/5">
-                        <label class="text-xs text-slate-300">4. ค่าทางด่วน</label>
-                        <input type="number" id="in-toll" oninput="calc()" class="input-dark w-28 rounded p-1.5 text-right text-sm" placeholder="0">
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <label class="text-xs font-medium text-slate-600">4. ค่าทางด่วน</label>
+                        <input type="number" id="in-toll" oninput="calc()" class="input-light w-28 rounded p-1.5 text-right text-sm" placeholder="0">
                     </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-white/5">
-                        <label class="text-xs text-slate-300">5. ค่าใช้จ่ายอื่น</label>
-                        <input type="number" id="in-other" oninput="calc()" class="input-dark w-28 rounded p-1.5 text-right text-sm" placeholder="0">
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <label class="text-xs font-medium text-slate-600">5. ค่าใช้จ่ายอื่น</label>
+                        <input type="number" id="in-other" oninput="calc()" class="input-light w-28 rounded p-1.5 text-right text-sm" placeholder="0">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+            <!-- Card 05 -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <label class="text-sm font-bold text-slate-300">05. หลักฐานแนบ (ฉบับ)</label>
-                    <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-dark w-20 rounded p-1.5 text-center text-sm" placeholder="0">
+                    <label class="text-sm font-bold text-slate-700">05. หลักฐานแนบ (ฉบับ)</label>
+                    <input type="number" id="in-docs-count" oninput="sync('in-docs-count', 'out-docs-count')" class="input-light w-20 rounded p-1.5 text-center text-sm" placeholder="0">
                 </div>
             </div>
             
             <div class="h-4"></div>
         </div>
 
-        <div class="p-5 border-t border-white/10 bg-black/40 backdrop-blur-md grid grid-cols-2 gap-4">
-            <button id="btn-export-jpg" onclick="exportDoc('jpg')" class="group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden bg-slate-800 hover:bg-slate-700 transition-all disabled:opacity-50">
+        <div class="p-5 border-t border-slate-200 bg-slate-50 grid grid-cols-2 gap-4">
+            <button id="btn-export-jpg" onclick="exportDoc('jpg')" class="group relative py-3 px-4 rounded-xl font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 hover:border-slate-400 transition-all shadow-sm disabled:opacity-50">
                 <div class="relative flex items-center justify-center gap-2">
-                    <i data-lucide="image" class="w-5 h-5 text-slate-300"></i>
+                    <i data-lucide="image" class="w-5 h-5 text-slate-500"></i>
                     <span id="txt-export-jpg">Save JPG</span>
                 </div>
             </button>
-            <button id="btn-export-pdf" onclick="exportDoc('pdf')" class="group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] disabled:opacity-50">
-                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:scale-105 transition-transform duration-300"></div>
+            <button id="btn-export-pdf" onclick="exportDoc('pdf')" class="group relative py-3 px-4 rounded-xl font-medium text-white overflow-hidden bg-slate-800 hover:bg-slate-900 transition-all shadow-md disabled:opacity-50">
                 <div class="relative flex items-center justify-center gap-2">
                     <i data-lucide="download" class="w-5 h-5"></i>
                     <span id="txt-export-pdf">Download PDF</span>
@@ -285,7 +291,7 @@
 
     <div class="flex-1 preview-container relative" id="print-area">
         
-        <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-cyan-400 transition-all px-4 py-2.5 rounded-xl bg-slate-900/40 hover:bg-slate-800/80 backdrop-blur-md border border-white/10 hover:border-cyan-500/30 active:scale-95 shadow-xl">
+        <button onclick="location.href='dashboard.html'" class="no-print absolute top-6 right-6 z-50 flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-blue-600 transition-all px-4 py-2.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-200 active:scale-95 shadow-sm">
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
             กลับหน้าหลัก
         </button>
@@ -550,7 +556,7 @@
             return BahtText + "บาทถ้วน";
         }
 
-        // --- ระบบ Export PDF & JPG (ถอนแอนิเมชันออกทั้งหมด) ---
+        // --- ระบบ Export PDF & JPG พร้อมระบบกระโดดตัวอักษรเพื่อป้องกันสระตก ---
         async function exportDoc(type) {
             const paper = document.getElementById('a4-document');
             const personName = document.getElementById('in-name').value || 'ค่าใช้จ่าย';
@@ -561,9 +567,20 @@
             const txtJpg = document.getElementById('txt-export-jpg');
             const txtPdf = document.getElementById('txt-export-pdf');
 
+            // 1. ทำให้ตัวอักษรกระโดดขึ้น (เฉพาะช่องที่มีข้อมูล)
+            const textValues = document.querySelectorAll('.text-value');
+            textValues.forEach(el => {
+                if (el.innerText.trim() !== '') {
+                    el.style.position = 'relative';
+                    el.style.top = '-5px'; // ปรับระยะความสูงตรงนี้ได้ถ้าต้องการให้โดดมากหรือน้อยกว่านี้
+                }
+            });
+
+            // รอเบราว์เซอร์จัดการให้ตัวอักษรเด้งขึ้นไปก่อนค่อยแคปเจอร์ภาพ
+            await new Promise(resolve => setTimeout(resolve, 150)); 
+
             try {
                 if (type === 'pdf') {
-                    // PDF โหลดปกติ
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
                     txtPdf.innerText = "⏳ กำลังสร้าง PDF...";
@@ -579,7 +596,6 @@
                     await html2pdf().set(opt).from(paper).save();
                     
                 } else if (type === 'jpg') {
-                    // สร้างภาพแบบไม่ขยับ CSS เพื่อความแม่นยำสูงสุด
                     btnPdf.disabled = true;
                     btnJpg.disabled = true;
                     txtJpg.innerText = "⏳ กำลังสร้าง JPG...";
@@ -601,6 +617,12 @@
                 console.error("Export Error: ", err);
                 alert("เกิดข้อผิดพลาดในการสร้างไฟล์ กรุณาลองใหม่อีกครั้ง");
             } finally {
+                // 2. ดึงตัวอักษรกลับลงมาที่เดิมหลังจากกระบวนการเซฟเสร็จสิ้น
+                textValues.forEach(el => {
+                    el.style.position = '';
+                    el.style.top = '';
+                });
+
                 btnPdf.disabled = false;
                 btnJpg.disabled = false;
                 txtPdf.innerText = "Download PDF";
